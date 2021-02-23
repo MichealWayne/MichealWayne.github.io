@@ -34,7 +34,7 @@
 <p><img src="/images/webp/p-12.jpg" alt="p-12.jpg"></p>
 <p>详见专门的对比demo：<a href="https://isparta.github.io/compare-webp/index_a.html#12" target="_blank" rel="external">https://isparta.github.io/compare-webp/index_a.html#12</a></p>
 <h2 id="工具-amp-使用"><a href="#工具-amp-使用" class="headerlink" title="工具&amp;使用"></a>工具&amp;使用</h2><h3 id="转换工具"><a href="#转换工具" class="headerlink" title="转换工具"></a>转换工具</h3><h4 id="imageMaigck"><a href="#imageMaigck" class="headerlink" title="imageMaigck"></a>imageMaigck</h4><p>imageMaigck是一个通用型的图像处理工具，可在服务端及客户端运行使用，并且可以借助nodejs的gm包实现一些脚本服务。其基本使用可见之前整理的文章<a href="http://blog.michealwayne.cn/2020/03/07/notes/%E3%80%90%E7%AC%94%E8%AE%B0%E3%80%91ImageMagick%E5%92%8Cgm/">《ImageMagick和gm》</a></p>
-<h4 id="cwebp，dwebp"><a href="#cwebp，dwebp" class="headerlink" title="cwebp，dwebp"></a>cwebp，dwebp</h4><p>cwebp可以将JPEG，PNG或TIFF编码成WebP；</p>
+<h4 id="cwebp，dwebp"><a href="#cwebp，dwebp" class="headerlink" title="cwebp，dwebp"></a>cwebp，dwebp</h4><p>cwebp/dwebp的谷歌官方提供的webp转换工具，官方提供了windows/linux/mac 三个系统版本的工具，其介绍和安装可见<a href="https://developers.google.com/speed/webp/docs/precompiled" target="_blank" rel="external">《Getting cwebp,dwebp,and the WebP Libraries》</a>。cwebp可以将JPEG，PNG或TIFF编码成WebP；</p>
 <p>如</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cwebp [options] -q quality input.png -o output.webp</span><br></pre></td></tr></table></figure>
 <p>其中option可选：</p>
@@ -44,7 +44,141 @@
 <li><strong>q</strong>：质量指数（压缩率），有损压缩有效，无损压缩忽略</li>
 <li><strong>o</strong>：输入图片名称格式</li>
 </ul>
+<ul>
+<li>cwebp [options] input_file -o output_file.webp</li>
+</ul>
+<p>其他选项：</p>
+<ul>
+<li><code>-- string</code>:  显式地指定输入文件。如果输入文件以’-‘开头，这个选项是有用的。这个选项必须最后显示。之后的其他选项将被忽略</li>
+<li><code>-h</code>，<code>-help</code>: 简单的使用说明</li>
+<li><code>-H</code>，<code>-longhelp</code>: 详细的使用说明</li>
+<li><code>-version</code>: 版本号</li>
+<li><code>-lossless</code>: 对图像进行无损编码</li>
+<li><code>-q {float}</code>: 指定压缩因素，范围是0-100，默认为75</li>
+<li><code>-z {int}</code>: 在0-9之间切换无损耗压缩模式，0级最快，9级最慢。快速模式产生的文件大小比较慢的文件要大。默认是6。如果-q或者-m之后被使用，-z将无效。</li>
+<li><code>-alpha_q {int}</code>: 在0-100之间指定alpha压缩系数，默认100</li>
+<li><code>-preset {string}</code>: 指定一组默认的参数</li>
+<li><code>-m {int}</code>: 在0-6之间指定压缩方法。默认值为4。</li>
+<li><code>-resize {width} {height}</code>: 指定宽高</li>
+<li><code>-crop {x_position} {y_position} {width} {height}</code>: 裁剪[x_position, y_position, width, height]区域的图像，裁剪的区域大小必须在源图像大小中</li>
+<li><code>-mt</code>: 如果可能的话，使用多线程编码</li>
+<li><code>-low_memory</code>: 减少对有损编码的内存使用</li>
+<li><code>-size {int}</code>: 指定目标大小(单位bytes)，并不是实际结果的大小，实际结果会通过选择编码的方式，尽可能接近这一目标。如果同时指定了-size和-psnr，-psnr将无效。</li>
+<li><code>-psnr {float}</code>: 指定目标的PSNR(in dB)，并不是实际结果的大小，实际结果会通过选择编码的方式，尽可能接近这一目标。如果同时指定了-size和-psnr，-psnr将无效。</li>
+<li><code>-pass {int}</code>: 设置最大传递次数，范围为1-10，默认是1。如果-size或-psnr被使用，而-pass没有被使用，则默认-pass为6。</li>
+<li><code>-af</code>: 自动过滤，该算法将花费额外的时间来优化过滤强度，以达到平衡的质量。</li>
+<li><code>-jpeg_like</code>: 更改内部参数映射，以更好地匹配JPEG压缩的预期大小。这个标记通常会生成一个与它的JPEG等价的输出文件(用于相同的-q设置)，但是不会产生更少的视觉失真。</li>
+<li><code>-f {int}</code>: 指定过滤器的强度，范围在0(不过滤)-100(最大过滤)，值越高图像就越平滑，典型的值通常在20-50之间。</li>
+<li><code>-sharpness {int}</code>: 指定过滤的锐度，范围在0(强)-7(弱)之间，默认为0。</li>
+<li><code>-strong</code>: 使用强过滤，默认使用。</li>
+<li><code>-nostrong</code>: 禁用强过滤。</li>
+<li><code>-sharp_yuv</code>: 如果需要的话，使用更精确和更清晰的RGB-YUV转换。注意，这个过程比默认的“快速”RGB-YUV转换要慢。</li>
+<li><code>-sns {int}</code>: 指定空间噪声形成的振幅，范围为0(弱)-100(强)，默认为50。</li>
+<li><code>-segments {int}</code>: 在sns算法的分割过程中，改变分区的数量。范围在1到4之间。默认值是4。</li>
+<li><code>-partition_limit {int}</code>: 通过限制某些宏块使用的比特数来降低质量。范围是0(没有降级，默认值)到100(完全降级)。</li>
+<li><code>-v</code>: 打印额外的信息。</li>
+<li><code>-print_psnr</code>: 计算和报告平均PSNR(峰值信噪比)。</li>
+<li><code>-print_ssim</code>: 计算和报告平均SSIM。</li>
+<li><code>-print_lsim</code>: 计算和报告本地相似性度量。</li>
+<li><code>-progress</code>: 报告编码进展百分比。</li>
+<li><code>-quiet</code>: 不打印任何东西。</li>
+<li><code>-short</code>: 只打印简短的信息。</li>
+<li><code>-map {int}</code>: 输出额外的编码信息的ascii-映射。可能的映射值范围从1到6。这只是为了帮助调试。</li>
+<li><code>-s {width} {height}</code>: 指定输入文件实际上是由Y’CbCr实例组成，遵循ITU-R BT.601建议。</li>
+<li><code>-pre {int}</code>: 指定一些预处理步骤。</li>
+<li><code>-alpha_filter {string}</code>: 指定阿尔法平面的预测过滤方法。</li>
+<li><code>-alpha_method {int}</code>: 指定用于alpha压缩的算法:0或1。0表示没有压缩，1使用WebP无损格式压缩。缺省值是1。</li>
+<li><code>-exact</code>: 在透明区域保留RGB值。默认是关闭的，以帮助压缩。</li>
+<li><code>-blend_alpha {int}</code>: 该选项将alpha通道(如果存在)与源文件中指定的背景颜色混合为0xrrggbb。然后，alpha通道被重置为不透明值255。</li>
+<li><code>-noalpha</code>: 使用该选项将丢弃alpha通道。</li>
+<li><code>-hint {string}</code>: 指定输入图像类型的提示。可能的值是:照片、图片或图表。</li>
+<li><code>-metadata {string}</code>: 将输入文件的员输入复制到输出文件，有效值为all, none, exif, icc, xmp。默认为none。</li>
+<li><code>-noasm</code>: 禁用所有汇编优化。</li>
+</ul>
 <p>dwebp可以将WebP解码成PNG。</p>
+<p>如</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dwebp iutput.webp -o output.png</span><br></pre></td></tr></table></figure>
+<p>其中选型：</p>
+<ul>
+<li><code>-h</code>: 打印用法总结。</li>
+<li><code>-version</code>: 打印版本号。</li>
+<li><code>-o {string}</code>: 指定输出文件名</li>
+<li><code>--string</code>: 显式地指定输入文件。如果输入文件以’-‘开头，这个选项是有用的。这个选项必须最后显示。之后的其他选项将被忽略。</li>
+<li><code>-bmp</code>: 将输出格式更改为未压缩的BMP。</li>
+<li><code>-tiff</code>: 将输出格式更改为未压缩的TIFF。</li>
+<li><code>-pam</code>: 将输出格式更改为PAM(保留alpha)。</li>
+<li><code>-ppm</code>: 将输出格式更改为PPM(丢弃alpha)。</li>
+<li><code>-pgm</code>: 将输出格式更改为PGM。</li>
+<li><code>-yuv</code>: 将输出格式更改为原始YUV。</li>
+<li><code>-nofancy</code>: 不适用fancy。</li>
+<li><code>-nofilter</code>: 即使是位流需要，也不要使用循环过滤过程。这可能会在不兼容的输出上产生可见的块，但是这会使解码速度更快。</li>
+<li><code>-dither {strength}</code>: 指定0到100之间的抖动强度。</li>
+<li><code>-nodither</code>: 禁用所有抖动(默认)。</li>
+<li><code>-mt</code>:如果可能的话，使用多线程进行解码。</li>
+<li><code>-crop {x_position} {y_position} {width} {height}</code>: 裁剪[x_position, y_position, width, height]区域的图像，裁剪的区域大小必须在源图像大小中。</li>
+<li><code>-flip</code>: 垂直解码图像。</li>
+<li><code>-scale {width} {height}</code>: 将解码的图像压缩到指定宽高。</li>
+<li><code>-v</code>: 打印额外的信息(特别是解码时间)。</li>
+<li><code>-noasm</code>: 禁用所有汇编优化。</li>
+</ul>
+<h4 id="webpmux"><a href="#webpmux" class="headerlink" title="webpmux"></a>webpmux</h4><p>webmux也是处理webp的工具，从静态的webp images创建动态的webp，或者从动态的webp提取静态的webp images。以及管理XMP/EXIF数据和ICC描述文件。</p>
+<p><strong>语法</strong></p>
+<ul>
+<li>webpmux -get GET_OPTIONS INPUT -o OUTPUT</li>
+<li>webpmux -set SET_OPTIONS INPUT -o OUTPUT</li>
+</ul>
+<p>其中选型：</p>
+<ul>
+<li><code>-get</code> 选项：GET_OPTIONS<ul>
+<li>icc : 获得 ICC profile</li>
+<li>exif : 获得 EXIF metadata</li>
+<li>xmp : 获得 XMP metadata</li>
+<li>frame n : 从动态webp文件中获得第n帧(n=0代表最后一帧率)</li>
+</ul>
+</li>
+<li><code>-set</code> 选项：SET_OPTIONS<ul>
+<li>icc file.icc : 设置 ICC profile</li>
+<li>exif file.exif : 设置 EXIF metadata</li>
+<li>xmp file.xmp : 设置 XMP metadata</li>
+</ul>
+</li>
+<li><code>-strip</code> 选项：STRIP_OPTIONS<ul>
+<li>icc : Strip ICC profile</li>
+<li>exif : Strip EXIF metadata</li>
+<li>xmp : Strip XMP metadata</li>
+</ul>
+</li>
+<li><code>-duration</code> 选项：DURATION_OPTIONS<ul>
+<li>修改帧的特定间隔的持续时间。这个选项只对动画WebP有效，对单帧文件没有影响。从第一帧开始，0代表最后一帧。</li>
+<li>duration[,start[,end]]<ul>
+<li><strong><em>-duration d\</em></strong> : 设置整个动画的持续时间</li>
+<li><strong><em>-duration d, f\</em></strong> : 设置f帧到d帧的持续时间</li>
+<li><strong><em>-duration d, start, end\</em></strong> :  设置开始帧到结束帧的持续时间</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>-frame</code> 选项：FRAME_OPTIONS<ul>
+<li>从静态的webp images创建一个动态的webp文件</li>
+<li>file_i +di[+xi+yi[+mi[bi]]]<ul>
+<li>file_i : 第i张webp文件</li>
+<li>xi,yi : 该帧图像的偏移量</li>
+<li>di : 到下一帧开始的暂停时间</li>
+<li>mi : 该帧图像的处理方式，0没有背景，1有背景</li>
+<li>bi : 该帧图像的混合方式，+b有混合，-b没有混合</li>
+</ul>
+</li>
+<li><code>-loop</code> n<ul>
+<li>循环次数，0代表无限循环，有效范围是0-65535，默认为0</li>
+</ul>
+</li>
+<li><code>-bgcolor</code> A,R,G,B<ul>
+<li>画布的背景颜色</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
 <h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><h4 id="页面——picture标签"><a href="#页面——picture标签" class="headerlink" title="页面——picture标签"></a>页面——picture标签</h4><p><code>&lt;picture&gt;</code> 元素通过包含零或多个 <code>&lt;source&gt;</code> 元素和一个 <code>&lt;img&gt;</code> 元素来为不同的显示/设备场景提供图像版本。浏览器会选择最匹配的子 <code>&lt;source&gt;</code> 元素，如果没有匹配的，就选择 <code>&lt;img&gt;</code> 元素的 src 属性中的URL。然后，所选图像呈现在 <code>&lt;img&gt;</code> 元素占据的空间中。</p>
 <p>如：<br><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">picture</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">source</span> <span class="attr">srcset</span>=<span class="string">"logo.webp"</span> <span class="attr">type</span>=<span class="string">"image/webp"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"logo.png"</span> <span class="attr">alt</span>=<span class="string">"Site Logo"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">picture</span>&gt;</span></span><br></pre></td></tr></table></figure></p>
 <p><img src="/images/webp/p-3.png" alt="p-3.png"></p>
@@ -196,7 +330,7 @@
 <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// check_webp_feature:</span></span><br><span class="line"><span class="comment">//   'feature' can be one of 'lossy', 'lossless', 'alpha' or 'animation'.</span></span><br><span class="line"><span class="comment">//   'callback(feature, result)' will be passed back the detection result (in an asynchronous way!)</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">check_webp_feature</span>(<span class="params">feature, callback</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> kTestImages = &#123;</span><br><span class="line">		<span class="comment">// 有损</span></span><br><span class="line">        lossy: <span class="string">"UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA"</span>,</span><br><span class="line">		<span class="comment">// 无损</span></span><br><span class="line">        lossless: <span class="string">"UklGRhoAAABXRUJQVlA4TA0AAAAvAAAAEAcQERGIiP4HAA=="</span>,</span><br><span class="line">		<span class="comment">// 透明</span></span><br><span class="line">        alpha: <span class="string">"UklGRkoAAABXRUJQVlA4WAoAAAAQAAAAAAAAAAAAQUxQSAwAAAARBxAR/Q9ERP8DAABWUDggGAAAABQBAJ0BKgEAAQAAAP4AAA3AAP7mtQAAAA=="</span>,</span><br><span class="line">		<span class="comment">// 动画</span></span><br><span class="line">        animation: <span class="string">"UklGRlIAAABXRUJQVlA4WAoAAAASAAAAAAAAAAAAQU5JTQYAAAD/////AABBTk1GJgAAAAAAAAAAAAAAAAAAAGQAAABWUDhMDQAAAC8AAAAQBxAREYiI/gcA"</span></span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="keyword">let</span> img = <span class="keyword">new</span> Image();</span><br><span class="line">    img.onload = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">var</span> result = (img.width &gt; <span class="number">0</span>) &amp;&amp; (img.height &gt; <span class="number">0</span>);</span><br><span class="line">        callback(feature, result);</span><br><span class="line">    &#125;;</span><br><span class="line">    img.onerror = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">        callback(feature, <span class="literal">false</span>);</span><br><span class="line">    &#125;;</span><br><span class="line">    img.src = <span class="string">"data:image/webp;base64,"</span> + kTestImages[feature];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>方式2.通过canvas试图创建webp格式图片确认</p>
 <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">window</span>.IS_SUPPORT_WEBP = (!![].map &amp;&amp; </span><br><span class="line">    <span class="built_in">document</span>.createElement(<span class="string">'canvas'</span>).toDataURL(<span class="string">'image/webp'</span>).indexOf(<span class="string">'data:image/webp'</span>) === <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
-<p>微信web不支持<br>微信小程序支持<br>iOS14开始支持</p>
+<p>微信web不支持，微信小程序支持<br>iOS14开始支持</p>
 <p>如果是原生app开发，iOS和Android都可以通过使用官方提供的解析库来支持静态WebP<a href="https://github.com/carsonmcdonald/WebP-iOS-example" target="_blank" rel="external">https://github.com/carsonmcdonald/WebP-iOS-example</a>，<a href="https://github.com/alexey-pelykh/webp-android-backport" target="_blank" rel="external">https://github.com/alexey-pelykh/webp-android-backport</a>。</p>
 <p>然而，对于动态WebP，目前只能找到facebook的开源库<a href="https://www.fresco-cn.org/" target="_blank" rel="external">Fresco</a>对其支持，不过Fresco最低仅支持API 9，且引用的相关库较多。</p>
 <hr>
