@@ -10,13 +10,13 @@
 </ul>
 <h2 id="随机数概念"><a href="#随机数概念" class="headerlink" title="随机数概念"></a>随机数概念</h2><h3 id="概率论"><a href="#概率论" class="headerlink" title="概率论"></a>概率论</h3><p>首先来回顾下大学里概率论中与随机数相关的概念：</p>
 <ul>
-<li>频率：定义在相同的条件下，进行了n次实验，在这n次实验中，事件A发生的次数nA称为事件A发生的频数，比值nA/n称为事件A发生的频率。</li>
-<li>概率：设E是随机试验，S是它的样本空间，对于E的每一事件A赋予一个实数，记为P(A)，称为事件的概率。</li>
-<li>随机变量：设随机试验的样本空间为S={e}，若X=X(e)为定义在样本空间S上的实值单值函数，则称X=X(e)为随机变量。</li>
-<li>随机事件：在条件S下可能发生也可能不发生的事件，叫相对于条件S的随机事件。</li>
-<li>概率：随机事件在一次试验中发生与否是随机的，但随机性中含有规律性。随机事件A的概率是频率的稳定值，频率是概率的近似值。</li>
+<li><strong>频率</strong>：定义在相同的条件下，进行了n次实验，在这n次实验中，事件A发生的次数nA称为事件A发生的频数，比值nA/n称为事件A发生的频率。</li>
+<li><strong>概率</strong>：设E是随机试验，S是它的样本空间，对于E的每一事件A赋予一个实数，记为P(A)，称为事件的概率。</li>
+<li><strong>随机变量</strong>：设随机试验的样本空间为S={e}，若X=X(e)为定义在样本空间S上的实值单值函数，则称X=X(e)为随机变量。</li>
+<li><strong>随机事件</strong>：在条件S下可能发生也可能不发生的事件，叫相对于条件S的随机事件。</li>
 </ul>
 <p>一个确定分布的独立的随机数序列：每个数的出现都只是偶然的，并且与这序列中的其他数无关，每个数入任何给定的范围都有一个确定的概率。</p>
+<p>随机事件在一次试验中发生与否是随机的，但随机性中含有规律性。随机事件A的概率是频率的稳定值，频率是概率的近似值。</p>
 <p>像js中的<code>Math.random()</code>在概率分布理论中属于连续和离散的均匀分布。<strong>均匀分布的特点</strong>是：所有基本事件的可能性相等。</p>
 <h3 id="判定标准"><a href="#判定标准" class="headerlink" title="判定标准"></a>判定标准</h3><p>可以参考<a href="https://zh.wikipedia.org/w/index.php?title=Federal_Office_for_Information_Security&amp;action=edit&amp;redlink=1" target="_blank" rel="external">Federal Office for Information Security （德国联邦信息安全办公室）</a>给出了随机数发生器质量评判的四个标准-BSI评估标准：</p>
 <ul>
@@ -80,7 +80,7 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Y0 = 0, Yn+1 = (a * Yn + 1) mod m</span><br></pre></td></tr></table></figure>
 <p>根据公式（2），我们得到Yk等于(a^k - 1) / b(modulo m)，因此公式（1）中定义的一般序列满足</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Xn = (A * Yn + X0) mod m，其中A = (X0 * b + c) mod m</span><br></pre></td></tr></table></figure>
-<p>并且可以通过分析（详见《计算机程序设计艺术（第二卷）》3.2.1.1）得出m可以取<code>2^31 - 1</code>（<code>2^32</code>），乘数a选择在<code>0.01m</code>和<code>0.99m</code>之间，而且它的二进制表示或十进制表示数字不应有一个简单的正规模式，推荐值是（<code>7^5</code>，即<code>16807</code>）。</p>
+<p>并且可以通过分析（详见《计算机程序设计艺术（第二卷）》3.2.1.1）得出m可以取<code>2^31 - 1</code>（<code>2^32</code>）；乘数a选择在<code>0.01m</code>和<code>0.99m</code>之间，而且它的二进制表示或十进制表示数字不应有一个简单的正规模式，推荐值是（<code>7^5</code>，即<code>16807</code>）； c 与 m 互质。</p>
 <p>但是对于现代的计算机而言，这样的周期还是太短了。生成器的内部结构如栅栏结构和超平面点的分布也很重要。对于不同的生成器有特定的检测方法。结构检测用到最多的就是谱检验，谱检验就是基于相邻平行超平面之间最大距离的检验，该距离越大，生成器越差。</p>
 <p>如图：</p>
 <p><img src="/images/random/p-7.jpg" alt="p-7.jpg"></p>
@@ -142,7 +142,7 @@
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">uint32_t</span> state0 = <span class="number">1</span>;</span><br><span class="line"><span class="keyword">uint32_t</span> state1 = <span class="number">2</span>;</span><br><span class="line"><span class="keyword">uint32_t</span> mwc1616 () &#123;</span><br><span class="line">  state0 = <span class="number">18030</span> * (state0 &amp; <span class="number">0xFFFF</span>) + (state0 &gt;&gt; <span class="number">16</span>);</span><br><span class="line">  state1 = <span class="number">30903</span> * (state1 &amp; <span class="number">0xFFFF</span>) + (state1 &gt;&gt; <span class="number">16</span>);</span><br><span class="line">  <span class="keyword">return</span> state0 &lt;&lt; <span class="number">16</span> + (state1 &amp; <span class="number">0xFFFF</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>MWC1616的计算速度很快，且占用很少的内存，但是它的质量低于标准水平：</p>
 <ul>
-<li><p>1.范围限制：这种算法的随机数范围在<code>2^32</code>以内，但是双精度浮点数能代表<code>2^52</code>个<code>0～1</code>的小数；</p>
+<li><p>1.周期范围限制：这种算法的随机数范围在<code>2^32</code>以内，但是双精度浮点数能代表<code>2^52</code>个<code>0～1</code>的小数；</p>
 </li>
 <li><p>2.结果控制：结果值的上半部分非常依赖于state0；如果初始状态选择不正确，周期长度可能少于4亿；</p>
 </li>
