@@ -1,0 +1,288 @@
+<!DOCTYPE html><html><head><meta name="generator" content="Hexo 3.9.0"><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> 【工具】IPv6对比IPv4 | Wayne的博客</title><meta name="description" content="【工具】IPv6对比IPv4 - Micheal Wayne"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/scss/casual.css"><link rel="stylesheet" href="/css/icon.css"><link rel="search" type="application/opensearchdescription+xml" href="http://blog.michealwayne.cn/atom.xml" title="Wayne的博客"></head><body><div class="header"><header class="site-header"><div class="site-nav"><span class="button-toggle"></span><div class="container"><div class="nav-item"><a href="/" target="_self" data-text="home">Home</a></div><div class="nav-item"><a href="/archives" target="_self" data-text="archive">Archive</a></div><div class="nav-item"><a href="/about" target="_self" data-text="about">About</a></div></div><form id="search-form" class="nav-item"><input type="text" id="local-search-input" name="q" results="0" placeholder="search" autocomplete="off" autocorrect="off" class="search form-control"><span onclick="resetSearch()" class="fa fa-times"> </span></form><div id="local-search-result"></div><p class="no-result">No results found</p></div></header></div><div class="main"><div class="container"><div class="content"><div class="post"><article class="post-block"><h1 class="post-title">【工具】IPv6对比IPv4</h1><span class="post-date">Jul 12, 2018</span><span class="post-tag"><a href="/tags/工具/">工具</a><a href="/tags/网络/">网络</a></span><img src="/images/nginx/i-ipv6.png" class="bgimage"><div class="post-content"><h1 id="IPv6对比IPv4"><a href="#IPv6对比IPv4" class="headerlink" title="IPv6对比IPv4"></a>IPv6对比IPv4</h1><p>主要区别是IP地址的数量不同。其余还有很多区别。</p>
+<p><img src="/images/nginx/p-ipv6.png" alt="p-ipv6.png"></p>
+<table>
+<thead>
+<tr>
+<th>描述</th>
+<th>IPv4</th>
+<th>IPv6</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>地址</td>
+<td>长度为 32 位（4 个字节）。地址由网络和主机部分组成，这取决于地址类。根据地址的前几位，可定义各种地址类：A、B、C、D 或 E。IPv4 地址的总数为 4 294 967 296。IPv4 地址的文本格式为 nnn.nnn.nnn.nnn，其中 0&lt;=nnn&lt;=255，而每个 n 都是十进制数。可省略前导零。最大打印字符数为 15 个，不计掩码。</td>
+<td>长度为 128 位（16 个字节）。基本体系结构的网络数字为 64 位，主机数字为 64 位。通常，IPv6 地址（或其部分）的主机部分将派生自 MAC 地址或其他接口标识。根据子网前缀，IPv6 的体系结构比 IPv4 的体系结构更复杂。IPv6 地址的数目比 IPv4 地址的数目大 1028（79 228 162 514 264 337 593 543 950 336）倍。IPv6 地址的文本格式为 xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx，其中每个 x 都是十六进制数，表示 4 位。可省略前导零。可在地址的文本格式中使用一次双冒号（::），用于指定任意数目的 0 位。例如，::ffff:10.120.78.40 表示 IPv4 映射的 IPv6 地址。</td>
+</tr>
+<tr>
+<td>地址分配</td>
+<td>最初，按网络类分配地址。随着地址空间的消耗，使用“无类域间路由”（CIDR）进行更小的分配。没有在机构和国家或地区之间平均分配地址。</td>
+<td>分配尚处于早期阶段。“因特网工程任务组织”（IETF ）和“因特网体系结构委员会”（IAB）建议基本上为每个组织、家庭或实体分配一个 /48 子网前缀长度。它将保留 16 位供组织进行子网划分。地址空间是足够大的，可为世界上每个人提供一个其自己的 /48 子网前缀长度。</td>
+</tr>
+<tr>
+<td>地址生存期</td>
+<td>通常，除使用 DHCP 分配的地址之外，此概念不适用于 IPv4 地址。</td>
+<td>IPv6 地址有两个生存期：首选生存期和有效生存期，而首选的生存期总是小于等于有效的生存期。首选生存期到期后，如果有同样好的首选地址可用，那么该地址便不再用作新连接的源 IP 地址。 有效生存期到期后，该地址不再用作入局信息包的有效目标 IP 地址或源 IP 地址。根据定义，某些 IPv6 地址有无限多个首选生存期和有效生存期，如本地链路。</td>
+</tr>
+<tr>
+<td>地址掩码</td>
+<td>用于从主机部分指定网络。</td>
+<td>未使用</td>
+</tr>
+<tr>
+<td>地址前缀</td>
+<td>有时用于从主机部分指定网络。有时根据地址的表示格式写为 /nn 后缀。</td>
+<td>用于指定地址的子网前缀。按照打印格式写为 /nnn（最多 3 位十进制数字，0 &lt;= nnn &lt;= 128）后缀。例如 fe80::982:2a5c/10，其中前 10 位组成子网前缀。</td>
+</tr>
+<tr>
+<td>地址解析协议（ARP）</td>
+<td>IPv4 使用 ARP 来查找与 IPv4 地址相关联的物理地址（如 MAC 或链路地址）。</td>
+<td>IPv6 使用因特网控制报文协议版本 6（ICMPv6）将这些功能嵌入到 IP 自身作为无状态自动配置和邻节点发现算法的一部分。因此，不存在类似于 ARP6 之类的东西。</td>
+</tr>
+<tr>
+<td>地址作用域</td>
+<td>此概念不适用于单点广播地址。有指定的专用地址范围和回送地址。将该范围之外的地址假设为全局地址。</td>
+<td>在 IPv6 中，地址作用域是该体系结构的一部分。单点广播地址有两个已定义的作用域，包括本地链路和全局链路；而多点广播地址有 14 个作用域。为源和目标选择缺省地址时要考虑作用域。作用域区域是特定网络中作用域的实例。因此，有时必须输入 IPv6 地址或使它与区域标识相关联。语法是 %zid，其中 zid 是一个数字（通常较小）或名称。区域标识写在地址之后前缀之前。 例如，2ba::1:2:14e:9a9b:c%3/48。</td>
+</tr>
+<tr>
+<td>地址类型</td>
+<td>IPv4 地址分为三种基本类型：单点广播地址、多点广播地址和广播地址。</td>
+<td>IPv6 地址分为三种基本类型：单点广播地址、多点广播地址和任意广播地址。</td>
+</tr>
+<tr>
+<td>通信跟踪</td>
+<td>通信跟踪是一个收集进入和离开系统的 TCP/IP（及其他）信息包的详细跟踪资料的工具。</td>
+<td>同样支持 IPv6。</td>
+</tr>
+<tr>
+<td>配置</td>
+<td>新安装的系统必须在进行配置之后才能与其他系统通信；即，必须分配 IP 地址和路由。</td>
+<td>根据所需的功能，配置是可选的。IPv6 可与任何以太网适配器配合使用并且可通过回送接口运行。IPv6 接口是使用 IPv6 无状态自动配置进行自我配置的。还可手工配置 IPv6 接口。这样，根据网络的类型以及是否存在 IPv6 路由器，系统将能与其他本地和远程的 IPv6 系统通信。</td>
+</tr>
+<tr>
+<td>域名系统（DNS）</td>
+<td>应用程序使用套接字 API gethostbyname() 接受主机名，然后使用 DNS 来获得 IP 地址。应用程序还接受 IP 地址，然后使用 DNS 和 gethostbyaddr() 获得主机名。对于 IPv4，逆向查找域为 in-addr.arpa。</td>
+<td>同样支持 IPv6。使用 AAAA（四个 A）记录类型和逆向查找（IP 到名称）支持 IPv6。应用程序可选择（是否）从 DNS 接受 IPv6 地址，然后（是否）使用 IPv6 进行通信。套接字 API gethostbyname() 仅支持 IPv4。对于 IPv6，使用新的 getaddrinfo() API 以仅获取 IPv6 或获取 IPv4 和 IPv6 地址（在应用选择上）。对于 IPv6，用于逆向查找的域为 ip6.arpa，如果找不到，那么会使用 ip6.int。</td>
+</tr>
+<tr>
+<td>动态主机配置协议（DHCP）</td>
+<td>DHCP 用于动态获取 IP 地址及其他配置信息。IBM i 支持对 IPv4 使用 DHCP 服务器。</td>
+<td>通过 IBM i 实现的 DHCP 不支持 IPv6。但是，可以使用 ISC DHCP 服务器实现。</td>
+</tr>
+<tr>
+<td>文件传输协议（FTP）</td>
+<td>FTP 允许通过网络发送和接收文件。</td>
+<td>同样支持 IPv6。</td>
+</tr>
+<tr>
+<td>片段</td>
+<td>如果一个信息包对于要传送它的下一链路来说太大，那么可由发送方（主机或路由器）对其分段。</td>
+<td>对于 IPv6，只能在源节点进行分段，且只能在目标节点完成重新装配。使用分段扩展报头。</td>
+</tr>
+<tr>
+<td>主机表</td>
+<td>将因特网地址与主机名关联的可配置表，例如，127.0.0.1 用于回送。在开始 DNS 查找之前或者 DNS 查找失败之后（由主机名搜索优先级确定），套接字名称解析器将使用此表。</td>
+<td>同样支持 IPv6。</td>
+</tr>
+<tr>
+<td>IBM Navigator for i支持</td>
+<td>IBM Navigator for i提供完整的 TCP/IP 配置解决方案。</td>
+<td>同样支持 IPv6。</td>
+</tr>
+<tr>
+<td>接口</td>
+<td>概念性或逻辑实体，由 TCP/IP 用来发送和接收信息包，即使不以 IPv4 地址命名也始终与 IPv4 地址紧密关联。有时称为逻辑接口。可使用 IBM Navigator for i以及使用 STRTCPIFC 和 ENDTCPIFC 命令彼此独立并独立于 TCP/IP 启动和停止 IPv4 接口。</td>
+<td>同样支持 IPv6。</td>
+</tr>
+<tr>
+<td>因特网控制报文协议（ICMP）</td>
+<td>由 IPv4 用来进行网络信息通信。</td>
+<td>由 IPv6 的使用情况类似；然而，因特网控制报文协议版本 6（ICMPv6）提供一些新的属性。保留了基本错误类型，如目标不可到达、回传请求和应答。 添加了新的类型和代码以支持邻节点发现和相关的功能。</td>
+</tr>
+<tr>
+<td>因特网组管理协议（IGMP）</td>
+<td>IGMP 由 IPv4 路由器用来查找需要特定多点广播组通信的主机，并由 IPv4 主机用来向 IPv4 路由器通告（主机上）现有的多点广播组侦听器。</td>
+<td>IGMP 在 IPv6 中由 MLD（多播侦听器发现）协议取代。MLD 执行 IGMP 对 IPv4 所执行的必要操作，但通过添加一些特定于 MLD 的 ICMPv6 类型值来使用 ICMPv6。</td>
+</tr>
+<tr>
+<td>IP 报头</td>
+<td>根据提供的 IP 选项，有 20-60 个字节的可变长度。</td>
+<td>40 个字节的固定长度。没有 IP 报头选项。通常，IPv6 报头比 IPv4 报头简单。</td>
+</tr>
+<tr>
+<td>IP 报头选项</td>
+<td>IP 报头（在任何传输报头之前）可能附带各种选项。</td>
+<td>IPv6 报头没有选项。而 IPv6 添加了附加（可选）的扩展报头。扩展报头包括 AH 和 ESP（和 IPv4 的一样）、逐跳扩展、路由、分段和目标。目前，IPv6 支持一些扩展报头。</td>
+</tr>
+<tr>
+<td>IP 报头协议字节</td>
+<td>传输层或信息包有效负载的协议代码，例如，ICMP。</td>
+<td>报头类型紧跟在 IPv6 报头后面。使用与 IPv4 协议字段相同的值。此结构的作用是允许以后的报头使用当前定义的范围并且易于扩展。下一个报头将是传输报头、扩展报头或 ICMPv6。</td>
+</tr>
+<tr>
+<td>IP 报头“服务类型”字节</td>
+<td>由 QoS 和差别服务用来指定通信类。</td>
+<td>但使用不同的代码来指定 IPv6 流量类。目前，IPv6 不支持 TOS。</td>
+</tr>
+<tr>
+<td>LAN 连接</td>
+<td>LAN 连接由 IP 接口用来到达物理网络。存在许多类型，例如，令牌环和以太网。有时，它称为物理接口、链路或线路。</td>
+<td>IPv6 可与任何以太网适配器配合使用并且可通过虚拟以太网在逻辑分区间使用。</td>
+</tr>
+<tr>
+<td>第 2 层隧道协议（L2TP）</td>
+<td>可将 L2TP 看作是虚拟 PPP，并通过任何支持的线路类型工作。</td>
+<td>同样支持 IPv6。</td>
+</tr>
+<tr>
+<td>回送地址</td>
+<td>回送地址是地址为 127.<em>.</em>.<em>（通常是 127.0.0.1）的接口，只能由节点用来向自身发送信息包。该物理接口（线路描述）被命名为 </em>LOOPBACK。</td>
+<td>与 IPv4 的概念相同。单个回送地址为 0000:0000:0000:0000:0000:0000:0000:0001 或 ::1（简短版本）。虚拟物理接口被命名为 *LOOPBACK。</td>
+</tr>
+<tr>
+<td>最大传输单元（MTU）</td>
+<td>链路的最大传输单元是特定链路类型（如以太网或调制解调器）支持的最大字节数。对于 IPv4，最小值一般为 576。</td>
+<td>IPv6 的 MTU 下限为 1280 个字节。也就是说，IPv6 不会在低于此极限时对信息包分段。要通过字节数小于 1280 的 MTU 链路发送 IPv6，链路层必须以透明方式对 IPv6 信息包进行分段及合并。</td>
+</tr>
+<tr>
+<td>Netstat</td>
+<td>Netstat 是一个用于查看 TCP/IP 连接、接口或路由状态的工具。在使用 IBM Navigator for i和字符界面时可用。</td>
+<td>同样支持 IPv6。</td>
+</tr>
+<tr>
+<td>网络地址转换（NAT）</td>
+<td>集成到 TCP/IP 中的基本防火墙功能，是使用 IBM Navigator for i配置的。</td>
+<td>目前，NAT 不支持 IPv6。通常，IPv6 不需要 NAT。IPv6 扩展了地址空间，这样就解决了地址短缺问题并使重新编号变得更加容易。</td>
+</tr>
+<tr>
+<td>网络表</td>
+<td>IBM Navigator for i上一个将网络名称与无掩码的 IP 地址相关联的可配置表。例如，主机网络 14 与 IP 地址 1.2.3.4。</td>
+<td>对于 IPv6，目前此表不变。</td>
+</tr>
+<tr>
+<td>节点信息查询</td>
+<td>不存在。</td>
+<td>一种简易的网络工具，其工作方式应类似于 ping，只是内容不同：IPv6 节点可查询目标 DNS 名称的另一个 IPv6 节点、IPv6 单点广播地址或 IPv4 地址。 目前不受支持。</td>
+</tr>
+<tr>
+<td>开放式最短路径优先协议（OSPF）</td>
+<td>OSPF 是在优先于 RIP 的较大型自治系统网络中使用的路由器协议。</td>
+<td>同样支持 IPv6。</td>
+</tr>
+<tr>
+<td>信息包过滤</td>
+<td>信息包过滤是集成到 TCP/IP 中的基本防火墙功能。它是通过使用 IBM Navigator for i配置的。</td>
+<td>信息包过滤不支持 IPv6。</td>
+</tr>
+<tr>
+<td>信息包转发</td>
+<td>可将 IBM i TCP/IP 堆栈配置为转发其接收到的非本地 IP 地址的 IP 信息包。通常，入站接口和出站接口各自连接到不同的 LAN。</td>
+<td>信息包转发对 IPv6 的支持有限。IBM i TCP/IP 堆栈不支持作为路由器而执行的邻节点发现。</td>
+</tr>
+<tr>
+<td>PING</td>
+<td>PING 是测试可达性的基本 TCP/IP 工具。在使用 IBM Navigator for i和字符界面时可用。</td>
+<td>同样支持 IPv6。</td>
+</tr>
+<tr>
+<td>点到点协议（PPP）</td>
+<td>PPP 支持基于各种调制解调器和线路类型的拨号接口。</td>
+<td>同样支持 IPv6。</td>
+</tr>
+<tr>
+<td>端口限制</td>
+<td>IBM Navigator for i 允许客户配置已选择的 TCP 或用户数据报协议 (UDP) 端口号或端口号范围，以便其只对特定概要文件可用。</td>
+<td>IPv6 的端口限制与 IPv4 的端口限制完全相同。</td>
+</tr>
+<tr>
+<td>端口</td>
+<td>TCP 和 UDP 有独立的端口空间，分别由范围为 1-65535 之间的端口号标识。</td>
+<td>对于 IPv6，端口的工作与 IPv4 相同。因为它们处于新地址系列，现在有四个独立的端口空间。 例如，有应用程序可绑定的两个 TCP 端口 80 空间，一个在 AF_INET 中，一个在 AF_INET6 中。</td>
+</tr>
+<tr>
+<td>专用地址和公用地址</td>
+<td>除由 IETF RFC 1918 指定为专用的三个地址范围 10.<em>.</em>.<em> (10/8)、172.16.0.0 至 172.31.255.255 (172.16/12) 和 192.168.</em>.* (192.168/16) 之外，所有 IPv4 地址都是公用的。专用地址域通常在组织内部使用。专用地址不能通过因特网路由。</td>
+<td>IPv6 有类似的概念，但还有重要差别。地址是公用或临时的，先前称为匿名地址。 请参阅 RFC 3041。与 IPv4 专用地址不同，临时地址可进行全局路由。动机也不一样：IPv6 临时地址要在它开始通信时屏蔽其客户机的身份（涉及隐私）。临时地址的生存期有限，且不包含是链路（MAC）地址的接口标识。它们通常与公用地址没有区别。IPv6 具有受限地址作用域的概念，它使用其设计的作用域指定（请参阅地址作用域）。</td>
+</tr>
+<tr>
+<td>协议表</td>
+<td>在 IBM Navigator for i中，协议表是将协议名称与其分配的协议号关联（例如，将 UDP 与 17 关联）的可配置表。随系统交付的只有少量的项：IP、TCP、UDP 和 ICMP。</td>
+<td>该表可与 IPv6 直接配合使用而不需要更改。</td>
+</tr>
+<tr>
+<td>服务质量（QoS）</td>
+<td>服务质量允许为 TCP/IP 应用程序请求信息包优先级和带宽。</td>
+<td>目前，通过 IBM i 实现的 QoS 不支持 IPv6。</td>
+</tr>
+<tr>
+<td>重新编号</td>
+<td>重新编号通过手工重新配置完成，可能存在 DHCP 的例外情况。通常，对于站点或组织，重新编号是应尽可能避免的复杂且烦琐的过程。</td>
+<td>重新编号是 IPv6 的一个重要结构元素，特别是在 /48 前缀中已很大程度上实现自动化。</td>
+</tr>
+<tr>
+<td>路由</td>
+<td>从逻辑上讲，是一组 IP 地址（可能只包含 1 个）的映射，这些 IP 地址映射为物理接口和单个下一中继段 IP 地址。使用该线路将其目标地址定义为该组的一部分的 IP 信息包转发至下一中继段。IPv4 路由与 IPv4 接口关联，因此，它是一个 IPv4 地址。缺省路由为 *DFTROUTE。</td>
+<td>从概念上讲，与 IPv4 类似。一个重要差别是：IPv6 路由与物理接口（链路，如 ETH03）而不是接口相关联（绑定）。路由与物理接口相关联的一个原因是 IPv6 与 IPv4 的源地址选择功能不同。</td>
+</tr>
+<tr>
+<td>路由信息协议（RIP）</td>
+<td>RIP 是路由守护程序支持的路由协议。</td>
+<td>目前，RIP 不支持 IPv6。</td>
+</tr>
+<tr>
+<td>服务表</td>
+<td>IBM i 上的一个可配置表，它将服务名称与端口和协议关联（例如，将服务名称 FTP 与端口 21、TCP 及用户数据报协议（UDP）关联）。服务表中列示了大量众所周知的服务。许多应用程序使用此表来确定要使用哪个端口。</td>
+<td>对于 IPv6，此表不变。</td>
+</tr>
+<tr>
+<td>简单网络管理协议（SNMP）</td>
+<td>SNMP 是一个用于系统管理的协议。</td>
+<td>同样支持 IPv6。</td>
+</tr>
+<tr>
+<td>套接字 API</td>
+<td>应用程序通过使用这些 API 来使用 TCP/IP。不需要 IPv6 的应用程序不受为支持 IPv6 所做的套接字更改的影响。</td>
+<td>IPv6 使用新的地址系列：AF_INET6 增强了套接字以便应用程序现在可使用 IPv6。设计了这些增强以便现有的 IPv4 应用程序完全不受 IPv6 和 API 更改的影响。希望支持并发 IPv4 和 IPv6 通信或纯 IPv6 通信的应用程序可以容易地适应使用 IPv4 映射的 IPv6 地址格式 ::ffff:a.b.c.d，其中 a.b.c.d 是客户机的 IPv4 地址。新的 API 还支持从文本至二进制及从二进制至文本的 IPv6 地址转换。</td>
+</tr>
+<tr>
+<td>源地址选择</td>
+<td>应用程序可指定源 IP（通常，使用套接字 bind()）。如果它绑定至 INADDR_ANY，那么根据路由来选择源 IP。</td>
+<td>与 IPv4 一样，应用程序可使用 bind() 指定源 IPv6 地址。和 IPv4 类似，它可通过使用 in6addr_any 让系统选择 IPv6 源地址。但是，因为 IPv6 线路有许多 IPv6 地址，所以选择源 IP 的内部方法不同。</td>
+</tr>
+<tr>
+<td>启动和停止</td>
+<td>请使用 STRTCP 或 ENDTCP 命令来启动或结束 IPv4。当运行 STRTCP 命令来启动 TCP/IP 时，IPv4 始终处于启动状态。</td>
+<td>请使用 STRTCP 或 ENDTCP 命令的 STRIP6 参数来启动或结束 IPv6。当 TCP/IP 已启动时，IPv6 可能未启动。稍后，可独立启动 IPv6。如果 AUTOSTART 参数设置为 *YES（缺省值），那么任何 IPv6 接口都会自动启动。IPv6 必须与 IPv4 配合使用或配置。当启动 IPv6 时，会自动定义并激活 IPv6 回送接口 ::1。</td>
+</tr>
+<tr>
+<td>Telnet</td>
+<td>Telnet 允许登录并使用远程计算机，就好象直接与其连接一样。</td>
+<td>同样支持 IPv6。</td>
+</tr>
+<tr>
+<td>跟踪路由</td>
+<td>跟踪路由是进行路径确定的基本 TCP/IP 工具。在使用 IBM Navigator for i和字符界面时可用。</td>
+<td>同样支持 IPv6。</td>
+</tr>
+<tr>
+<td>传输层</td>
+<td>TCP、UDP 和 RAW。</td>
+<td>IPv6 中存在相同的传输。</td>
+</tr>
+<tr>
+<td>未指定地址</td>
+<td>顾名思义，未定义的地址。套接字编程将 0.0.0.0 用作 INADDR_ANY。</td>
+<td>定义为 ::/128（128 个 0 位）。 它在某些邻节点发现信息包和各种其他的上下文（如套接字）中用作源 IP。套接字编程将 ::/128 用作 in6addr_any。</td>
+</tr>
+<tr>
+<td>虚拟专用网络（VPN）</td>
+<td>虚拟专用网络（使用 IPsec）允许在现有的公用网络上扩展安全的专用网络。</td>
+<td>同样支持 IPv6。</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h4 id="相关链接"><a href="#相关链接" class="headerlink" title="相关链接"></a>相关链接</h4><ul>
+<li><a href="https://blog.csdn.net/chao199512/article/details/86139714" target="_blank" rel="noopener">https://blog.csdn.net/chao199512/article/details/86139714</a></li>
+</ul>
+</div></article></div><div class="post-paginator"><div class="post-links"><div class="post-prev"><a href="/2018/07/12/notes/【笔记】常用软件开发模式/" class="prev">Previous Post<span>【笔记】常用软件开发模式</span></a></div><div class="post-next"><a href="/2018/07/12/tools/【工具】eslint常见配置/" class="next">Next Post<span>【工具】eslint常见配置</span></a></div></div></div></div><div class="sidebar"><div class="social-links"><ul><li class="social-link"><a href="http://github.com/MichealWayne" target="_blank" class="link-github"><i class="icon icon-github"></i></a></li><li class="social-link"><a href="mailto:michealwayne@163.com" target="_self" class="link-mail"><i class="icon icon-mail"></i></a></li></ul></div><div class="recent-posts widget"><h3 class="widget-title"> Recent Posts</h3><div class="widget-content"><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2022/10/23/notes/【笔记】《我的架构思想：基本模型、理论与原则》编三/">【笔记】《我的架构思想：基本模型、理论与原则》编三——架构原则，技艺、艺术与美</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/10/04/notes/【笔记】《我的架构思想：基本模型、理论与原则》编二/">【笔记】《我的架构思想：基本模型、理论与原则》编二——架构是过程，而非结果</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/09/12/notes/【笔记】《我的架构思想：基本模型、理论与原则》编一/">【笔记】《我的架构思想：基本模型、理论与原则》编一——你所关注的系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/20/notes/【笔记】Browserslist和使用/">【笔记】Browserslist 信息和使用整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/17/notes/【笔记】越来越快的jsRuntime——Bun/">【笔记】越来越快的jsRuntime——Bun</a></li></ul></div></div><div class="recent-comment widget"><h3 class="widget-title"> Author</h3><div class="widget-content"><div class="m-author"><div class="u-avatar"><img src="data:image/jpeg;base64,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"></div><div class="u-author_tit"><p>My name is Micheal Wayne and this is my blog.<br>I am a front-end software engineer.<br>Contact: <a href="mailto:michealwayne@163.com"> <span>michealwayne@163.com</span></a></p></div></div></div></div><div class="tag-lists widget"><h3 class="widget-title"> Tags</h3><div class="widget-content"><ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/APM/">APM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BOM/">BOM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Bun/">Bun</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DOM/">DOM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTML/">HTML</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OKR/">OKR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UML/">UML</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UX/">UX</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/">Vue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WebSocket/">WebSocket</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zepto/">Zepto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/canvas/">canvas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/">css</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/es6/">es6</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eslint/">eslint</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/h5/">h5</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/">http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jQuery/">jQuery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/">js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lerna/">lerna</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lottie/">lottie</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/">nodejs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prettier/">prettier</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/">react</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/serviceWorker/">serviceWorker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sketch/">sketch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skywalking/">skywalking</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/taro/">taro</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tslint/">tslint</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/typescript/">typescript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webApi/">webApi</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpack/">webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/代码规范/">代码规范</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/前端/">前端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/动效/">动效</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图形处理/">图形处理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/安全/">安全</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/小程序/">小程序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/工具/">工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/工程/">工程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/微前端/">微前端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/思维逻辑/">思维逻辑</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/性能/">性能</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/架构/">架构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/概念/">概念</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/浏览器/">浏览器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/用户体验/">用户体验</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/笔记/">笔记</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/编码/">编码</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/网络/">网络</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/网络协议/">网络协议</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/设计模式/">设计模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/调试/">调试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/质量/">质量</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/软件工程/">软件工程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/项目管理/">项目管理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/高并发/">高并发</a></li></ul></div></div><div class="archive-lists widget"><h3 class="widget-title"> Archive</h3><div class="widget-content"><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/05/">May 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">April 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">December 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">August 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">March 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">September 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">November 2017</a><span class="archive-list-count">5</span></li></ul></div></div></div></div></div><footer><div class="copyright"><div class="container"><div class="col-6"><div class="site-info">© 2016 - 2022 <a href="http://blog.michealwayne.cn">Micheal Wayne</a></div></div><div class="col-6"><div class="site-contact"><div class="social-links"><ul><li class="social-link"><a href="http://github.com/MichealWayne" target="_blank" class="link-github"><i class="icon icon-github"></i></a></li><li class="social-link"><a href="mailto:michealwayne@163.com" target="_self" class="link-mail"><i class="icon icon-mail"></i></a></li></ul></div></div></div></div></div></footer><a class="scroll-up"><span class="icon icon-up"></span></a><script src="https://code.jquery.com/jquery-3.1.0.min.js"></script><script src="/js/posfixed.js"></script><script src="/js/utils.js"></script><script src="/js/search.js"></script><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-92791318-1",'auto');ga('send','pageview');</script></body></html>

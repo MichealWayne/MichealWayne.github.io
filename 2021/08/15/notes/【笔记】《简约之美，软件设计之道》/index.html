@@ -1,0 +1,269 @@
+<!DOCTYPE html><html><head><meta name="generator" content="Hexo 3.9.0"><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> 【笔记】《简约之美，软件设计之道》 | Wayne的博客</title><meta name="description" content="【笔记】《简约之美，软件设计之道》 - Micheal Wayne"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/scss/casual.css"><link rel="stylesheet" href="/css/icon.css"><link rel="search" type="application/opensearchdescription+xml" href="http://blog.michealwayne.cn/atom.xml" title="Wayne的博客"></head><body><div class="header"><header class="site-header"><div class="site-nav"><span class="button-toggle"></span><div class="container"><div class="nav-item"><a href="/" target="_self" data-text="home">Home</a></div><div class="nav-item"><a href="/archives" target="_self" data-text="archive">Archive</a></div><div class="nav-item"><a href="/about" target="_self" data-text="about">About</a></div></div><form id="search-form" class="nav-item"><input type="text" id="local-search-input" name="q" results="0" placeholder="search" autocomplete="off" autocorrect="off" class="search form-control"><span onclick="resetSearch()" class="fa fa-times"> </span></form><div id="local-search-result"></div><p class="no-result">No results found</p></div></header></div><div class="main"><div class="container"><div class="content"><div class="post"><article class="post-block"><h1 class="post-title">【笔记】《简约之美，软件设计之道》</h1><span class="post-date">Aug 15, 2021</span><span class="post-tag"><a href="/tags/笔记/">笔记</a><a href="/tags/软件工程/">软件工程</a></span><img src="/images/20210815/i-logo.png" class="bgimage"><div class="post-content"><h1 id="《简约之美，软件设计之道》笔记"><a href="#《简约之美，软件设计之道》笔记" class="headerlink" title="《简约之美，软件设计之道》笔记"></a>《简约之美，软件设计之道》笔记</h1><blockquote>
+<p>Quality is not an act, it is a habit. ——Aristotle</p>
+</blockquote>
+<p>整本书看下来，全书并没有像预想一样讲解具体的软件设计，而是从软件目标出发，讲解一个优秀软件具备的素质以及基本的实现思路。不过这样更加激发了深层次的思考：软件开发者需要具备同理心，无论是面向用户还是面向其他开发者。</p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>软件设计的科学就是为软件做计划、制定决策的科学，它帮助大家做出这类决定：</p>
+<ul>
+<li>程序的代码应当采用什么结构？</li>
+<li>是程序的速度重要，还是代码容易阅读重要？</li>
+<li>为满足需求，应该选择哪种编程语言？</li>
+</ul>
+<p>软考系统中任何与架构有关的技术决策，以及在开发系统中所做的技术决策，都可以归到“软件设计”的范畴里。</p>
+<p>软件的质量完全取决于<strong>机器的质量</strong>、<strong>我们想法的质量</strong>、<strong>代码的质量</strong>。（重点是代码的质量）</p>
+<h3 id="程序员也是设计师"><a href="#程序员也是设计师" class="headerlink" title="程序员也是设计师"></a>程序员也是设计师</h3><p>每个写代码的人都是设计师，团队里的每个人都有责任保证自己的代码有着良好的设计。任何软件项目里，任何写代码的人，在任何层面上，都不能忽略软件设计。</p>
+<p>所有开发人员都应有权在自己的工作中做出良好的设计决策。如果某位开发人员做了糟糕或者平庸的决策，资深开发人员或者首席程序员就应当推翻这些决策，重新来过。不过，软件设计的责任应当落实在真正写代码的人身上。</p>
+<p>身为设计师，必须时时聆听建议和反馈，但是考虑了所有这些建议和反馈之后，<strong>任何决策都必须由单独的个人而不是一群人来做出。</strong></p>
+<h3 id="软件设计的科学"><a href="#软件设计的科学" class="headerlink" title="软件设计的科学"></a>软件设计的科学</h3><p>软件设计是有章（规则）可循的，它们可以被认识，可以被理解。规则是永恒不变的，是基本的事实，而且确实可行。</p>
+<ul>
+<li><strong>定义（Definition）</strong>：告诉你事物是什么，应当如何使用；</li>
+<li><strong>事实（Fact）</strong>：是关于事物的真实陈述。每一点真实的信息都是事实；</li>
+<li><strong>条例（Rule）</strong>：是给你的确切建议，它包含某些具体的信息，用于制订决策。但是条例并不能帮你绝对准确地预测未来，也不能帮你发现其他真理。它们通常会告诉你是否需要采取某些行动；</li>
+<li><strong>规则（Law）</strong>：<strong>最重要</strong>，是永远为真的事实，它涵盖了很多领域的知识。它们帮你发现其他重要的真理，帮你预测未来要发生的事情。</li>
+</ul>
+<h2 id="软件设计的推动力"><a href="#软件设计的推动力" class="headerlink" title="软件设计的推动力"></a>软件设计的推动力</h2><p>全部软件都有一个相同的目标：<strong>帮助其他人</strong>。根据具体的软件我们可以得到更加具体的目标，比如文字处理软件帮助大家编辑文档，浏览器帮助大家浏览网页。</p>
+<p>软件要帮助的不是计算机，而是人。即便你写的是程序库，它们也是为程序员服务的，程序员也是人。</p>
+<p>软件的目标不是“赚钱”或者“炫耀智商”。相比为帮助别人而设计的、满足其他人需求的软件，仅仅考虑狭隘目标的设计，很可能收获糟糕的软件。</p>
+<p>一个人写出优秀软件的潜力，完全取决于他在多大程度上理解了“帮助其他人”的思想。因此在做与软件有关的决策时，指导法则就是判断能提供什么样的帮助。各项需求也可以照这个标准排出先后顺序。哪项需求能为人们提供最大的帮助，就应当赋予最高的优先级。</p>
+<p>在评估开发或维护软件系统的建议时，<strong>“它能给用户帮多少忙”</strong>绝对是一个重要而且基础的问题。</p>
+<blockquote>
+<p>当然可以把赚钱当成自己或者公司的目标，这无可厚非，但它不应该是你的软件的目标。任何情况下，你所赚的钱都直接维系于你的软件能为他人提供多少帮助。事实上，决定软件公司收入的两个主要因素基本就是组织水平（包括行政、管理、推广、销售等），以及软件对他人的帮助。</p>
+</blockquote>
+<h3 id="软件设计科学的目标"><a href="#软件设计科学的目标" class="headerlink" title="软件设计科学的目标"></a>软件设计科学的目标</h3><p>从目标看，我们知道开发软件是为了帮助其他人。所以，软件设计科学的目标应该是：<strong>确保软件能提供尽可能多的帮助。</strong>其次，我们通常希望软件可以给大家提供持续的帮助，所以，第二个目标是：<strong>确保软件能持续提供尽可能多的帮助。</strong></p>
+<p>实际上，<strong>编写和维护有帮助的软件的主要障碍在于设计和编程。</strong><br>如果软件很难开发或修改，程序员的主要精力就花在软件“能用”上，而没有精力去帮助用户。如果系统易于修改，程序员就会有更多的余力去帮助用户，不必费心于编程细节。同样道理，软件的维护难度越低，程序员确保软件能持续提供帮助的难度也越低。</p>
+<p>于是，我们得到了第三个目标：<strong>设计程序员能尽可能简单地开发和维护的软件系统，这样的系统才能为用户提供尽可能多的帮助，而且能持续提供尽可能多的帮助。</strong></p>
+<p>有时候，第一个目标（确保有帮助）和第三个目标（维护简单）是有点冲突的，为了确保有帮助，维护难度就会增加。不过纵观历史，这两个目标冲突的原因往往并不是如此。开发出完全可维护、对用户极为有用的软件，有绝对的事实依据。其实，如果你不能确保软件的可维护性，就很难实现第二个目标，也就不能持续提供帮助。这样看来，第三个目标是非常重要的，否则我们就没办法完成前两个目标。</p>
+<blockquote>
+<p>“尽可能简单”的意思是软件的开发和维护都应当简单，要避免困难或复杂。</p>
+</blockquote>
+<h2 id="未来"><a href="#未来" class="headerlink" title="未来"></a>未来</h2><p>软件设计师面对的主要问题是：在设计软件时，应该做怎样的决定？哪一个才是“最”好的</p>
+<h3 id="软件设计的方程式"><a href="#软件设计的方程式" class="headerlink" title="软件设计的方程式"></a>软件设计的方程式</h3><p>上面的问题，还包括软件设计的本质中的所有问题，都可以用下面的方程式来解答：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">D = V / E</span><br></pre></td></tr></table></figure>
+<p>意思：<strong>任何一点改变，其合意程度与其价值成正比，与付出的成本成反比。</strong></p>
+<p>其中：</p>
+<ul>
+<li>D：表示这个变化的合意程度（可取程度）。我们对此项工作的需求有多么迫切？</li>
+<li>V：表示它的价值。该变化价值几何？一般来说，你可以问自己“这个变化对用户有多少用”；当然，还有很多其他方法来判断其价值。</li>
+<li>E：表示完成这个变化的成本，也就是完成它需要付出的代价。</li>
+</ul>
+<h3 id="计算机出了什么问题？"><a href="#计算机出了什么问题？" class="headerlink" title="计算机出了什么问题？"></a>计算机出了什么问题？</h3><p>如果是软件的问题，那么有且只有一个原因：<strong>程序写得太糟糕</strong>。有些人怪罪管理，有些人怪罪客户，但调查发现问题的根源通常都在于编程。这一切都与<strong>复杂性</strong>有关。</p>
+<h4 id="价值"><a href="#价值" class="headerlink" title="价值"></a>价值</h4><p>方程式中的“价值”指什么？价值最简单的定义是：<br><strong>这个变化能带给人多大帮助。</strong></p>
+<p>所有需要帮助的人里面，最重要的是你的用户。判断每一点可能的变化的价值，基本的依据是开发人员的开发经验，还包括对用户做恰当的研究，找到对他们帮助最大的工作。</p>
+<h5 id="价值可能性和潜在价值"><a href="#价值可能性和潜在价值" class="headerlink" title="价值可能性和潜在价值"></a>价值可能性和潜在价值</h5><p>价值由两部分组成：</p>
+<ul>
+<li><strong>可能价值</strong>：这个变化有多大可能帮助到用户；</li>
+<li><strong>潜在价值</strong>：这个变化在对用户提供帮助的时候，将为用户提供多大的帮助。</li>
+</ul>
+<p>举个例子，比如对电子表格程序添加功能，以便盲人输入数字。盲人只占用户的很小一部分，但如果没有这个功能，他们就根本没法使用你的程序。这个功能是有价值的，因为其潜在价值很高，尽管它只对一部分有用（可能价值很低）</p>
+<blockquote>
+<p>能够让所有用户都微笑的功能确实是有价值的，其潜在价值很低（只能让人微笑），但是它能影响到很多人，所以它的可能价值非常高。反过来，如果某项功能只有百万分之一的可能性让某人微笑，那么它并没多少价值，这项功能的潜在价值和可能价值都很低。</p>
+</blockquote>
+<p>所以在判断价值时，应该考虑：</p>
+<ul>
+<li>多少用户（占多大比例）会从此项工作中收益？</li>
+<li>此功能对用户有价值的可能性有多大？活着换个说法：此功能发挥价值的频率有多高？</li>
+<li>在它发挥价值的时候，它能发挥出多大的价值？</li>
+</ul>
+<h5 id="平衡危害"><a href="#平衡危害" class="headerlink" title="平衡危害"></a>平衡危害</h5><p>有些改变在带来帮助的同时也会带来麻烦。比如程序要展示广告，能带来资金但会让某些人觉得麻烦。</p>
+<p>所以需要权衡改变的价值，需要衡量它可能造成的危害，并权衡利弊。</p>
+<h5 id="赢得用户的价值"><a href="#赢得用户的价值" class="headerlink" title="赢得用户的价值"></a>赢得用户的价值</h5><p>如果某个功能找不到用户，就不存在实际的价值。比如用户找不到活着很难使用，甚至更不就帮不上任何人。或许在将来它可能有价值，但目前没有。在多数情况下，为了确保你的软件有价值，<strong>就必须真正发布它。</strong></p>
+<p>如果某个变化话费的时间太长，最后可能就没有任何价值，因为它不能及时发布，无法给人提供切实的帮助。在判断某项工作合意程度时，评估其发布计划是非常重要的。</p>
+<h4 id="成本"><a href="#成本" class="headerlink" title="成本"></a>成本</h4><p>成本更容易量化，但是落实起来却相当复杂。有些变化包含隐形成本，难以预测，比如花在修复开发某项功能造成的 bug 上的时间就很难预测。不过，经验丰富的软件开发人员仍然可以在不需要知道确切数值的情况下，根据可能成本来预测。</p>
+<p>预测某个变化的成本时，重要的是要考虑牵涉到的所有投入，而不仅仅是编程的时间。研究要花多少时间？开发人员之间的沟通要花多少时间？所做的思考要花多少时间？</p>
+<p>简单说，<strong>与这个变化有关的每一点时间，都是成本的一部分。</strong></p>
+<h4 id="维护"><a href="#维护" class="headerlink" title="维护"></a>维护</h4><p>人们往往容易忽略时间的因素，你不但需要完成这个变化，还需要一致维护它。所有的变化都需要维护。有些工作显而易见要做维护，比如政策规则的变化。即使这项工作暂时看不到长期的维护成本，即使维护成本只是你下一年必须再做一次测试，维护成本仍然存在。<br>我们还必须考虑现在价值和未来价值。修改现有的系统时，受益的是现在的用户，但是它也可能帮助到未来的用户，甚至可能影响到未来的用户数目，进而影响到现有系统究竟总共能帮助到多少人。</p>
+<p>有些功能的价值会随时间而变化。比如 2019 年税收计算软件在 2019 和 2020 年是有价值的，但到了 2021 年就要打折扣了。这就是随时间变化而贬值的功能。还有些功能会随时间变化而增值。</p>
+<p><strong>成本包含实现成本和维护成本，价值也包括当前价值和未来价值。</strong>用方程式来表示就是：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">E = Ei + Em</span><br><span class="line">V = Vn + Vf</span><br></pre></td></tr></table></figure>
+<p>其中：</p>
+<ul>
+<li>Ei：实现成本</li>
+<li>Em：维护成本</li>
+<li>Vn：当前价值</li>
+<li>Vf：未来价值</li>
+</ul>
+<h4 id="完整的方程式"><a href="#完整的方程式" class="headerlink" title="完整的方程式"></a>完整的方程式</h4><p>考虑所有因素，完整的方程式就是：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">D = (Vn + Vf) / (Ei + Em)</span><br></pre></td></tr></table></figure>
+<p>用文字说明：<strong>改变的合意程度（可行性），正比于软件当前价值与未来价值之和，反比于实现成本和维护成本之和。</strong></p>
+<h4 id="化简方程式"><a href="#化简方程式" class="headerlink" title="化简方程式"></a>化简方程式</h4><p>“未来价值”和“维护成本”都取决于时间，如果把这个方程式应用到现实中，随着时间的改变就会出现有意思的现象。</p>
+<p>假设价值和成本都可以用金钱来衡量。“价值”指能赚多少前，“成本”指需要投入多少钱。（虽然在真实世界中不应当这样处理，但这样可以起到简化作用）。</p>
+<p>假设要完成工作对应的方程式是这样：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">D = (10000元 + 1000元/天) / (1000元 + 100元/天)</span><br></pre></td></tr></table></figure>
+<p>即这项工作要花 1000 元完成，能马上带来 10000 元的受益。之后每一天，它都能带来 1000 元收益，而且需要花费 100 元来维护。<br>这样在 1000 天后，未来收益总计 100w 元，维护成本总计 10w 元。这时候最开始说的“当前价值”和维护成本看来就微不足道了。随着时间的流逝，它会越来越不重要，甚至完全无足轻重。于是随着时间流逝，这个方程式变成了：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">D = Vf / Em</span><br></pre></td></tr></table></figure>
+<p>其实，几乎所有软件设计的决策都完全忽略了未来价值与维护成本的对比。有时候当前价值和实现成本足够大，始终在决策中占有决定性地位，但这种情况很少见。一般来说，软件系统都需要维护很长时间，大多数情况下，未来长期收益和维护成本才是真正需要考虑的，与之相比，当前价值和实现成本变得无足轻重。</p>
+<blockquote>
+<p>从成本角度考虑软件成功的唯一途径：保证维护成本随时间降低，最终降到零。<strong>相比降低实现成本，降低维护成本更加重要</strong>。只要能做到这点，就无所谓未来收益是大是小。</p>
+</blockquote>
+<blockquote>
+<p>理想情况下，只要未来收益高于维护成本，工作就是值得做的。所以哪怕维护成本和未来收益都增加，只要未来收益超过维护成本，也是值得做的。</p>
+</blockquote>
+<p>通常来说，如果要设计一个系统，其维护成本能逐渐降低，需要在实现上花很高的成本，做相当多的设计和规划。</p>
+<h3 id="设计的质量"><a href="#设计的质量" class="headerlink" title="设计的质量"></a>设计的质量</h3><p>相比现在，将来有多得多的编程工作要做，也有更多的用户要帮助。在未来，你的软件必须保持竞争力，才能继续存在。同时，维护成本和用户数量也会增加。</p>
+<p><strong>设计的质量好坏，正比于该系统在未来能持续帮助他人时间的长度。</strong></p>
+<p>如果你的软件只能在未来几个小时内提供帮助，就不需要花太多的工夫去设计；如果需要在未来 10 年内都派上用场，就需要花很多精力去设计；如果举棋不定，不妨设想它要使用很长时间，然后按照这个设想去设计。<strong>不要把自己禁锢在某种工作定势里，要保持灵活；不要做任何以后无法改变的决策；在设计时要慎重，慎重，再慎重。</strong></p>
+<blockquote>
+<p>要做多少设计，应当正比于未来软件能够持续为人们提供帮助的时间的长度。</p>
+</blockquote>
+<h3 id="不可预测的结果"><a href="#不可预测的结果" class="headerlink" title="不可预测的结果"></a>不可预测的结果</h3><p>关于任何工程，都有一点极为重要：<strong>未来的某些事情，是我们所不知道的。</strong></p>
+<p>软件设计也是如此，关于未来，大多数事情都是未知的。</p>
+<blockquote>
+<p>程序员犯的最常见也是最严重的错误，就是在其实不知道未来的时候去预测未来。</p>
+</blockquote>
+<p>预测短期未来是可能的，但长期未来基本是未知的。可是，相比短期，长期的未来对我们来说更重要，因为我们的设计决策会在未来更长的时间里产生更大的影响。</p>
+<p>“如果完全不考虑未来，只根据当前已知的确切信息确定所有设计决策，那就百分百安全了。”这个说法听起来与之前相矛盾，但其实并非如此。在进行决策时，未来才是最重要的事情。但在进行决策时，<strong>考虑未来的变数和尝试预测未来</strong>，是有区别的。</p>
+<p>比如做出“吃东西”还是“饿死”的决定，这并不需要预测未来才可以决策。未来是重要的，在做决策时需要考虑它，但我们不需要知道确切的未来，只要选择吃饭，不选择饿死，无论明天发生什么，都比饿死要好。</p>
+<p>同样道理，在软件设计时，可以根据已知的信息做某些决策，目的是为了创造更好的未来（提升价值，降低维护成本），而不必预测未来究竟会发生什么具体的事情。<br>当前如果你确切知道未来短期内会发生什么，便可以据此决策。如果这么做，必须对未来有相当的把握，而且这种未来必须触手可及。</p>
+<p>编程是把复杂问题化解为简单问题的劳动。否则一旦程序达到某种复杂程度，就没有人可以理解了。程序中复杂的不妨必须以某种简单方式组织起来。这样，不需要神那样强大的思维，普通程序员也可以开发出来。这就是编程所要用到的艺术和才能——<strong>化繁为简</strong>。</p>
+<p>很多程序员没做到化繁为简，项目完工之后，他们把结果交给其他程序员，其他程序员又会在这之上继续增添复杂性，完成自己的工作。程序员对化解复杂性考虑得越少，程序就越难懂。</p>
+<blockquote>
+<p>最安全的情况是，完全不尝试预测未来，所有的设计决策都应当根据当前确切知道的信息来做。</p>
+</blockquote>
+<h2 id="变化"><a href="#变化" class="headerlink" title="变化"></a>变化</h2><p>关于未来有哪些东西是我们能确定的呢？可以确定的一点是，随着时间的流逝，软件所处的环境会变化。软件必须随环境变化而变化，才能适应所处的环境。</p>
+<p>于是，我们得到了变化定律（Law of Change）：<br><strong>程序存在的时间越久，它的某个部分需要变化的可能就越高。</strong></p>
+<p>未来是无穷无尽的，所以可以百分百地肯定，最终，程序的每个部分都必须变化。<br>哪些部分会发生变化很难预测，为什么要变化也很难预测。关键在于，你并不需要去预测什么会变化，你需要知道的是，变化必然会发生。程序应该保证尽可能合理的灵活性。这样，不管未来发生什么变化，都可以应付得了。</p>
+<p>最好的设计，就是能适应外界尽可能多的变化，而软件资深的变化要尽可能少。</p>
+<h3 id="真实世界中程序的变化"><a href="#真实世界中程序的变化" class="headerlink" title="真实世界中程序的变化"></a>真实世界中程序的变化</h3><p>“好程序员”应当竭尽全力，把程序写得让其他程序员容易理解。因为他写的东西都很好懂，所以要找出 bug 是相当容易的。</p>
+<p>但这个关于简单性的想法有时被误解为，程序不应当包含太多代码，或者是不应当使用先进技术。这么想是不对的。有时候大量的代码也可以带来简单，只不过增加了阅读和编写的工作量而已。你只要保证，那些大段的代码提供了化解复杂性所必须的简短注释，就足够了。同样，通常来说，更先进的技术只会让事情更简单，只是一开始得学习。</p>
+<p>把程序写得简单所花的时间，要比写“能用就好”的程序更多。但其实花更多的时间把程序写简单，相比一开始就随意拼凑些代码再花大量的时间去理解，要快得多。</p>
+<p>在一个软件项目中，随着时间的流逝，代码的每一行都需要修改的概率越来越大；然而你并不能精确预测要修改什么，什么时候要修改，活着要修改多少。</p>
+<p>可参考书中变化图：</p>
+<p><img src="/images/20210815/p-1.png" alt="p-1.png"></p>
+<p>回顾某个特定文件修改历史。如果某个文件存在了很长时间，而且你有程序记录每个文件的修改历史，请回顾整个过程中的每次修改。问问自己最初写这个文件时，能预测到这些变化吗。要尝试理解每次修改，看看是否能从中得到一些关于软件开发的新的收获。</p>
+<blockquote>
+<p>好程序员和差程序员的差别就在于理解能力。差劲的程序员不理解自己做的事情，优秀的程序员则相反。好程序员应当竭尽全力把程序写得让其他程序员容易理解。</p>
+</blockquote>
+<h3 id="软件设计的三大误区"><a href="#软件设计的三大误区" class="headerlink" title="软件设计的三大误区"></a>软件设计的三大误区</h3><p>在落实变化法则时，软件设计师容易犯的三个错误（“三大缺陷”）：</p>
+<ul>
+<li>编写不必要的代码：YAGNI，You Ain’t Gonna Need It，不应该在真正的需求来临之前编写那些代码。问题：<ul>
+<li>1.将来你可能真的需要这些代码，但是既然不能预测未来，就不知道现在该怎么使用这些代码。如果现在就编写这些代码，却不知道该怎么用，那么真的需要使用的时候就要重新设计。因此应该省下重新设计的时间，等到真正需要的时候再编写那些代码。</li>
+<li>2.当前用不到的代码很可能会导致“劣化”。因为代码从来没有用到，它很可能与系统的其他部分脱节，继而产生 bug。<strong>不要编写不是必需的代码，并且要删除没有用到的代码。</strong></li>
+</ul>
+</li>
+<li><p>代码难以修改：“僵化设计”，rigid design。也就是说程序员写出来的代码很难修改。僵化设计有两大原因：</p>
+<ul>
+<li>对未来做太多假设</li>
+<li>不仔细设计就编写代码</li>
+</ul>
+</li>
+</ul>
+<p>要避免僵化设计，就应当做到：<strong>设计程序时，应当根据你现在确切知道的需求，而不是你认为未来会出现的需求。</strong></p>
+<ul>
+<li>过分追求通用（如果设计让事情更复杂，而不是更简单，就犯了过度工程的错误）：“过度工程”，overengineering。问题：<ul>
+<li>1.因为不能预测未来，所以无论你做得多么通用，其实都不够满足未来要面对的真实需求。</li>
+<li>2.如果代码很难通用，那么它通常不能从用户的角度很好地满足规格/需求。</li>
+<li>3.太过通用就必须写很多不需要的代码，这样又回到了第一条规律。</li>
+</ul>
+</li>
+</ul>
+<p>在追求通用时，应当选择正确的事情，选择正确的方法，这是成功的软件设计的基础。然而，太过通用，会带来说不完的复杂和混乱，也会大大抬高维护成本。避免的方法和避免僵化设计的一样：<strong>仅仅根据目前确知的需求来考虑通用。</strong></p>
+<blockquote>
+<p>bit not，技术术语，意指随时间推移，软件劣化或丢失数据的现象。</p>
+</blockquote>
+<p>解决：</p>
+<ul>
+<li>直到真正要用了才编写代码，清理掉用不到的代码</li>
+<li>代码的设计基础，应当是目前所知的信息，而不是你认为未来要发生的情况</li>
+<li>在考虑通用时，只需要考虑当前的通用需求</li>
+<li>采用渐进式开发和设计，可以避免三大缺陷。</li>
+</ul>
+<h3 id="渐进式开发及设计"><a href="#渐进式开发及设计" class="headerlink" title="渐进式开发及设计"></a>渐进式开发及设计</h3><p>从根本上避免这三大误区。</p>
+<p>比如计算器程序，先实现加法，然后实现减法，再实现乘除。相比开始就建立完整的系统，一次性构建出来，这种开发方法需要时间更少，也不用考虑过多。</p>
+<p>这个方法的精妙之处就在于，它是根据实现的顺序来决策的。总的来说，在其中的每个阶段，下一步都只做最容易的事情。</p>
+<p>有些时候，你甚至需要把某个单独的功能拆为一系列小的、简单的逻辑步骤，然后才可以很方便地实现。显然这里混合了两种做法：一种叫做“渐进开发”，一种叫做“渐进设计”。<br>渐进开发是一种通过小步骤构建整个系统的方法。渐进设计是一种类似的方法，它也通过一系列小步骤用来创建和改进系统的设计。</p>
+<h2 id="缺陷与设计"><a href="#缺陷与设计" class="headerlink" title="缺陷与设计"></a>缺陷与设计</h2><p>无论程序员的水平是高还是低，有一条是不变的：写的代码越多，引入的缺陷就越多。</p>
+<p>缺陷概率法则：<strong>在程序新增缺陷的可能性与代码修改量成正比。</strong></p>
+<p>既然存在这条规则，又无法预测未来，我们很快就会发现，相比大的变化，小的变化维护成本更低。小的变化=更少的缺陷=更少的维护。</p>
+<p>有时候，该规则也会被飞正式地表述为：“如果不新加代码，也不修改代码，就不会产生新缺陷”。</p>
+<p>这条规则的有趣之处在于它似乎与“变化定律”相矛盾——软件必须要变化，但是变化又会引入缺陷。这种矛盾确实存在，如何在两者间取得平衡，取决于软件设计师的聪明才智。实际上，这种矛盾恰恰说明了为什么需要设计，而且告诉我们，理想的设计是怎样的：<br><strong>最好的设计，就是能适应外界尽可能多的变化，而软件自身的变化要尽可能少。</strong></p>
+<h3 id="如果这不是问题"><a href="#如果这不是问题" class="headerlink" title="如果这不是问题"></a>如果这不是问题</h3><p>永远不要“修正”任何东西，除非它真的有问题，而且有证据表明问题确实存在。</p>
+<p><strong>在动手修正问题之前，获得证据是很重要的。</strong></p>
+<p>假设有 5 名用户反馈一点按钮 app 就崩溃，那这就是足够充分的证据。但是如果只有一个用户报告错误，这不能说明就是问题，这时候需要重复实现。确实会存在用户没弄清楚到底要干什么的情况。（如果收到很多这样的请求，说明用户很难在你的程序弄清楚怎么使用，这也是要改进的地方）。</p>
+<p>有时候用户会报告某个 bug，但程序其实是完全按照预期来运行的。果真如此的话，就应该少数服从多数，如果相当多的用户认为某个行为是 bug，它就是 bug；如果只是少数用户认为，则不算。</p>
+<p>在这类问题上，最有名的错误就是所谓的“提前优化”，也就是说，有些开发人员想让速度尽可能快，然后在还没弄清楚速度到底慢不慢，就开始花时间来优化程序。这样很有可能是在解决根本不存在的问题。在你的程序中，真正需要关注速度的部分，应该局限于你可以证明的、真正让用户体会到有性能的那些部分，对于程序的其他部分，最主要关心的还是灵活和简洁，而不是速度。</p>
+<h3 id="避免重复"><a href="#避免重复" class="headerlink" title="避免重复"></a>避免重复</h3><p><strong>理想情况下，任何系统里的任何信息，都应当只存在一次。</strong></p>
+<p>我们不应该复制粘贴代码端；相反应该使用各种编程技巧来处理，让各处的代码可以使用（use）、调用（call）、包含（include）已有的其他代码。</p>
+<p>遵守这条规则的一个强有力的理由，就是缺陷概率定律。如果新增功能时可以重用代码，就不需要写太多代码，引入错误的可能性也就随之减少了。这同样有益于设计的灵活性。如果我们需要更改程序的运行结构，就可以修改某一部分，而不是查遍整个程序再各处修修补补。</p>
+<h2 id="简洁"><a href="#简洁" class="headerlink" title="简洁"></a>简洁</h2><p>如果希望避免代码出现新错误，可行的方法之一就是把变化的规模限定在小范围内。不过如果既要做很多修改，有希望这些变化不要引入错误，还可以增加简洁定律</p>
+<blockquote>
+<p>简洁定律：Law of Simplicity。<strong>软件任何一部分的维护难度，反比于该部分的简洁程度。</strong></p>
+</blockquote>
+<p>它不仅仅用来消除错误，还可以保持程序的可维护性，降低新增功能的难度，让代码更容易理解。</p>
+<p>换句话说，某一部分的代码越简洁，未来进行变化的难度就越低。可能注意到了，这条法则并不关心整个系统的简洁性，只是谈到了各个部分的简洁性。原因在于：一般的计算机程序已经足够复杂了，没有人可以一次性全面理解它，大家都只能分部分逐步了解。虽然程序里大都有些庞大繁杂的结构，但这不要紧；要紧的是，在我们阅读代码时，应该可以理解这些庞大繁杂的结构。这些部分越简洁，就越容易被普通人理解。这一点非常重要。</p>
+<p>在软件第一次编写时，采用大模块表面上可以节省下相当多的时间。如果使用众多小模块，就必须花很多时间来组合。不过由大模块构成的系统，质量要差得多。而且将来得花很多时间去修正错误，结果就是维护的难度越来越高。长期来看，能保证效率的恰恰是简单的系统。</p>
+<p><strong>核心思想就是要让代码中各个部分都尽可能简洁，并且尽力已知保持这种简洁性。</strong></p>
+<p>落实这条法则的一个好办法，就是渐进式开发和设计方法。因为每次添加功能之前都有个“重新设计”的过程，所以系统能持续简化。即便不用这种方法，你也可以在增添新功能之前，花点时间去化简任何让你或你的同事觉得不够简洁的代码。</p>
+<h3 id="简洁与软件设计方程式"><a href="#简洁与软件设计方程式" class="headerlink" title="简洁与软件设计方程式"></a>简洁与软件设计方程式</h3><p>目前可行的、能够降低软件设计方程式中维护成本的最重要的事情，就是把代码变简洁。我们不必预测未来，完全可以只审视自己的代码，如果它足够复杂，就立刻动手简化它，这就是随时间推移降低维护成本的方法——持续不断地让代码变得更简洁。</p>
+<h3 id="简洁是相对的"><a href="#简洁是相对的" class="headerlink" title="简洁是相对的"></a>简洁是相对的</h3><p>如何定义简洁取决于你的目标受众。如果你希望知道第一次看你代码的人有什么看法，不妨找些从没接触过的人来看看。所以一个不错的做法就是在自己的代码注释中加上类似“头一次看这段代码？那么。。。”这样的注释，在其中给出一些概略的解释，帮助其他人理解。写注释时应当考虑到，读者完全不了解这段程序，因为如果是你初次接触某些东西，你恐怕也对它一无所知。</p>
+<p>繁杂的文档：只能看到大堆的链接，而没有任何头绪。这种文档对于新手来说非常复杂。</p>
+<p>比起繁杂的文档，更糟糕的是没有文档，开发软件的人认为其他人可以自己找出问题。</p>
+<p><strong>应用场合（上下文）</strong>也是非常重要的。在程序代码中，先进技术如果使用得当，通常会让代码简洁。但是，如果程序的复杂内部结构只有通过某个 web 网页才能看到，其他方式都不可行，这就算不上简洁了。</p>
+<h3 id="简洁到什么程度？"><a href="#简洁到什么程度？" class="headerlink" title="简洁到什么程度？"></a>简洁到什么程度？</h3><p><strong>简单到傻子也能懂。</strong></p>
+<p>许多程序员认为别人都愿意花很多时间来学子自己的代码，毕竟这是自己花很多时间写出来的。但这个看法是不对的，这个问题与智商无关，而与背景知识有关。第一次接触你代码的程序员完全没有任何背景知识，他必须学习。学习的难度越低，找出问题的速度就越快，使用起来也就越容易。</p>
+<p>降低代码学习难度的方法有很多：简单的注释，简单的设计，循序渐进的引导等到。</p>
+<p>简单仍然是相对的，你的代码的目标受众不是家人，而是其他程序员。</p>
+<h3 id="保持一致"><a href="#保持一致" class="headerlink" title="保持一致"></a>保持一致</h3><p>如果代码不能保持一致，程序员理解和阅读起来都要更加困难。</p>
+<p>就像以下两句话：</p>
+<p><img src="/images/20210815/p-2.png" alt="p-2.png"></p>
+<p>在编程时，有时候你做什么并不重要，只要一直保持相同的方式去做即可。</p>
+<ul>
+<li>命名一致</li>
+<li>行为一致。</li>
+</ul>
+<h3 id="可读性"><a href="#可读性" class="headerlink" title="可读性"></a>可读性</h3><p>代码被阅读的次数远多余编写和修改的次数。所以保证代码容易阅读很重要。</p>
+<p><strong>代码可读性主要取决于字母和符号之间的空白排布。</strong></p>
+<h4 id="命名"><a href="#命名" class="headerlink" title="命名"></a>命名</h4><p><strong>名字应当足够长，能够完整表达其意义或描述其功能，但不能太长，以免影响阅读。</strong><br>同时还应当考虑函数、变量等的使用频率。在代码中使用这些名字是否会导致代码过长而影响阅读。比如某个函数会经常在复杂表达式用到，大概就该去一个稍微短一点的名字。</p>
+<h4 id="注释"><a href="#注释" class="headerlink" title="注释"></a>注释</h4><p>代码的意图通常不应该用注释来说明，直接阅读代码就应当能够理解。如果发现意图不够明显，那么就说明这段代码还可以变得更简单。如果实现不能更简单，才应该写注释来说明。</p>
+<p>注释的真实目的，是在理由不够清晰明显时加以解释。如果不解释，其他程序员在修改这段代码时可能胡很困惑。</p>
+<h3 id="简洁离不开设计"><a href="#简洁离不开设计" class="headerlink" title="简洁离不开设计"></a>简洁离不开设计</h3><p>设计中的缺陷是大家都看得到的，但逐步演变为良好设计的改进过长，却是不熟悉代码的人看不到的。</p>
+<h2 id="复杂性"><a href="#复杂性" class="headerlink" title="复杂性"></a>复杂性</h2><p>两个典型的例子：<br><img src="/images/20210815/p-3.png" alt="p-3.png"></p>
+<p>这些问题的根源都在复杂性。开始的时候项目是简单的，只要一个月就能完成；然后复杂性就增加了，于是需要三个月时间；再然后就更复杂了。</p>
+<p>复杂性是会叠加的，而且不是简单的线性叠加。原有功能越多，新增功能的成本就越高。优秀的设计可以尽量避免此类问题，但每项新功能仍然会有单独但成本。</p>
+<p>有些项目从一启动就设定了繁多的需求，所以永远无法发布第一版。如果遇到这种情况，就应当删减功能。初次发布不应当设定过高的目标，而应当先让程序跑起来，再持续改进。</p>
+<p>除了新增功能外，还有一些做法会增加复杂性：</p>
+<ul>
+<li>扩展软件的用途</li>
+<li>新增程序员：可见人月神话</li>
+<li>做无谓的改变</li>
+<li>困于糟糕的技术</li>
+<li>理解错误</li>
+<li>糟糕的设计或不做设计</li>
+<li>重复发明轮子。只有满足以下任何一个条件的前提下，发明轮子才有价值：<ul>
+<li>你需要的东西不存在；</li>
+<li>现有各种“轮子”都很糟糕，会把你困住；</li>
+<li>现有的各种“轮子”根本无法满足你的需求；</li>
+<li>现有的“轮子”缺乏良好的维护，而你也不能接过维护的任务（比如没有源码）</li>
+</ul>
+</li>
+</ul>
+<h3 id="复杂性与软件的用途"><a href="#复杂性与软件的用途" class="headerlink" title="复杂性与软件的用途"></a>复杂性与软件的用途</h3><p>如果你给系统添加新功能去满足其他目标，事情就立刻变复杂了。<br>同样重要的是要思考用户的需求。用户之所以要使用软件，总是有自己的需求。理想情况下，软件的用途应当接近用户的需求。</p>
+<p>有时候，运营人员活着经理会给软件设定一些目标，但是这些目标其实并不符合程序的基本用途，比如“要好玩一些”、“设计要有冲击感”、“要受新媒体欢迎”、“要使用最新的技术”等。身为软件设计师或是技术经理，你的职责是保证软件的基本用途，防止它偏离正规。有时候，你可能需要为此据理力争，但从长期来看，这肯定是值得的。</p>
+<p>没有必要玩太多花样，做太复杂，尝试用单个软件瞬间完成 500 个任务。<strong>最受用户喜欢的软件是专注而简洁的，而且始终执着于基本用户。</strong></p>
+<h3 id="糟糕的技术"><a href="#糟糕的技术" class="headerlink" title="糟糕的技术"></a>糟糕的技术</h3><p>可以通过三个因素来判断技术是否糟糕：</p>
+<ul>
+<li>生存潜力：就是技术持续获得维护的可能性。要了解生存潜力，可以查阅其最近的发布记录。开发者是否频繁地发布真正解决了客户问题的新版本？开发者对 bug 报告的响应有多积极？他们是否有活跃的邮件列表或支持团队？是否有足够的人在线谈论这项技术？</li>
+<li>互通性：如果需要，从一种技术切换到另一种技术有多难。要了解技术的互通性，就得问问自己，能不能以某种标准方式来交互，这样是否能更容易得切换到遵循同样标准的系统中。</li>
+<li>对品质的重视：更主观的衡量，其思想是考察最近的发布中，产品是否更加完善了。</li>
+</ul>
+<h3 id="复杂性及错误的解决方案"><a href="#复杂性及错误的解决方案" class="headerlink" title="复杂性及错误的解决方案"></a>复杂性及错误的解决方案</h3><p>比如有人问你：如果让马飞上月球。这时候就要返回：要解决的究竟是什么问题。有可能这个人真正需要的其实是收集一些石头，那么解决方案就很简单：去室外找一找就好。</p>
+<p>所以，如果事情变复杂，不妨回过头去看看真正要解决的是什么问题。你可以退上一大步，也可以质疑任何问题，真正要做的就是找出自己所处环境中最好的办法。<br>要做到这一点，不应当依靠猜测，而必须亲眼去看要解决的问题。确认你真正理解了问题的方方面面，找到最简单的解决办法。</p>
+<h3 id="复杂问题"><a href="#复杂问题" class="headerlink" title="复杂问题"></a>复杂问题</h3><p>在复杂性面前，问问自己“真正要解决的问题是什么”。大多数麻烦的设计问题，都可以用在纸上画图或写出来的办法找到答案。</p>
+<h3 id="应对复杂性"><a href="#应对复杂性" class="headerlink" title="应对复杂性"></a>应对复杂性</h3><p>要应付系统中的复杂性，如果系统中某个部分太过复杂，可以将系统分解成为独立的小部分，逐步重新设计。<br>不过这个过程中最大的危险是：新作的修改有可能会引入更多的复杂性。<br>如果所有的代码都包含在一个巨大的文件里，改进的第一步就是把某个部分保存到单独的文件里。之后改进这个小部分的设计，然后把另一个部分保存到新的文件，再改进这个部分的设计。如此重复下去，最终得到的就是可靠的、可理解的、可维护的系统。<br>所有可行的简化，其核心问题都是：怎么做，才可以让事情处理或是理解起来更容易。</p>
+<p>平衡开发新功能和应对复杂性最好的一个办法是，重新设计时只考虑让新功能更容易实现，然后实现这个功能。这样，你就可以在重新设计和开发新功能直接定期切换。</p>
+<h4 id="把某个部分变简单"><a href="#把某个部分变简单" class="headerlink" title="把某个部分变简单"></a>把某个部分变简单</h4><p>学习设计模式和设计方法来处理遗留代码，学习软件工程师普遍使用的工具，都可以帮上大忙，尤其是掌握多门编程语言，熟悉多种不同的类库。</p>
+<h4 id="不可解决的复杂性"><a href="#不可解决的复杂性" class="headerlink" title="不可解决的复杂性"></a>不可解决的复杂性</h4><blockquote>
+<p>如果遇到不可解决的复杂性，<strong>在程序外面妥善包装上一层</strong>，让其他程序员更容易使用和理解。</p>
+</blockquote>
+<h3 id="推倒重来"><a href="#推倒重来" class="headerlink" title="推倒重来"></a>推倒重来</h3><p>把系统推倒重来，几乎就是设计师承认失败。<br>推倒重来只有在一些非常有限的情况下才是可以接受的。</p>
+<ul>
+<li>已经完成了准确评估，证明重写系统会比重新设计现有系统更有效率。</li>
+<li>有足够的时间</li>
+<li>要比原有系统的设计师更高明，活着原有设计是你，现在设计能力已经大大提升</li>
+<li>完全打算好了通过一系列简单的步骤设计整个新系统，每一步都有用户提供反馈</li>
+<li>有足够的资源，可坚固维护原有系统和重新设计系统。</li>
+</ul>
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><blockquote>
+<p>测试定律：Law of Testing，你对软件行为的了解程度，等于你真正测试它的程序。除非亲自测试过，否则你不知道软件是否能正常运行。</p>
+</blockquote>
+<p>除非亲自测试过，否则你不知道软件是否能正常运行。<br>针对每项测试，你必须问一个具体的问题，得到一个具体的答案。如果还有其他的答案，那么软件就是不能正常运行的。</p>
+<p>无论程序员多么聪明，也无论有多少理论数据来证明你的代码是正确的，在没有切实测试过之前，你都不知道它能不能正常工作。</p>
+</div></article></div><div class="post-paginator"><div class="post-links"><div class="post-prev"><a href="/2021/08/21/notes/【笔记】《A Philosophy of Software Design》软件设计哲学（上）/" class="prev">Previous Post<span>【笔记】《A Philosophy of Software Design》软件设计哲学（上）</span></a></div><div class="post-next"><a href="/2021/07/23/notes/【笔记】《高并发系统设计40问》/" class="next">Next Post<span>【笔记】《百亿级并发系统设计》和《高并发系统设计 40 问》</span></a></div></div></div></div><div class="sidebar"><div class="social-links"><ul><li class="social-link"><a href="http://github.com/MichealWayne" target="_blank" class="link-github"><i class="icon icon-github"></i></a></li><li class="social-link"><a href="mailto:michealwayne@163.com" target="_self" class="link-mail"><i class="icon icon-mail"></i></a></li></ul></div><div class="recent-posts widget"><h3 class="widget-title"> Recent Posts</h3><div class="widget-content"><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2022/10/23/notes/【笔记】《我的架构思想：基本模型、理论与原则》编三/">【笔记】《我的架构思想：基本模型、理论与原则》编三——架构原则，技艺、艺术与美</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/10/04/notes/【笔记】《我的架构思想：基本模型、理论与原则》编二/">【笔记】《我的架构思想：基本模型、理论与原则》编二——架构是过程，而非结果</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/09/12/notes/【笔记】《我的架构思想：基本模型、理论与原则》编一/">【笔记】《我的架构思想：基本模型、理论与原则》编一——你所关注的系统</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/08/20/notes/【笔记】Browserslist和使用/">【笔记】Browserslist 信息和使用整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/07/17/notes/【笔记】越来越快的jsRuntime——Bun/">【笔记】越来越快的jsRuntime——Bun</a></li></ul></div></div><div class="recent-comment widget"><h3 class="widget-title"> Author</h3><div class="widget-content"><div class="m-author"><div class="u-avatar"><img src="data:image/jpeg;base64,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"></div><div class="u-author_tit"><p>My name is Micheal Wayne and this is my blog.<br>I am a front-end software engineer.<br>Contact: <a href="mailto:michealwayne@163.com"> <span>michealwayne@163.com</span></a></p></div></div></div></div><div class="tag-lists widget"><h3 class="widget-title"> Tags</h3><div class="widget-content"><ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/APM/">APM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BOM/">BOM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Bun/">Bun</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DOM/">DOM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTML/">HTML</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OKR/">OKR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UML/">UML</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UX/">UX</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/">Vue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WebSocket/">WebSocket</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zepto/">Zepto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/canvas/">canvas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/">css</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/es6/">es6</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eslint/">eslint</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/h5/">h5</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/">http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jQuery/">jQuery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/">js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lerna/">lerna</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lottie/">lottie</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/">nodejs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prettier/">prettier</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/">react</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/serviceWorker/">serviceWorker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sketch/">sketch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skywalking/">skywalking</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/taro/">taro</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tslint/">tslint</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/typescript/">typescript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webApi/">webApi</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpack/">webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/代码规范/">代码规范</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/前端/">前端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/动效/">动效</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图形处理/">图形处理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/安全/">安全</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/小程序/">小程序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/工具/">工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/工程/">工程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/微前端/">微前端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/思维逻辑/">思维逻辑</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/性能/">性能</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/架构/">架构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/概念/">概念</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/浏览器/">浏览器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/用户体验/">用户体验</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/笔记/">笔记</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/编码/">编码</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/网络/">网络</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/网络协议/">网络协议</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/设计模式/">设计模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/调试/">调试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/质量/">质量</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/软件工程/">软件工程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/项目管理/">项目管理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/高并发/">高并发</a></li></ul></div></div><div class="archive-lists widget"><h3 class="widget-title"> Archive</h3><div class="widget-content"><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/05/">May 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">April 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">December 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">August 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">March 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">September 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">November 2017</a><span class="archive-list-count">5</span></li></ul></div></div></div></div></div><footer><div class="copyright"><div class="container"><div class="col-6"><div class="site-info">© 2016 - 2022 <a href="http://blog.michealwayne.cn">Micheal Wayne</a></div></div><div class="col-6"><div class="site-contact"><div class="social-links"><ul><li class="social-link"><a href="http://github.com/MichealWayne" target="_blank" class="link-github"><i class="icon icon-github"></i></a></li><li class="social-link"><a href="mailto:michealwayne@163.com" target="_self" class="link-mail"><i class="icon icon-mail"></i></a></li></ul></div></div></div></div></div></footer><a class="scroll-up"><span class="icon icon-up"></span></a><script src="https://code.jquery.com/jquery-3.1.0.min.js"></script><script src="/js/posfixed.js"></script><script src="/js/utils.js"></script><script src="/js/search.js"></script><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-92791318-1",'auto');ga('send','pageview');</script></body></html>
