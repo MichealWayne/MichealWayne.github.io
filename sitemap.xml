@@ -2,6 +2,27 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://blog.michealwayne.cn/2022/11/19/typescript/%E6%B5%85%E8%B0%88TypeScript%E7%9A%84%E5%9B%BE%E7%81%B5%E5%AE%8C%E5%A4%87%E6%80%A7/</loc>
+    
+    <lastmod>2022-11-22T05:53:20.758Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.michealwayne.cn/2019/08/22/notes/%E3%80%90%E7%AC%94%E8%AE%B0%E3%80%91ES6%E9%9A%8F%E6%89%8B%E8%AE%B0%EF%BC%88%E6%8C%81%E7%BB%AD%EF%BC%89/</loc>
+    
+    <lastmod>2022-10-31T05:42:13.346Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.michealwayne.cn/2018/07/06/react/%E3%80%90%E7%AC%94%E8%AE%B0%E3%80%91ReactJS%E9%9A%8F%E6%89%8B%E8%AE%B0%EF%BC%88%E6%8C%81%E7%BB%AD%EF%BC%89/</loc>
+    
+    <lastmod>2022-10-31T05:32:10.601Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://blog.michealwayne.cn/2022/10/23/notes/%E3%80%90%E7%AC%94%E8%AE%B0%E3%80%91%E3%80%8A%E6%88%91%E7%9A%84%E6%9E%B6%E6%9E%84%E6%80%9D%E6%83%B3%EF%BC%9A%E5%9F%BA%E6%9C%AC%E6%A8%A1%E5%9E%8B%E3%80%81%E7%90%86%E8%AE%BA%E4%B8%8E%E5%8E%9F%E5%88%99%E3%80%8B%E7%BC%96%E4%B8%89/</loc>
     
     <lastmod>2022-10-25T03:32:32.951Z</lastmod>
@@ -75,13 +96,6 @@
     <loc>http://blog.michealwayne.cn/2018/08/27/notes/%E3%80%90%E7%AC%94%E8%AE%B0%E3%80%91npm%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/</loc>
     
     <lastmod>2022-08-11T06:04:32.202Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://blog.michealwayne.cn/2019/08/22/notes/%E3%80%90%E7%AC%94%E8%AE%B0%E3%80%91ES6%E9%9A%8F%E6%89%8B%E8%AE%B0%EF%BC%88%E6%8C%81%E7%BB%AD%EF%BC%89/</loc>
-    
-    <lastmod>2022-08-02T05:18:37.440Z</lastmod>
     
   </url>
   
@@ -621,13 +635,6 @@
     <loc>http://blog.michealwayne.cn/2019/02/27/tools_study/%E3%80%90%E5%B7%A5%E5%85%B7%E3%80%91react%E5%8A%A8%E7%94%BB%E5%BA%93react-transition-group/</loc>
     
     <lastmod>2021-01-05T03:44:54.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://blog.michealwayne.cn/2018/07/06/react/%E3%80%90%E7%AC%94%E8%AE%B0%E3%80%91ReactJS%E9%9A%8F%E6%89%8B%E8%AE%B0%EF%BC%88%E6%8C%81%E7%BB%AD%EF%BC%89/</loc>
-    
-    <lastmod>2021-01-05T03:44:48.000Z</lastmod>
     
   </url>
   
@@ -1220,13 +1227,6 @@
   </url>
   
   <url>
-    <loc>http://blog.michealwayne.cn/2018/07/19/ux_way/%E3%80%8AUX%E8%AE%BE%E8%AE%A1%E4%B9%8B%E9%81%93%E3%80%8B%E2%80%9411.%E7%AB%99%E7%82%B9%E5%9C%B0%E5%9B%BE%E5%92%8C%E4%BB%BB%E5%8A%A1%E6%B5%81/</loc>
-    
-    <lastmod>2019-06-04T13:58:02.000Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://blog.michealwayne.cn/2018/06/15/ux_way/%E3%80%8AUX%E8%AE%BE%E8%AE%A1%E4%B9%8B%E9%81%93%E3%80%8B%E2%80%9410.%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99/</loc>
     
     <lastmod>2019-06-04T13:58:02.000Z</lastmod>
@@ -1235,6 +1235,13 @@
   
   <url>
     <loc>http://blog.michealwayne.cn/2018/08/04/ux_way/%E3%80%8AUX%E8%AE%BE%E8%AE%A1%E4%B9%8B%E9%81%93%E3%80%8B%E2%80%9412.%E7%BA%BF%E6%A1%86%E5%9B%BA%E5%92%8C%E6%A0%87%E6%B3%A8/</loc>
+    
+    <lastmod>2019-06-04T13:58:02.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.michealwayne.cn/2018/07/19/ux_way/%E3%80%8AUX%E8%AE%BE%E8%AE%A1%E4%B9%8B%E9%81%93%E3%80%8B%E2%80%9411.%E7%AB%99%E7%82%B9%E5%9C%B0%E5%9B%BE%E5%92%8C%E4%BB%BB%E5%8A%A1%E6%B5%81/</loc>
     
     <lastmod>2019-06-04T13:58:02.000Z</lastmod>
     
@@ -1255,14 +1262,14 @@
   </url>
   
   <url>
-    <loc>http://blog.michealwayne.cn/2019/01/03/tools/%E3%80%90%E5%B7%A5%E5%85%B7%E3%80%91js%E8%BF%90%E7%AE%97%E7%AC%A6%E4%BC%98%E5%85%88%E7%BA%A7/</loc>
+    <loc>http://blog.michealwayne.cn/2019/01/07/tools/%E3%80%90%E5%B7%A5%E5%85%B7%E3%80%91tsconfig%E9%85%8D%E7%BD%AE%E8%AF%B4%E6%98%8E/</loc>
     
     <lastmod>2019-06-04T13:56:24.000Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://blog.michealwayne.cn/2019/01/07/tools/%E3%80%90%E5%B7%A5%E5%85%B7%E3%80%91tsconfig%E9%85%8D%E7%BD%AE%E8%AF%B4%E6%98%8E/</loc>
+    <loc>http://blog.michealwayne.cn/2019/01/03/tools/%E3%80%90%E5%B7%A5%E5%85%B7%E3%80%91js%E8%BF%90%E7%AE%97%E7%AC%A6%E4%BC%98%E5%85%88%E7%BA%A7/</loc>
     
     <lastmod>2019-06-04T13:56:24.000Z</lastmod>
     
@@ -1276,14 +1283,14 @@
   </url>
   
   <url>
-    <loc>http://blog.michealwayne.cn/2018/07/12/tools/%E3%80%90%E5%B7%A5%E5%85%B7%E3%80%91eslint%E5%B8%B8%E8%A7%81%E9%85%8D%E7%BD%AE/</loc>
+    <loc>http://blog.michealwayne.cn/2019/02/11/tools_study/%E3%80%90%E5%B7%A5%E5%85%B7%E3%80%91%E8%B7%AF%E7%94%B1%E8%B7%AF%E5%BE%84%E8%BD%AC%E6%8D%A2%E6%8F%92%E4%BB%B6path-to-regexp/</loc>
     
     <lastmod>2019-06-04T13:56:22.000Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://blog.michealwayne.cn/2019/02/11/tools_study/%E3%80%90%E5%B7%A5%E5%85%B7%E3%80%91%E8%B7%AF%E7%94%B1%E8%B7%AF%E5%BE%84%E8%BD%AC%E6%8D%A2%E6%8F%92%E4%BB%B6path-to-regexp/</loc>
+    <loc>http://blog.michealwayne.cn/2018/07/12/tools/%E3%80%90%E5%B7%A5%E5%85%B7%E3%80%91eslint%E5%B8%B8%E8%A7%81%E9%85%8D%E7%BD%AE/</loc>
     
     <lastmod>2019-06-04T13:56:22.000Z</lastmod>
     
