@@ -1,5 +1,5 @@
 <!DOCTYPE html><html><head><meta name="generator" content="Hexo 3.9.0"><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> 【整理】编码命名规范建议 | Wayne的博客</title><meta name="description" content="【整理】编码命名规范建议 - Micheal Wayne"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/scss/casual.css"><link rel="stylesheet" href="/css/icon.css"><link rel="search" type="application/opensearchdescription+xml" href="http://blog.michealwayne.cn/atom.xml" title="Wayne的博客"></head><script>(function (w) {w.frontjsConfig={token:"81a82620fb0dca7680f2f06be134fa4f",behaviour:8,FPSThreshold:10};w.frontjsTmpData = {r:[],e:[],l:[]};w.frontjsTmpCollector = function (ev) {(ev.message ? window.frontjsTmpData.e : window.frontjsTmpData.r).push([new Date().getTime(), ev])};w.FrontJS = {addEventListener: function (t, f) {w.frontjsTmpData.l.push([t, f]);return f;},removeEventListener: function (t, f) {for (var i = 0; i < w.frontjsTmpData.l.length; i++) {t === w.frontjsTmpData.l[i][0] && f === w.frontjsTmpData.l[i][1] && w.frontjsTmpData.l.splice(i, 1);}return f;}};w.document.addEventListener("error", w.frontjsTmpCollector, true);w.addEventListener("error", w.frontjsTmpCollector, true);w.addEventListener("load", function () {var n = w.document.createElement("script");n.src = "https://frontjs-static.pgyer.com/dist/current/frontjs.web.min.js"; w.document.body.appendChild(n);}, true);})(window);</script><body><div class="header"><header class="site-header"><div class="site-nav"><span class="button-toggle"></span><div class="container"><div class="nav-item"><a href="/" target="_self" data-text="home">主页</a></div><div class="nav-item"><a href="/archives" target="_self" data-text="archive">归档</a></div><div class="nav-item"><a href="/about" target="_self" data-text="about">关于</a></div></div><form id="search-form" class="nav-item"><input type="text" id="local-search-input" name="q" results="0" placeholder="搜索" autocomplete="off" autocorrect="off" class="search form-control"><span onclick="resetSearch()" class="fa fa-times"> </span></form><div id="local-search-result"></div><p class="no-result">No results found</p></div></header></div><div class="main"><div class="container"><div class="content"><div class="post"><article class="post-block"><h1 class="post-title">【整理】编码命名规范建议</h1><span class="post-date">Jun 12, 2022</span><span class="post-tag"><a href="/tags/笔记/">笔记</a><a href="/tags/编码/">编码</a></span><img src="/images/howtonaming/p-guide.jpg" class="bgimage"><div class="post-content"><h1 id="编码命名规范建议"><a href="#编码命名规范建议" class="headerlink" title="编码命名规范建议"></a>编码命名规范建议</h1><h2 id="编程中命名习惯的改进"><a href="#编程中命名习惯的改进" class="headerlink" title="编程中命名习惯的改进"></a>编程中命名习惯的改进</h2><blockquote>
-<p> 当我们看到一段代码时，最先注意到的，不是代码有几层循环，用了什么模式，而是变量与注释，因为它们是代码里最接近自然语言的东西。</p>
+<p>当我们看到一段代码时，最先注意到的，不是代码有几层循环，用了什么模式，而是变量与注释，因为它们是代码里最接近自然语言的东西。</p>
 </blockquote>
 <p>写代码前先决定名字。</p>
 <h3 id="命名的指导方针"><a href="#命名的指导方针" class="headerlink" title="命名的指导方针"></a>命名的指导方针</h3><ul>
@@ -15,109 +15,73 @@
 <p>*心理映射：读代码的人看到某元素名字后需要先在心里把它转换成自己知道的东西，这个过程就是心理映射，我们应该极力避免这种情况发生。</p>
 </blockquote>
 <h3 id="命名的基本原则"><a href="#命名的基本原则" class="headerlink" title="命名的基本原则"></a>命名的基本原则</h3><ul>
-<li><p>全部采用易懂的英文来命名，可以辅以下划线和数字。</p>
-</li>
-<li><p>名称长度尽量不要超过16个字符（有些常量名称可能长度会比较长）。</p>
-</li>
-<li><p>不要采用无意义的名字</p>
-</li>
-<li><p>每个单词之间应该有合适的分割，可以采用大小写间隔，也可以采用下划线。</p>
-</li>
-<li><p>除了常量以外，都应该是大小写混合的形式，即使是FTP，也要写成Ftp。</p>
-</li>
-<li><p>遵循编程语言的标准，比如 Python 遵循 <a href="https://pep8.org/" target="_blank" rel="noopener">PEP8</a> 编码风格。</p>
-</li>
+<li>全部采用易懂的英文来命名，可以辅以下划线和数字；</li>
+<li>名称长度尽量不要超过<strong>16 个字符</strong>（有些常量名称可能长度会比较长）；</li>
+<li>不要采用无意义的名字；</li>
+<li>每个单词之间应该有合适的分割，可以采用大小写间隔，也可以采用下划线；</li>
+<li>除了常量以外，都应该是大小写混合的形式，即使是 FTP，也要写成 Ftp；</li>
+<li>遵循编程语言的标准，比如 Python 遵循 <a href="https://pep8.org/" target="_blank" rel="noopener">PEP8</a> 编码风格。</li>
 </ul>
-<h4 id="格式"><a href="#格式" class="headerlink" title="格式"></a>格式</h4><h5 id="1-snake-case"><a href="#1-snake-case" class="headerlink" title="1.snake-case"></a>1.snake-case</h5><p>蛇形命名法, 规定复合词或短语中的各个单词之间用下划线（<code>_</code>）分隔并且没有空格。复合词中的每一个单词的首字母通常都是小写的，并且复合词的第一个字母既可以是大写的又可以是小写的。</p>
+<h4 id="格式"><a href="#格式" class="headerlink" title="格式"></a>格式</h4><h5 id="1-snake-case"><a href="#1-snake-case" class="headerlink" title="1.snake-case"></a>1.snake-case</h5><p>蛇形命名法, 规定复合词或短语中的各个单词之间用<strong>下划线（<code>_</code>）分隔</strong>并且没有空格。复合词中的每一个单词的首字母通常都是小写的，并且复合词的第一个字母既可以是大写的又可以是小写的。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">例如: lisp_case、kebab_case、SCREAMING_SNAKE_CASE</span><br></pre></td></tr></table></figure>
 <h5 id="2-camel-case"><a href="#2-camel-case" class="headerlink" title="2.camel-case"></a>2.camel-case</h5><p>驼峰命名法，其中又可分：</p>
-<p> <strong>lower-case </strong>：小驼峰命名法，第一个单词的首字母小写；第二个单词开始每个单词的的首字母大写。方法名、参数名、成员变量、局部变量。</p>
+<p><strong>lower-case</strong>：小驼峰命名法，第一个单词的首字母小写；第二个单词开始每个单词的的首字母大写。常用于方法名、参数名、成员变量、局部变量。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">例如: firstName、lastName</span><br></pre></td></tr></table></figure>
-<p><strong>upper-case / pascal-case</strong>：大驼峰命名法，每一个单词的首字母都大写。</p>
+<p><strong>upper-case / pascal-case</strong>：大驼峰命名法，每一个单词的首字母都大写。常用于接口或类名。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">例如: FirstName、LastName、CamelCase</span><br></pre></td></tr></table></figure>
 <h5 id="3-kebab-case"><a href="#3-kebab-case" class="headerlink" title="3.kebab-case"></a>3.kebab-case</h5><p>短横线命名法。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">例如: v-bind</span><br></pre></td></tr></table></figure>
 <h3 id="变量和常量"><a href="#变量和常量" class="headerlink" title="变量和常量"></a>变量和常量</h3><h4 id="通用规则"><a href="#通用规则" class="headerlink" title="通用规则"></a>通用规则</h4><ul>
-<li><ol>
-<li>尽量不要使用拼音，杜绝拼音和英文混用。对于一些通用的表示或者难以用英文描述的可以采用拼音，一旦采用拼音就坚决不能和英文混用。正例：BeiJing， HangZhou 反例：validateCanShu</li>
-</ol>
-</li>
-<li><ol start="2">
-<li>命名过程中尽量不要出现特殊的字符，常量除外。</li>
-</ol>
-</li>
-<li><ol start="3">
-<li>尽量不要和全局变量或者框架中已存在的类重名，也不能使用编程语言中的关键字命名。</li>
-</ol>
-</li>
-<li><ol start="4">
-<li>妙用介词，如for(可以用同音的4代替), to(可用同音的2代替), from, with，of等。如类名采用 User4RedisDO，方法名 getUserInfoFromRedis，convertJson2Map等。</li>
-</ol>
-</li>
-<li><ol start="5">
-<li>避免误导。要注意使用小写字母i和大写字母O作为变量名，看起来像“壹”和“零”。</li>
-</ol>
-</li>
-<li><ol start="6">
-<li>使用可搜索的名称。单字母名称和数字常量有个问题，就是很难在一大篇文字中找出来</li>
-</ol>
-</li>
-<li><ol start="7">
-<li>言到意到，意到言到，别扮”可爱“，别用双关语。</li>
-</ol>
-</li>
+<li><strong>尽量不要使用拼音，杜绝拼音和英文混用</strong>。对于一些通用的表示或者难以用英文描述的可以采用拼音，一旦采用拼音就坚决不能和英文混用。正例：BeiJing， HangZhou 反例：validateCanShu</li>
+<li>命名过程中<strong>尽量不要出现特殊的字符</strong>，常量除外；</li>
+<li><strong>尽量不要和全局变量或者框架中已存在的类重名，也不能使用编程语言中的关键字命名</strong>；</li>
+<li><strong>妙用介词</strong>，如 for(可以用同音的 4 代替), to(可用同音的 2 代替), from, with，of 等。如类名采用 User4RedisDO，方法名 getUserInfoFromRedis，convertJson2Map 等；</li>
+<li><strong>避免误导</strong>。要注意使用小写字母 i 和大写字母 O 作为变量名，看起来像“壹”和“零”；</li>
+<li><strong>使用可搜索的名称</strong>。单字母名称和数字常量有个问题，就是很难在一大篇文字中找出来；</li>
+<li><strong>言到意到，意到言到</strong>，别扮”可爱“，别用双关语。</li>
 </ul>
 <h4 id="变量命名"><a href="#变量命名" class="headerlink" title="变量命名"></a>变量命名</h4><p>变量是指在程序运行中可以改变其值的量，包括成员变量和局部变量。</p>
 <p>为变量命名要结合代码情境和上下文，变量命名时，<strong>尽量简短且能清楚的表达变量的作用</strong>，命名体现具体的业务含义即可。</p>
 <p>通用格式：</p>
 <ul>
-<li><p>变量名由多单词组成时，第一个单词的首字母小写，其后单词的首字母大写，俗称骆驼式命名法（也称驼峰命名法，lower-case），如 computedValues，index。</p>
-</li>
-<li><p>变量名<strong>不应以下划线或美元符号开头</strong>，尽管这在语法上是允许的。变量名应简短且富于描述。变量名的选用应该易于记忆，即，能够指出其用途。尽量避免单个字符的变量名，除非是一次性的临时变量。pojo（简单的Java对象，实际就是普通JavaBeans）中的布尔变量，都不要加is(数据库中的布尔字段全都要加 is_ 前缀)。</p>
-</li>
-<li><p>变量名描述性要强，但不宜过长，尽量<strong>不要超过4个</strong>单词。</p>
-</li>
-<li><p>在同一段代码内，不要出现多个相似的变量名。</p>
-</li>
+<li>变量名由多单词组成时，第一个单词的首字母小写，其后单词的首字母大写，俗称骆驼式命名法（也称驼峰命名法，lower-case），如 computedValues，index。</li>
+<li>变量名<strong>不应以下划线或美元符号开头</strong>，尽管这在语法上是允许的。变量名应简短且富于描述。变量名的选用应该易于记忆，即，能够指出其用途。尽量避免单个字符的变量名，除非是一次性的临时变量。pojo（简单的 Java 对象，实际就是普通 JavaBeans）中的布尔变量，都不要加 is(数据库中的布尔字段全都要加 is_ 前缀)。</li>
+<li>变量名描述性要强，但不宜过长，尽量<strong>不要超过 4 个</strong>单词。</li>
+<li>在同一段代码内，不要出现多个相似的变量名。</li>
 </ul>
 <p>其他：</p>
 <ul>
-<li>变量越多，就越难全部跟踪它们的动向</li>
-<li>变量的作用域越大，就需要跟踪它的动向越久</li>
+<li>变量越多，就越难全部跟踪它们的动向；</li>
+<li>变量的作用域越大，就需要跟踪它的动向越久；</li>
 <li>变量改变得越频繁，就越难以跟踪它的当前值。</li>
 </ul>
 <h4 id="常量命名"><a href="#常量命名" class="headerlink" title="常量命名"></a>常量命名</h4><p>通用格式：</p>
 <ul>
-<li><p>常量要采用全部大写的形式进行命名，如果有多个单词，用下划线进行分割。</p>
-</li>
-<li><p>常量的命名不要采用序号式命名。</p>
-</li>
-<li><p>常量应该通过其开头词进行分组。</p>
-</li>
+<li>常量要采用全部大写的形式进行命名，如果有多个单词，用下划线进行分割；</li>
+<li>常量的命名不要采用序号式命名；</li>
+<li>常量应该通过其开头词进行分组。</li>
 </ul>
 <p>其他：</p>
 <ul>
-<li><p>常量一般都有自己的业务含义，<strong>不要害怕长度过长而进行省略或者缩写</strong>。如，用户消息缓存过期时间的表示，那种方式更佳清晰，交给你来评判。</p>
-</li>
-<li><p>虽然很多常量名字本身已经很清楚感觉不需要注释，但是可以通过加注释得以改进，比如定义这个常量时的想法。</p>
-</li>
+<li>常量一般都有自己的业务含义，<strong>不要害怕长度过长而进行省略或者缩写</strong>。如，用户消息缓存过期时间的表示，那种方式更佳清晰，交给你来评判。</li>
+<li>虽然很多常量名字本身已经很清楚感觉不需要注释，但是可以通过加注释得以改进，比如定义这个常量时的想法。</li>
 </ul>
 <h3 id="相似的命名"><a href="#相似的命名" class="headerlink" title="相似的命名"></a>相似的命名</h3><ul>
-<li>*Form（获取页面输入）、持久化（想数据库存取数据）、View（想页面显示数据）的重复：难免会产生这三层需要采用同一个名称的情况，最佳方法就是将三者合一，通过Annotation来完成各自不同用途的格式定义，从而减少命名重复的困扰。</li>
-<li>层1、层2……层n的无形层的重复：可以采用<code>～Form</code>、<code>～Wapper</code>、<code>～Layer</code>分别对不同的包装容器进行命名来规避这个问题。</li>
+<li>*Form（获取页面输入）、持久化（想数据库存取数据）、View（想页面显示数据）的重复：难免会产生这三层需要采用同一个名称的情况，最佳方法就是将三者合一，通过 Annotation 来完成各自不同用途的格式定义，从而减少命名重复的困扰。</li>
+<li>层 1、层 2……层 n 的无形层的重复：可以采用<code>～Form</code>、<code>～Wapper</code>、<code>～Layer</code>分别对不同的包装容器进行命名来规避这个问题。</li>
 <li>类和内容的重复：一般来说，容器和内容之间都会有不同的名词，例如房子和家具、菜篮子和蔬菜、问卷和问题。</li>
-<li>整体和部分：可以通过增加前缀来区分部分和整体，例如matched、filtered、grouped、wrapper。</li>
+<li>整体和部分：可以通过增加前缀来区分部分和整体，例如 matched、filtered、grouped、wrapper。</li>
 <li>类型转换：可以通过连续调用来略过类型转换时的中间变量。</li>
 </ul>
 <h2 id="从问题出发"><a href="#从问题出发" class="headerlink" title="从问题出发"></a>从问题出发</h2><h3 id="1-从阅读者角度，一些常见的编码问题"><a href="#1-从阅读者角度，一些常见的编码问题" class="headerlink" title="1.从阅读者角度，一些常见的编码问题"></a>1.从阅读者角度，一些常见的编码问题</h3><ul>
-<li>一直滚动鼠标滚轮——方法过长</li>
-<li>总是全局搜索——方法过长</li>
-<li>反复地查看方法实现——命名无法反映其真实含义</li>
-<li>不停地查看调用方法实现——调用层数太多</li>
-<li>反复查看全局常量的值——常量定义方式无法反映其实质</li>
+<li>一直滚动鼠标滚轮——方法过长；</li>
+<li>总是全局搜索——方法过长；</li>
+<li>反复地查看方法实现——命名无法反映其真实含义；</li>
+<li>不停地查看调用方法实现——调用层数太多；</li>
+<li>反复查看全局常量的值——常量定义方式无法反映其实质；</li>
 <li>画流程图——嵌套太深。</li>
 </ul>
-<p>在阅读上的问题分为以下5类：</p>
+<p>在阅读上的问题分为以下 5 类：</p>
 <ul>
 <li>命名类问题</li>
 <li>注释类问题</li>
@@ -128,53 +92,53 @@
 <p>其中与命名相关的问题：</p>
 <h4 id="命名类问题"><a href="#命名类问题" class="headerlink" title="命名类问题"></a>命名类问题</h4><p>代码能够用尽可能短的命名来表征尽可能多的含义。</p>
 <ul>
-<li>1.缺乏统一性：类/接口/方法/变量命名都应该遵守一定的规则。</li>
-<li>2.没有考虑调用时的情形</li>
-<li>3.本地语言命名：除非专有名词，否则还是要用英语。</li>
-<li>4.命名用词不当：所使用的英文有误、可能引起误解。如：<ul>
-<li>research不能表示重新检索，想要表示重新检索应该用searchAgain；</li>
-<li>limit表示极限而不是限制，restriction或者constraint才表示限制；</li>
-<li>fasten表示固定而不是加速，accelerate才表示加速。</li>
+<li>缺乏统一性：类/接口/方法/变量命名都应该遵守一定的规则；</li>
+<li>没有考虑调用时的情形；</li>
+<li>本地语言命名：除非专有名词，否则还是要用英语；</li>
+<li>命名用词不当：所使用的英文有误、可能引起误解。如：<ul>
+<li>research 不能表示重新检索，想要表示重新检索应该用 searchAgain；</li>
+<li>limit 表示极限而不是限制，restriction 或者 constraint 才表示限制；</li>
+<li>fasten 表示固定而不是加速，accelerate 才表示加速。</li>
 </ul>
 </li>
-<li>5.超长的命名：超长的命名回花费较多时间阅读，也不容易记忆。例如internationalization这个词汇已经被缩略为i18n，以方便书写和记忆。<ul>
+<li>超长的命名：超长的命名回花费较多时间阅读，也不容易记忆。例如 internationalization 这个词汇已经被缩略为 i18n，以方便书写和记忆。<ul>
 <li>是否需要使用缩略词，取决于<strong>团队的新成员是否能理解这个名字的含义</strong>。</li>
 </ul>
 </li>
-<li>6.命名含义模糊</li>
-<li>7.命名和行为不一致：承诺多做得少；承诺少做得多；言行不一。</li>
-<li>8.否定式命名：否定式命名往往会引起阅读成本。</li>
-<li>9.无意义命名：temp、result、retVal这些不表征具体的含义，包含的信息量少。</li>
-<li>10.序号式命名：序号并不能表明其真实含义，例如layer0、layer1.</li>
-<li>11.工程名为类名前缀：把工程名作为类和接口的前缀是一种画蛇添足的行为，会降低阅读的速度。</li>
-<li>12.超短命名：a、b、c这种也无法获取有用信息，但注意循环体中约定俗成的i、j、k是无妨的。</li>
-<li>13.匈牙利命名法：匈牙利命名法可以帮助读者了解数据的类型方面，但在例如面向对象的编程风格中代，编写的代码难以形成统一易懂的缩写。应当把类和函数做得足够小，消除对成员前缀的需要</li>
+<li>命名含义模糊</li>
+<li>命名和行为不一致：承诺多做得少；承诺少做得多；言行不一。</li>
+<li>否定式命名：否定式命名往往会引起阅读成本。</li>
+<li>无意义命名：temp、result、retVal 这些不表征具体的含义，包含的信息量少。</li>
+<li>序号式命名：序号并不能表明其真实含义，例如 layer0、layer1.</li>
+<li>工程名为类名前缀：把工程名作为类和接口的前缀是一种画蛇添足的行为，会降低阅读的速度。</li>
+<li>超短命名：a、b、c 这种也无法获取有用信息，但注意循环体中约定俗成的 i、j、k 是无妨的。</li>
+<li>匈牙利命名法：匈牙利命名法可以帮助读者了解数据的类型方面，但在例如面向对象的编程风格中代，编写的代码难以形成统一易懂的缩写。应当把类和函数做得足够小，消除对成员前缀的需要。</li>
 </ul>
 <h4 id="注释类问题"><a href="#注释类问题" class="headerlink" title="注释类问题"></a>注释类问题</h4><p>当代码通过其名称和符号无法很直观地表达其含义时，需要注释来帮助说明代码的作用。</p>
 <ul>
-<li>1.复制名称的注释：这种注释无法起到帮助作用。</li>
+<li>复制名称的注释：这种注释无法起到帮助作用。</li>
 </ul>
 <h4 id="风格类问题"><a href="#风格类问题" class="headerlink" title="风格类问题"></a>风格类问题</h4><ul>
-<li>1.冗余的常量定义：<ul>
-<li>有些可在原输入基础上补充而无需采用长常量列表的场景。不要使用一个常量类维护所有常量，按常量功能进行归类，分开维护。大而全的常量类，非得使用查找功能才能定位到修改的常量，不利于理解和维护。合适的做法比如缓存相关常量放在类CacheConsts下；系统配置相关常量放在类ConfigConsts下。</li>
-<li>常量的复用层次有五层：跨应用共享常量、应用内共享常量、子工程内共享常量、包内共享常量、类内共享常量。<br>1） 跨应用共享常量：放置在二方库中，通常是client.jar中的constant目录下。<br>2） 应用内共享常量：放置在一方库中，通常是子模块中的constant目录下。</li>
+<li>冗余的常量定义：<ul>
+<li>有些可在原输入基础上补充而无需采用长常量列表的场景。不要使用一个常量类维护所有常量，按常量功能进行归类，分开维护。大而全的常量类，非得使用查找功能才能定位到修改的常量，不利于理解和维护。合适的做法比如缓存相关常量放在类 CacheConsts 下；系统配置相关常量放在类 ConfigConsts 下。</li>
+<li>常量的复用层次有五层：跨应用共享常量、应用内共享常量、子工程内共享常量、包内共享常量、类内共享常量。<br>1） 跨应用共享常量：放置在二方库中，通常是 client.jar 中的 constant 目录下。<br>2） 应用内共享常量：放置在一方库中，通常是子模块中的 constant 目录下。</li>
 </ul>
 </li>
-<li>2.变量意思不稳定：有歧义。</li>
-<li>3.返回值意思不稳定</li>
-<li>4.无用的方法或变量：特别是类中无用的public方法难以被发现。</li>
+<li>变量意思不稳定：有歧义。</li>
+<li>返回值意思不稳定</li>
+<li>无用的方法或变量：特别是类中无用的 public 方法难以被发现。</li>
 </ul>
 <h3 id="问题产生的部分原因"><a href="#问题产生的部分原因" class="headerlink" title="问题产生的部分原因"></a>问题产生的部分原因</h3><h3 id="编程习惯不佳"><a href="#编程习惯不佳" class="headerlink" title="编程习惯不佳"></a>编程习惯不佳</h3><ul>
-<li>命名习惯不好：is等作用域开头等，变量名称和方法名称容易无法区分。</li>
-<li>没有管理好代码的责任：UI和数据和逻辑。</li>
+<li>命名习惯不好：<code>is</code> 等作用域开头等，变量名称和方法名称容易无法区分。</li>
+<li>没有管理好代码的责任：UI 和数据和逻辑。</li>
 <li>不考虑调用时的样子：调用时可能难以理解，要认真设计调用、比如接口。</li>
-<li>不考虑命名的一致性：比如remove/delete。</li>
-<li>方法命名必须以动词开头：方法命名必须为动词，或者动词+名词的形式，因为方法必须是动作。但不绝对，比如List.size()、find.all()，这样更易读。</li>
+<li>不考虑命名的一致性：比如 <code>remove</code>/<code>delete</code>。</li>
+<li>方法命名必须以动词开头：方法命名必须为动词，或者动词+名词的形式，因为方法必须是动作。但不绝对，比如 <code>List.size()</code>、<code>find.all()</code>，这样更易读。</li>
 </ul>
 <h3 id="英语能力不足"><a href="#英语能力不足" class="headerlink" title="英语能力不足"></a>英语能力不足</h3><ul>
-<li><p>词性不对：对于集合性质的变量命名可以考虑采用其复数形式（有时也会降低阅读成本，这时可以换为在末尾加List、Map），例如可以用books而不是bookList。对于将动作变为变量的情况，应该将动作从动词改为动名词。例如可以用action而不是act。对于只有开关两种状态的属性来说，可以采用形容词。而对于多种取值的属性来说，则应该采用对应的名词。</p>
+<li><p>词性不对：对于集合性质的变量命名可以考虑采用其复数形式（有时也会降低阅读成本，这时可以换为在末尾加 <code>List</code>、<code>Map</code>），例如可以用 <code>books</code> 而不是 <code>bookList</code>。对于将动作变为变量的情况，应该将动作从动词改为动名词。例如可以用 <code>action</code> 而不是 <code>act</code>。对于只有开关两种状态的属性来说，可以采用形容词。而对于多种取值的属性来说，则应该采用对应的名词。</p>
 </li>
-<li><p>词汇不对：应该用更为准确的词汇，例如表示缩短，makeShorter不如shorten更贴切；表示认证，doLogin不如authenticate更准确。对于一些计算机专业术语也是有一定规定的，例如对于栈Stack，它的行为应该是Push和Pop，而不是Pull。对于一些行业，也有其特定的术语，例如余额应该是balance而不是leftMoney。如果不能用程序员熟悉的术语来给手头的工作命名，就采用从所涉问题领域而来的名称。</p>
+<li><p>词汇不对：应该用更为准确的词汇，例如表示缩短，<code>makeShorter</code> 不如 <code>shorten</code> 更贴切；表示认证，<code>doLogin</code> 不如 <code>authenticate</code> 更准确。对于一些计算机专业术语也是有一定规定的，例如对于栈 <code>Stack</code>，它的行为应该是 <code>Push</code> 和 <code>Pop</code>，而不是 <code>Pull</code>。对于一些行业，也有其特定的术语，例如余额应该是 <code>Balance</code> 而不是 <code>LeftMoney</code>。如果不能用程序员熟悉的术语来给手头的工作命名，就采用从所涉问题领域而来的名称。</p>
 <ul>
 <li><p>比如有这么个函数为<code>getPage(url)</code>，我们虽然可以知道是获取一个页面，但是如果用<code>fetchPage</code>或者<code>downloadPage</code>进行更具体的动作区分命名会更好。</p>
 </li>
@@ -183,123 +147,150 @@
 <li><p>再比如有个函数为<code>stopAnimation()</code>，我们不知道它将是终止动画还是中止动画，我们可以命名为<code>killAnimation()</code>、<code>pauseAnimation()</code>。</p>
 </li>
 <li><p>下面是一些例子，这些单词可以使命名更有表现力且适合语境</p>
-<p>| 单词  | 更多选择                                           |<br>| —- | ———————————————— |<br>| send  | deliver、dispatch、announce、distribute、route     |<br>| find  | search、extract、locate、recover                   |<br>| start | launch、create、begin、open                        |<br>| make  | create、set up、build、generate、compose、add、new |</p>
 </li>
 </ul>
 </li>
-<li><p>时态不对：采用动词原型命名的状态值往往会让读者猜测：到底是已经发生了这件事情，还是正在进行这件事情呢？例如register、attend、test、pass、failed，而如果能够结合时态命名则状态的含义就更容易理解了，例如：registered、atteneded、tested、evaluated。</p>
+</ul>
+<table>
+<thead>
+<tr>
+<th>单词</th>
+<th>更多选择</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>send</td>
+<td>deliver、dispatch、announce、distribute、route</td>
+</tr>
+<tr>
+<td>find</td>
+<td>search、extract、locate、recover</td>
+</tr>
+<tr>
+<td>start</td>
+<td>launch、create、begin、open</td>
+</tr>
+<tr>
+<td>make</td>
+<td>create、set up、build、generate、compose、add、new</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><p>时态不对：采用动词原型命名的状态值往往会让读者猜测：到底是已经发生了这件事情，还是正在进行这件事情呢？例如 <code>register</code>、<code>attend</code>、<code>test</code>、<code>pass</code>、<code>failed</code>，而如果能够结合时态命名则状态的含义就更容易理解了，例如：<code>registered</code>、<code>atteneded</code>、<code>tested</code>、<code>evaluated</code>。</p>
 </li>
-<li><p>语法没有加善利用：由于受到一些限制和束缚，没有把介词和连词在方法的命名中，代码读起来就不够顺畅，如果把这些词汇放在代码中，代码就会变得更加易读了。例如判断cell是否在最后一排：cell.isAtLastColumn() / gird.isAtLastColumn(cell)。</p>
+<li><p>语法没有加善利用：由于受到一些限制和束缚，没有把介词和连词在方法的命名中，代码读起来就不够顺畅，如果把这些词汇放在代码中，代码就会变得更加易读了。例如判断 <code>cell</code> 是否在最后一排：<code>cell.isAtLastColumn()</code> / <code>gird.isAtLastColumn(cell)</code>。</p>
 </li>
 </ul>
 <h2 id="英文"><a href="#英文" class="headerlink" title="英文"></a>英文</h2><h3 id="词性"><a href="#词性" class="headerlink" title="词性"></a>词性</h3><ul>
 <li>名词：表示属性的常用词性。</li>
 <li>动词：一般用来表示方法（处理），方法的名称中一般都应该包含一个动词，其构成形式上一个动词或者动词+名词形式的词组</li>
-<li>动名词：动作可以作为属性出现，但是应该以动名词的形式表现。例如action、configuration。动作行为也可以作为类或者接口出现，但是最好以动名词或者名词的形式出现，例如class Activity，class Service。</li>
-<li>形容词：形容词作为属性表示某种状态，例如visible；用来表示某个状态的属性如果是形容词，一般是布尔型的，而其对应的判定方法则是is，如isVisible，其setter的形式是setVisible。形容词也可以有多种取值范围，例如可见性除了显示、隐藏之外还增加了正在消失。对于这种情况，需要改用名词来使其多种取值范围得以体现，例如visibility。</li>
-<li>代词：代词可以用来指代其他事物，所以具有不必关心被指代事物的类型的特点。this（关键词，不能够使用）、what（当类中需要包含一个可能和自己重名的对象时）、other（当需要做对比时）、还有that、when、where、who、which、me、you、him、self。</li>
-<li>介词、连词等：介词、连词等让代码读起来更顺畅。by（表示根据后面的条件执行前面的动作，如getLicenseById）、for（表示执行前面的动作是为了后面的目的，如waitForIdle）、at（表示根据后面的条件执行前面的动作，如removeAt）、and（表示两个条件都需要成立才能够执行前面的动作，如saveAndExit）、or（表示两个条件只需要其中一个条件成立即可执行前面的动作，如isNullOrEmpty）、另外还有with、after、before、through、as也都可以使用。另外介词、连词也可以作为方法的开头。</li>
+<li>动名词：动作可以作为属性出现，但是应该以动名词的形式表现。例如 <code>action</code>、<code>configuration</code>。动作行为也可以作为类或者接口出现，但是最好以动名词或者名词的形式出现，例如 <code>class Activity</code>，<code>class Service</code>。</li>
+<li>形容词：形容词作为属性表示某种状态，例如 <code>visible</code>；用来表示某个状态的属性如果是形容词，一般是布尔型的，而其对应的判定方法则是 <code>is</code>，如 <code>isVisible</code>，其 <code>setter</code> 的形式是 <code>setVisible</code>。形容词也可以有多种取值范围，例如可见性除了显示、隐藏之外还增加了正在消失。对于这种情况，需要改用名词来使其多种取值范围得以体现，例如 <code>visibility</code>。</li>
+<li>代词：代词可以用来指代其他事物，所以具有不必关心被指代事物的类型的特点。<code>this</code>（关键词，不能够使用）、<code>what</code>（当类中需要包含一个可能和自己重名的对象时）、<code>other</code>（当需要做对比时）、还有 <code>that</code>、<code>when</code>、<code>where</code>、<code>who</code>、<code>which</code>、<code>me</code>、<code>you</code>、<code>him</code>、<code>self</code>。</li>
+<li>介词、连词等：介词、连词等让代码读起来更顺畅。<code>by</code>（表示根据后面的条件执行前面的动作，如 <code>getLicenseById</code>）、<code>for</code>（表示执行前面的动作是为了后面的目的，如 <code>waitForIdle</code>）、<code>at</code>（表示根据后面的条件执行前面的动作，如 <code>removeAt</code>）、<code>and</code>（表示两个条件都需要成立才能够执行前面的动作，如 <code>saveAndExit</code>）、<code>or</code>（表示两个条件只需要其中一个条件成立即可执行前面的动作，如 <code>isNullOrEmpty</code>）、另外还有 <code>with</code>、<code>after</code>、<code>before</code>、<code>through</code>、<code>as</code> 也都可以使用。另外介词、连词也可以作为方法的开头。</li>
 </ul>
-<h3 id="时态"><a href="#时态" class="headerlink" title="时态"></a>时态</h3><p>动词的时态有很多种，但编程中只要使用其中3种即可：</p>
+<h3 id="时态"><a href="#时态" class="headerlink" title="时态"></a>时态</h3><p>动词的时态有很多种，但编程中只要使用其中 3 种即可：</p>
 <ul>
 <li>一般现在时：表示状态类动作；</li>
 <li>完成时：表示动作已经完成；</li>
 <li>进行时：表示动作正在进行。</li>
 </ul>
 <h3 id="语法"><a href="#语法" class="headerlink" title="语法"></a>语法</h3><ul>
-<li>宾语从句，如assertThat(num).isEqualTo(6)，读起来更像一句话而不需要更多思考；</li>
-<li>过去时：如viewDidLoad表示视图加载完成；</li>
-<li>一般将来时：如sendDelayed(3) -&gt; updateUiAfter(3)</li>
+<li>宾语从句，如 <code>assertThat(num).isEqualTo(6)</code>，读起来更像一句话而不需要更多思考；</li>
+<li>过去时：如 <code>viewDidLoad</code> 表示视图加载完成；</li>
+<li>一般将来时：如 <code>sendDelayed(3)</code> -&gt; <code>updateUiAfter(3)</code></li>
 </ul>
 <h3 id="否定词"><a href="#否定词" class="headerlink" title="否定词"></a>否定词</h3><ul>
-<li>Exception与Error等的命名：异常或者错误本身就表示系统发生错误了，所以异常和错误都可以采用否定式命名以明确表示它原来的意思。如：<ul>
-<li>InconvertibleException表示不能转换；</li>
-<li>FileNotExistException表示文件不存在。</li>
+<li>Exception 与 Error 等的命名：异常或者错误本身就表示系统发生错误了，所以异常和错误都可以采用否定式命名以明确表示它原来的意思。如：<ul>
+<li>InconvertibleException 表示不能转换；</li>
+<li>FileNotExistException 表示文件不存在。</li>
 </ul>
 </li>
-<li>错误常量：当处理发生错误时，有时需要使用错误值进行处理。错误号需要定义为常量，常量的命名可以采用否定式命名，如INVAILD_CODE</li>
+<li>错误常量：当处理发生错误时，有时需要使用错误值进行处理。错误号需要定义为常量，常量的命名可以采用否定式命名，如 <code>INVAILD_CODE</code></li>
 <li>特殊类：如输入键盘。</li>
 </ul>
 <h3 id="成对词"><a href="#成对词" class="headerlink" title="成对词"></a>成对词</h3><p>固定方式出现的成对词能直接想到另一个方法的名称。常用成对词：</p>
 <ul>
-<li>get获取/set设置</li>
-<li>max最大/min最小</li>
-<li>start启动/stop停止</li>
-<li>begin开始/end结束</li>
-<li>backup备份/restore恢复</li>
-<li>bind 绑定/  separate 分离</li>
-<li>copy 复制/  paste 粘贴</li>
-<li>clean 清理/  clear 清除</li>
-<li>source来源/destination目的地</li>
-<li>from来/to去</li>
-<li>previous上一个/current当前/next下一个</li>
-<li>create创建/destroy移除</li>
-<li>plus加/minus减</li>
-<li>positive积极的/negative消极的</li>
-<li>connect 连接/  disconnect 断开（或close）</li>
-<li>download 下载/  upload 上传</li>
-<li>add增加/remove删除</li>
-<li>add数字加/sub数字减</li>
-<li>add 加入/  append 添加</li>
-<li>increase 增加/  decrease 减少</li>
-<li>enable启动/disable废弃</li>
-<li>encode 编码/  decode 解码</li>
-<li>encrypt 加密/  decrypt 解密</li>
-<li>compress 压缩/  decompress 解压缩</li>
-<li>parse 解析/  emit 生成</li>
-<li>pause暂停/resume恢复</li>
-<li>open打开/close关闭</li>
-<li>initialize初始/finalize最后</li>
-<li>request请求/respond响应</li>
-<li>success成功/failed失败</li>
-<li>top顶部/bottom底部</li>
-<li>include包含/exclude排除</li>
-<li>input 输入/  output 输出</li>
-<li>import导入/export导出</li>
-<li>width宽度/height高度</li>
-<li>read读取/write写入</li>
-<li>load载入/save保存</li>
-<li>split 分割 /merge 合并</li>
-<li>inject 注入 /extract 提取</li>
-<li>attach 附着/  detach 脱离</li>
-<li>view 查看/  browse 浏览</li>
-<li>edit 编辑/  modify 修改</li>
-<li>select 选取/  mark 标记</li>
-<li>undo 撤销/  redo 重做</li>
-<li>insert 插入/  delete 移除</li>
-<li>index 索引/  sort 排序</li>
-<li>play 播放/  pause 暂停</li>
-<li>launch 启动/  run 运行</li>
-<li>compile 编译/  execute 执行</li>
-<li>build 构建/  publish 发布</li>
-<li>pack 打包/  unpack 解包</li>
-<li>send 发送/  receive 接收</li>
-<li>refresh 刷新/  synchronize 同步</li>
-<li>update 更新/  revert 复原</li>
-<li>lock 锁定/  unlock 解锁</li>
-<li>check out 签出/  check in 签入</li>
-<li>push 推/  pull 拉</li>
-<li>expand 展开/  collapse 折叠</li>
-<li>begin 起始/  end 结束</li>
-<li>start 开始/  finish 完成</li>
-<li>enter 进入/  exit 退出</li>
+<li><code>get</code> 获取/<code>set</code> 设置</li>
+<li><code>max</code> 最大/<code>min</code> 最小</li>
+<li><code>start</code> 启动/<code>stop</code> 停止</li>
+<li><code>begin</code> 开始/<code>end</code> 结束</li>
+<li><code>backup</code> 备份/<code>restore</code> 恢复</li>
+<li><code>bind</code> 绑定/ <code>separate</code> 分离</li>
+<li><code>copy</code> 复制/ <code>paste</code> 粘贴</li>
+<li><code>clean</code> 清理/ <code>clear</code> 清除</li>
+<li><code>source</code> 来源/<code>destination</code> 目的地</li>
+<li><code>from</code> 来/<code>to</code> 去</li>
+<li><code>previous</code> 上一个/<code>current</code> 当前/<code>next</code> 下一个</li>
+<li><code>create</code> 创建/<code>destroy</code> 移除</li>
+<li><code>plus</code> 加/<code>minus</code> 减</li>
+<li><code>positive</code> 积极的/<code>negative</code> 消极的</li>
+<li><code>connect</code> 连接/ <code>disconnect</code> 断开（或 <code>close</code>）</li>
+<li><code>download</code> 下载/ <code>upload</code> 上传</li>
+<li><code>add</code> 增加/<code>remove</code> 删除</li>
+<li><code>add</code> 数字加/<code>sub</code> 数字减</li>
+<li><code>add</code> 加入/ <code>append</code> 添加</li>
+<li><code>increase</code> 增加/ <code>decrease</code> 减少</li>
+<li><code>enable</code> 启动/<code>disable</code> 废弃</li>
+<li><code>encode</code> 编码/ <code>decode</code> 解码</li>
+<li><code>encrypt</code> 加密/ <code>decrypt</code> 解密</li>
+<li><code>compress</code> 压缩/ <code>decompress</code> 解压缩</li>
+<li><code>parse</code> 解析/ <code>emit</code> 生成</li>
+<li><code>pause</code> 暂停/<code>resume</code> 恢复</li>
+<li><code>open</code> 打开/<code>close</code> 关闭</li>
+<li><code>initialize</code> 初始/<code>finalize</code> 最后</li>
+<li><code>request</code> 请求/<code>respond</code> 响应</li>
+<li><code>success</code> 成功/<code>failed</code> 失败</li>
+<li><code>top</code> 顶部/<code>bottom</code> 底部</li>
+<li><code>include</code> 包含/<code>exclude</code> 排除</li>
+<li><code>input</code> 输入/ <code>output</code> 输出</li>
+<li><code>import</code> 导入/<code>export</code> 导出</li>
+<li><code>width</code> 宽度/<code>height</code> 高度</li>
+<li><code>read</code> 读取/<code>write</code> 写入</li>
+<li><code>load</code> 载入/<code>save</code> 保存</li>
+<li><code>split</code> 分割 /<code>merge</code> 合并</li>
+<li><code>inject</code> 注入 /<code>extract</code> 提取</li>
+<li><code>attach</code> 附着/ <code>detach</code> 脱离</li>
+<li><code>view</code> 查看/ <code>browse</code> 浏览</li>
+<li><code>edit</code> 编辑/ <code>modify</code> 修改</li>
+<li><code>select</code> 选取/ <code>mark</code> 标记</li>
+<li><code>undo</code> 撤销/ <code>redo</code> 重做</li>
+<li><code>insert</code> 插入/ <code>delete</code> 移除</li>
+<li><code>index</code> 索引/ <code>sort</code> 排序</li>
+<li><code>play</code> 播放/ <code>pause</code> 暂停</li>
+<li><code>launch</code> 启动/ <code>run</code> 运行</li>
+<li><code>compile</code> 编译/ <code>execute</code> 执行</li>
+<li><code>build</code> 构建/ <code>publish</code> 发布</li>
+<li><code>pack</code> 打包/ <code>unpack</code> 解包</li>
+<li><code>send</code> 发送/ <code>receive</code> 接收</li>
+<li><code>refresh</code> 刷新/ <code>synchronize</code> 同步</li>
+<li><code>update</code> 更新/ <code>revert</code> 复原</li>
+<li><code>lock</code> 锁定/ <code>unlock</code> 解锁</li>
+<li><code>check out</code> 签出/ <code>check in</code> 签入</li>
+<li><code>push</code> 推/ <code>pull</code> 拉</li>
+<li><code>expand</code> 展开/ <code>collapse</code> 折叠</li>
+<li><code>begin</code> 起始/ <code>end</code> 结束</li>
+<li><code>start</code> 开始/ <code>finish</code> 完成</li>
+<li><code>enter</code> 进入/ <code>exit</code> 退出</li>
 </ul>
 <h3 id="近义词"><a href="#近义词" class="headerlink" title="近义词"></a>近义词</h3><p>近义词如果使用不对，会造成理解上的偏差，如：</p>
 <ul>
-<li>invalidate 使无效 / refresh 刷新 / update 更新</li>
-<li>draw 绘制 / render 渲染 / display 展示/show 显示</li>
-<li>perform 执行 / process 处理 / do做 / run运行 / execute 实施 / invoke 调用</li>
-<li>picture 图片 / image 图像 / bitmap 位图 / icon 图标 / thumbnail 缩略图</li>
-<li>size 尺寸 / length 长度</li>
-<li>refuse 拒绝 / decline 拒绝、下降 / reject 拒绝、否决</li>
-<li>revoke 撤销 / cancel 取消</li>
-<li>obsolete 废弃 /  depreciate 废旧 </li>
-<li>collect 收集 / aggregate 聚集</li>
-<li>abort 放弃 /  quit 离开</li>
-<li>submit 提交 /  commit 交付</li>
-<li>find 查找 /  search 搜索</li>
-<li>observe 观察 /  listen 监听</li>
-<li>debug 调试 /  trace 跟踪</li>
+<li><code>invalidate</code> 使无效 / <code>refresh</code> 刷新 / <code>update</code> 更新</li>
+<li><code>draw</code> 绘制 / <code>render</code> 渲染 / <code>display</code> 展示/<code>show</code> 显示</li>
+<li><code>perform</code> 执行 / <code>process</code> 处理 / <code>do</code> 做 / <code>run</code> 运行 / <code>execute</code> 实施 / <code>invoke</code> 调用</li>
+<li><code>picture</code> 图片 / <code>image</code> 图像 / <code>bitmap</code> 位图 / <code>icon</code> 图标 / <code>thumbnail</code> 缩略图</li>
+<li><code>size</code> 尺寸 / <code>length</code> 长度</li>
+<li><code>refuse</code> 拒绝 / <code>decline</code> 拒绝、下降 / <code>reject</code> 拒绝、否决</li>
+<li><code>revoke</code> 撤销 / <code>cancel</code> 取消</li>
+<li><code>obsolete</code> 废弃 / <code>depreciate</code> 废旧</li>
+<li><code>collect</code> 收集 / <code>aggregate</code> 聚集</li>
+<li><code>abort</code> 放弃 / <code>quit</code> 离开</li>
+<li><code>submit</code> 提交 / <code>commit</code> 交付</li>
+<li><code>find</code> 查找 / <code>search</code> 搜索</li>
+<li><code>observe</code> 观察 / <code>listen</code> 监听</li>
+<li><code>debug</code> 调试 / <code>trace</code> 跟踪</li>
 </ul>
 <p>一个系统中最好不要出现各种同义词。</p>
 <h3 id="前缀、扩展名"><a href="#前缀、扩展名" class="headerlink" title="前缀、扩展名"></a>前缀、扩展名</h3><ul>
@@ -315,77 +306,77 @@
 </ul>
 <h3 id="缩写"><a href="#缩写" class="headerlink" title="缩写"></a>缩写</h3><p>可以帮助缩短命名长度、但是滥用缩写会导致意思不明确。</p>
 <ul>
-<li>average -&gt; avg</li>
-<li>administrator -&gt; admin</li>
-<li>argument -&gt; arg</li>
-<li>application -&gt; app</li>
-<li>asynchronous -&gt; async(注意关键字)</li>
-<li>address -&gt; add</li>
-<li>bitmap -&gt; bmp</li>
-<li>button -&gt; btn</li>
-<li>calculate -&gt; calc</li>
-<li>column -&gt; col</li>
-<li>connection -&gt; conn</li>
-<li>configuration -&gt; conf</li>
-<li>command -&gt; cmd</li>
-<li>control -&gt; ctl</li>
-<li>copy -&gt; cpy</li>
-<li>decrease -&gt; dec</li>
-<li>delete -&gt; del</li>
-<li>default -&gt; def</li>
-<li>dictionary -&gt; dict</li>
-<li>document -&gt; doc</li>
-<li>environment -&gt; env</li>
-<li>event -&gt; evt</li>
-<li>error -&gt; err</li>
-<li>execute -&gt; exec</li>
-<li>horizontal -&gt; horz</li>
-<li>information -&gt; info</li>
-<li>message -&gt; msg</li>
-<li>memory -&gt; mem</li>
-<li>manager -&gt; mgr</li>
-<li>maximum -&gt; max</li>
-<li>minimum -&gt; min</li>
-<li>table -&gt; tbl</li>
-<li>version -&gt; ver</li>
-<li>object -&gt; obj</li>
-<li>picture -&gt; pic</li>
-<li>position -&gt; pos</li>
-<li>reference -&gt; ref</li>
-<li>subtract -&gt; sub</li>
-<li>synchronization -&gt; sync</li>
-<li>temporary -&gt; temp</li>
-<li>variable -&gt; var(注意关键字)</li>
-<li>vertical -&gt; vert</li>
-<li>initialize -&gt; init</li>
-<li>temporary -&gt; temp/tmp</li>
-<li>length -&gt; len</li>
-<li>panel -&gt; pnl</li>
-<li>frame -&gt; frm</li>
+<li><code>average</code> -&gt; <code>avg</code></li>
+<li><code>administrator</code> -&gt; <code>admin</code></li>
+<li><code>argument</code> -&gt; <code>arg</code></li>
+<li><code>application</code> -&gt; <code>app</code></li>
+<li><code>asynchronous</code> -&gt; <code>async</code>(注意关键字)</li>
+<li><code>address</code> -&gt; <code>add</code></li>
+<li><code>bitmap</code> -&gt; <code>bmp</code></li>
+<li><code>button</code> -&gt; <code>btn</code></li>
+<li><code>calculate</code> -&gt; <code>calc</code></li>
+<li><code>column</code> -&gt; <code>col</code></li>
+<li><code>connection</code> -&gt; <code>conn</code></li>
+<li><code>configuration</code> -&gt; <code>conf</code></li>
+<li><code>command</code> -&gt; <code>cmd</code></li>
+<li><code>control</code> -&gt; <code>ctl</code></li>
+<li><code>copy</code> -&gt; <code>cpy</code></li>
+<li><code>decrease</code> -&gt; <code>dec</code></li>
+<li><code>delete</code> -&gt; <code>del</code></li>
+<li><code>default</code> -&gt; <code>def</code></li>
+<li><code>dictionary</code> -&gt; <code>dict</code></li>
+<li><code>document</code> -&gt; <code>doc</code></li>
+<li><code>environment</code> -&gt; <code>env</code></li>
+<li><code>event</code> -&gt; <code>evt</code></li>
+<li><code>error</code> -&gt; <code>err</code></li>
+<li><code>execute</code> -&gt; <code>exec</code></li>
+<li><code>horizontal</code> -&gt; <code>horz</code></li>
+<li><code>information</code> -&gt; <code>info</code></li>
+<li><code>message</code> -&gt; <code>msg</code></li>
+<li><code>memory</code> -&gt; <code>mem</code></li>
+<li><code>manager</code> -&gt; <code>mgr</code></li>
+<li><code>maximum</code> -&gt; <code>max</code></li>
+<li><code>minimum</code> -&gt; <code>min</code></li>
+<li><code>table</code> -&gt; <code>tbl</code></li>
+<li><code>version</code> -&gt; <code>ver</code></li>
+<li><code>object</code> -&gt; <code>obj</code></li>
+<li><code>picture</code> -&gt; <code>pic</code></li>
+<li><code>position</code> -&gt; <code>pos</code></li>
+<li><code>reference</code> -&gt; <code>ref</code></li>
+<li><code>subtract</code> -&gt; <code>sub</code></li>
+<li><code>synchronization</code> -&gt; <code>sync</code></li>
+<li><code>temporary</code> -&gt; <code>temp</code></li>
+<li><code>variable</code> -&gt; <code>var</code>(注意关键字)</li>
+<li><code>vertical</code> -&gt; <code>vert</code></li>
+<li><code>initialize</code> -&gt; <code>init</code></li>
+<li><code>temporary</code> -&gt; <code>temp</code>/<code>tmp</code></li>
+<li><code>length</code> -&gt; <code>len</code></li>
+<li><code>panel</code> -&gt; <code>pnl</code></li>
+<li><code>frame</code> -&gt; <code>frm</code></li>
 </ul>
-<p>缩写如果全部都是大写字母，那么作为变量时也应该写为大小写混合。除了DO / BO / DTO / VO / AO / PO，如UserDO</p>
+<p>缩写如果全部都是大写字母，那么作为变量时也应该写为大小写混合。除了 <code>DO</code> / <code>BO</code> / <code>DTO</code> / <code>VO</code> / <code>AO</code> / <code>PO</code>，如 <code>UserDO</code>。</p>
 <h3 id="正确用词"><a href="#正确用词" class="headerlink" title="正确用词"></a>正确用词</h3><ul>
 <li>拼写正确</li>
-<li>正确用词：如hasPermission比isAllowed更易读，如<ul>
-<li>花费的时间不是usedTime，而是elapsedTime</li>
-<li>缩短不是makeShorter，而是shorten</li>
-<li>加快不是fasten，而是accelerate</li>
-<li>限制不是limit，而是constraint或restriction</li>
-<li>成熟不是aged而是sophisticated</li>
-<li>上下不是upDown而是vertical</li>
-<li>错误级别不是faultLevel而是severity</li>
+<li>正确用词：如 <code>hasPermission</code> 比 <code>isAllowed</code> 更易读，如<ul>
+<li>花费的时间不是 <code>usedTime</code>，而是 <code>elapsedTime</code></li>
+<li>缩短不是 <code>makeShorter</code>，而是 <code>shorten</code></li>
+<li>加快不是 <code>fasten</code>，而是 <code>accelerate</code></li>
+<li>限制不是 <code>limit</code>，而是 <code>constraint</code> 或 <code>restriction</code></li>
+<li>成熟不是 <code>aged</code> 而是 <code>sophisticated</code></li>
+<li>上下不是 <code>upDown</code> 而是 <code>vertical</code></li>
+<li>错误级别不是 <code>faultLevel</code> 而是 <code>severity</code></li>
 </ul>
 </li>
-<li>准确的用词：yyyyMMddhhmmss -&gt; timestamp</li>
-<li>明确的用词：如fire可以表示点燃也可以表示开除</li>
+<li>准确的用词：<code>yyyyMMddhhmmss</code> -&gt; <code>timestamp</code></li>
+<li>明确的用词：如 <code>fire</code> 可以表示点燃也可以表示开除</li>
 <li>精确的用词：子啊列表当中会涉及各种顶点、节点、缝隙、元素之间的关系，需要有一套整体的命名规则，来为各个元素定义清楚其用词。</li>
 </ul>
-<h2 id="注释方面的改进"><a href="#注释方面的改进" class="headerlink" title="*注释方面的改进"></a>*注释方面的改进</h2><p>注释作为代码之外的说明性文字，应该尽量提供那些读者无法从代码里读出来的信息，描述代码为什么要这么做，而不是简单复述代码本身。若编程语言足够有表达力，就不需要注释。注释的恰当用法是弥补我们在用代码表达意图时遭遇的失败。</p>
+<h2 id="注释方面的改进"><a href="#注释方面的改进" class="headerlink" title="*注释方面的改进"></a>*注释方面的改进</h2><p>注释作为代码之外的说明性文字，应该<strong>尽量提供那些读者无法从代码里读出来的信息</strong>，描述代码为什么要这么做，而不是简单复述代码本身。若编程语言足够有表达力，就不需要注释。注释的恰当用法是弥补我们在用代码表达意图时遭遇的失败。</p>
 <blockquote>
 <p>注释总是一种失败，不准确的注释要比没注释坏得多。</p>
 </blockquote>
 <p>除了描述“为什么”的解释性注释外，还有一种注释：指引性注释，这种注释不直接复述代码，而是简明扼要地概括代码功能，起到“代码导读”的作用。</p>
-<p>注释jsdoc/javadoc标签：</p>
+<p>注释 jsdoc/javadoc 标签：</p>
 <ul>
 <li><code>@see</code>：表示参照代码，子类或实现类通过次连到声明类</li>
 <li><code>@link</code>：表示连接，通过这个连接可以连到另外一个类的说明中去</li>
@@ -398,11 +389,11 @@
 <li><code>@since</code>：表示自哪个版本开始使用该方法</li>
 <li><code>@example</code>：表示演示使用方式</li>
 </ul>
-<h3 id="TODO、FIXME和XXX"><a href="#TODO、FIXME和XXX" class="headerlink" title="TODO、FIXME和XXX"></a>TODO、FIXME和XXX</h3><ul>
-<li>FIXME：表示这段代码没有正确处理，需要修改</li>
-<li>TODO：表示这段代码尚未完成，需要实现</li>
-<li>XXX：表示这段代码目前可以完成工作，但是还需要改进。</li>
-<li>HACK：表示对一个问题不得不采用的比较粗糙的解决方案</li>
+<h3 id="TODO、FIXME-和-XXX"><a href="#TODO、FIXME-和-XXX" class="headerlink" title="TODO、FIXME 和 XXX"></a>TODO、FIXME 和 XXX</h3><ul>
+<li><code>FIXME</code>：表示这段代码没有正确处理，需要修改</li>
+<li><code>TODO</code>：表示这段代码尚未完成，需要实现</li>
+<li><code>XXX</code>：表示这段代码目前可以完成工作，但是还需要改进。</li>
+<li><code>HACK</code>：表示对一个问题不得不采用的比较粗糙的解决方案</li>
 </ul>
 <h3 id="类的注释"><a href="#类的注释" class="headerlink" title="类的注释"></a>类的注释</h3><ul>
 <li>类的功能说明</li>
@@ -412,12 +403,12 @@
 <h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><p>建议行尾不要加入注释，因为不利于行长的控制。</p>
 <p>版权说明</p>
 <ul>
-<li>开放源代码：<a href="https://choosealicense.com/" target="_blank" rel="noopener">开源协议</a>通常有MIT、BSD、Apache2.0、GPL3.0、LGPL</li>
+<li>开放源代码：<a href="https://choosealicense.com/" target="_blank" rel="noopener">开源协议</a>通常有 MIT、BSD、Apache2.0、GPL3.0、LGPL</li>
 <li>封闭源代码：<a href="https://www.copyright.gov/what-is-copyright/" target="_blank" rel="noopener">Copyright</a>（C）</li>
 </ul>
 <p>换行</p>
 <ul>
-<li>Annotation之后要换行；</li>
+<li>Annotation 之后要换行；</li>
 <li>每行处理（分号）之后要换行；</li>
 <li>每个花括号开头后面要换行；</li>
 <li>每个花括号结尾后面要换行；</li>
@@ -435,31 +426,25 @@
 </ul>
 <h2 id="测试代码的自表达改进"><a href="#测试代码的自表达改进" class="headerlink" title="测试代码的自表达改进"></a>测试代码的自表达改进</h2><p>自动测试的结构采用的都是三步结构：</p>
 <ul>
-<li>given 前提的数据</li>
-<li>when 进行的操作</li>
-<li>then 期望的结果</li>
-<li>fixture 测试夹具前提的数据</li>
-<li>behavior 行为进行的操作</li>
-<li>expectation 期望值期望的结果</li>
+<li><code>given</code>: 前提的数据</li>
+<li><code>when</code>: 进行的操作</li>
+<li><code>then</code>: 期望的结果</li>
+<li><code>fixture</code>: 测试夹具前提的数据</li>
+<li><code>behavior</code>: 行为进行的操作</li>
+<li><code>expectation</code>: 期望值期望的结果</li>
 </ul>
-<h2 id="前端命名"><a href="#前端命名" class="headerlink" title="前端命名"></a>前端命名</h2><h3 id="html-文件的命名"><a href="#html-文件的命名" class="headerlink" title="html 文件的命名"></a>html 文件的命名</h3><p>格式：<strong>统一用小写的英文字母，</strong>单词间用连字符 “<code>-</code>”  连接，kebab-case (短横线分隔命名)</p>
-<p>原则： </p>
+<h2 id="前端命名"><a href="#前端命名" class="headerlink" title="前端命名"></a>前端命名</h2><h3 id="html-文件的命名"><a href="#html-文件的命名" class="headerlink" title="html 文件的命名"></a>html 文件的命名</h3><p>格式：<strong>统一用小写的英文字母，</strong>单词间用连字符 “<code>-</code>” 连接，kebab-case (短横线分隔命名)</p>
+<p>原则：</p>
 <ul>
-<li><p>可移植性。Linux 系统是大小写敏感的，而 Windows 系统和 Mac 系统正好相反，大小写不敏感。</p>
-</li>
-<li><p>易读性。小写文件名通常比大写文件名更易读。</p>
-</li>
-<li><p>易用性：某些系统会生成一些预置的用户目录，采用首字母大写的目录名，用户的文件都采用小写文件名，就很方便与上面这些目录或文件相区分。</p>
-</li>
-<li><p>便捷性：文件名全部小写，还有利于命令行操作。比如，某些命令可以不使用-i参数了。</p>
-</li>
+<li>可移植性。Linux 系统是大小写敏感的，而 Windows 系统和 Mac 系统正好相反，大小写不敏感。</li>
+<li>易读性。小写文件名通常比大写文件名更易读。</li>
+<li>易用性：某些系统会生成一些预置的用户目录，采用首字母大写的目录名，用户的文件都采用小写文件名，就很方便与上面这些目录或文件相区分。</li>
+<li>便捷性：文件名全部小写，还有利于命令行操作。比如，某些命令可以不使用<code>-i</code> 参数了。</li>
 </ul>
 <p>常用命名：</p>
 <ul>
-<li><p>首页/主页面：<code>index.html</code></p>
-</li>
-<li><p>子页面：</p>
-<ul>
+<li>首页/主页面：<code>index.html</code></li>
+<li>子页面：<ul>
 <li>首页：<code>home.html</code></li>
 <li>我的：<code>mine.html</code></li>
 <li>关于我们：<code>about.html</code></li>
@@ -470,18 +455,17 @@
 <li>购买：<code>buy.html</code></li>
 </ul>
 </li>
-<li><p>一级页面：</p>
-<ul>
+<li>一级页面：<ul>
 <li>登录：<code>login.html</code></li>
 <li>注册：<code>resign.html</code></li>
 </ul>
 </li>
 </ul>
-<h3 id="Image图片的命名规则"><a href="#Image图片的命名规则" class="headerlink" title="Image图片的命名规则"></a>Image图片的命名规则</h3><ul>
-<li>*可以考虑带上前缀：<code>i-</code>表示logo类图标、<code>p-</code>表示普通图片</li>
+<h3 id="Image-图片的命名规则"><a href="#Image-图片的命名规则" class="headerlink" title="Image 图片的命名规则"></a>Image 图片的命名规则</h3><ul>
+<li>*可以考虑带上前缀：<code>i-</code>表示 logo 类图标、<code>p-</code>表示普通图片</li>
 <li><p>图片的后缀：<code>xxx.png</code>、<code>xxx.jpg</code>、<code>xxx.gif</code>、<code>xxx.bmp</code>、<code>xxx.webp</code></p>
 </li>
-<li><p>图片的名称分为头尾两部分，用下划线隔开，头部分表示此图片的大类性质。例如：产品 <code>product</code>  产品下的  -&gt; 电视 / 手机：  <code>product_tv product_phone</code></p>
+<li><p>图片的名称分为头尾两部分，用下划线隔开，头部分表示此图片的大类性质。例如：产品 <code>product</code> 产品下的 -&gt; 电视 / 手机： <code>product_tv product_phone</code></p>
 </li>
 </ul>
 <p>例如：广告、标志、菜单、按钮等等。</p>
@@ -493,235 +477,218 @@
 <li>标题的图片：<code>title</code></li>
 </ul>
 <h3 id="文件夹命名-存放规则"><a href="#文件夹命名-存放规则" class="headerlink" title="文件夹命名/存放规则"></a>文件夹命名/存放规则</h3><ul>
-<li><p>frontend、www  或者  web  存放前端代码文件</p>
-</li>
-<li><ul>
-<li>bulid  存放构建等脚本文件</li>
-<li>css  存放  xxx.css文件</li>
-<li>src  存放源码文件</li>
-<li>views 或者 pages  存放  xxx.html  或者  xxx.vue</li>
-<li>components 存放组件文件</li>
-<li>assets  存放所有[资源文件]</li>
-</ul>
-</li>
-<li><ul>
-<li><ul>
-<li>images/imgs  存放图片文件</li>
-<li>library/lib  存放[第三方库]文件</li>
-<li>media  存放媒体文件</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>backend、serve  存放服务端代码文件</p>
-</li>
-<li><ul>
-<li>api  存放[接口文件]</li>
-<li>modules  存放[数据库操作]文件</li>
-</ul>
-</li>
+<li><code>frontend</code>、<code>www</code> 或者 <code>web</code> 存放前端代码文件</li>
+<li><code>bulid</code> 存放构建等脚本文件</li>
+<li><code>css</code> 存放 xxx.css 文件</li>
+<li><code>src</code> 存放源码文件</li>
+<li><code>views</code> 或者 <code>pages</code> 存放 xxx.html 或者 xxx.vue</li>
+<li><code>components</code> 存放组件文件</li>
+<li><code>assets</code> 存放所有资源文件</li>
+<li><code>images</code>/<code>imgs</code> 存放图片文件</li>
+<li><code>library</code>/<code>lib</code> 存放第三方库文件</li>
+<li><code>media</code> 存放媒体文件</li>
+<li><code>backend</code>、<code>serve</code> 存放服务端代码文件</li>
+<li><code>api</code> 存放[接口文件]</li>
+<li><code>modules</code> 存放[数据库操作]文件</li>
 </ul>
 <h3 id="css-书写规范"><a href="#css-书写规范" class="headerlink" title="css 书写规范"></a>css 书写规范</h3><blockquote>
-<p>可见MooCSS 命名规则：<a href="http://blog.michealwayne.cn/Moo-CSS/docs/nameRule/">http://blog.michealwayne.cn/Moo-CSS/docs/nameRule/</a></p>
+<p>可见 MooCSS 命名规则：<a href="http://blog.michealwayne.cn/Moo-CSS/docs/nameRule/">http://blog.michealwayne.cn/Moo-CSS/docs/nameRule/</a></p>
 </blockquote>
-<ol>
-<li>禁止 class 和 id 重名</li>
-<li>书写顺序, 建议遵循 布局定位属性–&gt;自身属性–&gt;文本属性–&gt;其他属性</li>
-</ol>
 <ul>
-<li><ul>
-<li>布局定位属性 ：Margin\padding\float\clear\position （ 相 应 的top,right,bottom,left）\display\visibility\overflow 等</li>
+<li>禁止 class 和 id 重名;</li>
+<li>书写顺序, 建议遵循 <code>布局定位属性--&gt;自身属性--&gt;文本属性--&gt;其他属性</code></li>
+<li>布局定位属性 ：Margin\padding\float\clear\position （ 相 应 的 top,right,bottom,left）\display\visibility\overflow 等<ul>
 <li>自身属性 ：Width\height\background\ border</li>
 <li>文本属性 ：font\color\text-align\text-decoration\text-indent\ white-space\othertext\content 等</li>
 <li>其他属性 ：list-style(列表样式)\vertical-align\cursor\z-index(层叠顺序)\zoom 等</li>
 </ul>
 </li>
 </ul>
-<h4 id="css-命名基本单词规范"><a href="#css-命名基本单词规范" class="headerlink" title="css 命名基本单词规范"></a>css 命名基本单词规范</h4><p>1.页面结构 </p>
+<h4 id="css-命名基本单词规范"><a href="#css-命名基本单词规范" class="headerlink" title="css 命名基本单词规范"></a>css 命名基本单词规范</h4><p>1.页面结构</p>
 <ul>
-<li>容器：container/wrap </li>
-<li>整体宽度：wrapper </li>
-<li>页头：header </li>
-<li>内容：content </li>
-<li>侧栏：sidebar </li>
-<li>栏目：column </li>
-<li>中间内容：center</li>
+<li>容器：<code>container</code>/<code>wrap</code></li>
+<li>整体宽度：<code>wrapper</code></li>
+<li>页头：<code>header</code></li>
+<li>内容：<code>content</code></li>
+<li>侧栏：<code>sidebar</code></li>
+<li>栏目：<code>column</code></li>
+<li>中间内容：<code>center</code></li>
 </ul>
-<p>2.导航 </p>
+<p>2.导航</p>
 <ul>
-<li>导航：nav </li>
-<li>主导航：mainNav  main_nav</li>
-<li>子导航：subNav        sub_nav </li>
-<li>顶导航：topNav        top_nav </li>
-<li>边导航：sideBar        side_bar </li>
-<li>左导航：leftSideBar      left_side_bar </li>
-<li>右导航：righSideBar      righ_side_bar </li>
-<li>边导航图标：sidebarIcon    side_bar_icon </li>
-<li>菜单：menu </li>
-<li>子菜单：subMenu        sub_menu </li>
-<li>标题：title</li>
+<li>导航：<code>nav</code></li>
+<li>主导航：<code>mainNav</code>/ <code>main_nav</code></li>
+<li>子导航：<code>subNav</code>/ <code>sub_nav</code></li>
+<li>顶导航：<code>topNav</code>/ <code>top_nav</code></li>
+<li>边导航：<code>sideBar</code>/ <code>side_bar</code></li>
+<li>左导航：<code>leftSideBar</code>/ <code>left_side_bar</code></li>
+<li>右导航：<code>righSideBar</code>/ <code>righ_side_bar</code></li>
+<li>边导航图标：<code>sidebarIcon</code> <code>side_bar_icon</code></li>
+<li>菜单：<code>menu</code></li>
+<li>子菜单：<code>subMenu</code> <code>sub_menu</code></li>
+<li>标题：<code>title</code></li>
 </ul>
-<p>3.功能 </p>
+<p>3.功能</p>
 <ul>
-<li>标志：logo </li>
-<li>登陆：login </li>
-<li>登录条：loginbar </li>
-<li>注册：regsiter </li>
-<li>产品：products </li>
-<li>产品价格：products_prices </li>
-<li>产品评论：products_review </li>
-<li>编辑评论：editor_review </li>
-<li>最新评论：news_release </li>
-<li>广告/标语：banner </li>
-<li>摘要:summary </li>
-<li>生产商：publisher </li>
-<li>缩略图：screenshot </li>
-<li>常见问题：faqs </li>
-<li>关键词：keyword </li>
-<li>博客：blog </li>
-<li>论坛：forum </li>
-<li>搜索：search </li>
-<li>搜索输入框：search_input </li>
-<li>搜索输出：search_output </li>
-<li>搜索结果：search_results </li>
-<li>加入我们：joinus </li>
-<li>状态：status </li>
-<li>按钮：btn </li>
-<li>滚动：scroll</li>
+<li>标志：<code>logo</code></li>
+<li>登陆：<code>login</code></li>
+<li>登录条：<code>loginbar</code></li>
+<li>注册：<code>regsiter</code></li>
+<li>产品：<code>products</code></li>
+<li>产品价格：<code>products_prices</code></li>
+<li>产品评论：<code>products_review</code></li>
+<li>编辑评论：<code>editor_review</code></li>
+<li>最新评论：<code>news_release</code></li>
+<li>广告/标语：<code>banner</code></li>
+<li>摘要： <code>summary</code></li>
+<li>生产商：<code>publisher</code></li>
+<li>缩略图：<code>screenshot</code></li>
+<li>常见问题：<code>faqs</code></li>
+<li>关键词：<code>keyword</code></li>
+<li>博客：<code>blog</code></li>
+<li>论坛：<code>forum</code></li>
+<li>搜索：<code>search</code></li>
+<li>搜索输入框：<code>search_input</code></li>
+<li>搜索输出：<code>search_output</code></li>
+<li>搜索结果：<code>search_results</code></li>
+<li>加入我们：<code>joinus</code></li>
+<li>状态：<code>status</code></li>
+<li>按钮：<code>btn</code></li>
+<li>滚动：<code>scroll</code></li>
 </ul>
-<p>4.视图： view</p>
+<p>4.视图： <code>view</code></p>
 <p>5.滚动</p>
 <ul>
-<li>视图：scroll-view </li>
-<li>标签页：tab </li>
-<li>文章列表：list </li>
-<li>提示信息：msg/message </li>
-<li>当前的: current </li>
-<li>小技巧：tips </li>
-<li>皮肤：skin </li>
-<li>充值：pay </li>
-<li>活动：activities </li>
-<li>推广：promotion </li>
-<li>公告：announcement </li>
-<li>排行：ranking </li>
-<li>公司简介：company_profile </li>
-<li>公司设备：equipment </li>
-<li>公司荣誉：glories </li>
-<li>企业文化：culture </li>
-<li>企业规模：scale </li>
-<li>营销网络：sales_network</li>
-<li>组织机构：organization </li>
-<li>技术力量：technology </li>
-<li>分支机构：branches </li>
-<li>经营理念：operation_principle </li>
-<li>经理致辞：manager_oration </li>
-<li>发展历程：development_history </li>
-<li>工程案例：engineering_projects </li>
-<li>分类浏览：browse_by_category </li>
-<li>应用领域：application_fields </li>
-<li>人力资源：human_resource_hr </li>
-<li>领导致辞： leader_oration </li>
-<li>客户留言：customer_message </li>
-<li>客户服务：customer_service </li>
-<li>您的要求：your_requirements </li>
-<li>销售信息：sales_information </li>
-<li>招商：enterprise_establishing </li>
-<li>教育培训：education_training </li>
-<li>合作加盟：joinIn_cooperation </li>
-<li>产品描述：products_description </li>
-<li>业务范围：business_scope </li>
-<li>产品销售：sales_sales </li>
-<li>联系我们：contact_us </li>
-<li>信息发布：information </li>
-<li>返回首页：homepage </li>
-<li>产品定购：order </li>
-<li>电子商务：e_business </li>
-<li>版权所有：copy _right </li>
-<li>友情连结：hot_link </li>
-<li>行业新闻：trade_news </li>
-<li>行业动态：trends </li>
-<li>邮编：postal_code_zipcode </li>
-<li>新闻动态：news_trends </li>
-<li>公司名称：company_name </li>
-<li>销售热线：sales_hotline </li>
-<li>联系人：contact_person </li>
-<li>建设中：in_construction </li>
-<li>证书：certificate </li>
-<li>地址：address </li>
-<li>电话：tel </li>
-<li>传真：fax </li>
-<li>产品名称：product_name </li>
-<li>产品说明：description </li>
-<li>价格：price </li>
-<li>品牌：brand </li>
-<li>规格：specification </li>
-<li>尺寸：size </li>
-<li>生产厂家：manufacuturer </li>
-<li>型号：model </li>
-<li>产品标号：item_no </li>
-<li>技术指标：technique_data </li>
-<li>产品描述：description </li>
-<li>产地：production_place </li>
-<li>用途：application </li>
-<li>论坛：forum </li>
-<li>在线订购：on_line_order </li>
-<li>招标：bidInviting </li>
-<li>综述：general </li>
-<li>业绩：achievements </li>
-<li>大事：great_event </li>
-<li>动态：trends </li>
-<li>服务：service </li>
-<li>投资：investment </li>
-<li>行业：industry </li>
-<li>规划：programming </li>
-<li>环境：environment </li>
-<li>发送：delivery </li>
-<li>提交：submit </li>
-<li>重写：reset </li>
-<li>社区：community </li>
-<li>业务：business </li>
-<li>在线调查：online_inquiry </li>
-<li>下载中心：download </li>
-<li>意见反馈：feedback </li>
-<li>常见问题：faq </li>
-<li>中心概况：general_profile </li>
-<li>游乐园：amusement_park </li>
-<li>专题报道：special_report </li>
-<li>图标: icon </li>
-<li>注释：note </li>
-<li>指南：guild </li>
-<li>服务：service </li>
-<li>热点：hot </li>
-<li>新闻：news </li>
-<li>下载：download </li>
-<li>投票：vote </li>
-<li>商标：label/branding </li>
-<li>当前位置：breadcrumb/loc </li>
-<li>购物车：shop </li>
-<li>标签：tag </li>
-<li>信誉：siteinfo_credits </li>
-<li>网站信息：siteinfo </li>
-<li>法律声明：siteinfo_legal </li>
-<li>合作伙伴：partner </li>
-<li>友情链接：friendlink </li>
-<li>版权：copyright</li>
+<li>视图：<code>scroll-view</code></li>
+<li>标签页：<code>tab</code></li>
+<li>文章列表：<code>list</code></li>
+<li>提示信息：<code>msg</code> / <code>message</code></li>
+<li>当前的: <code>current</code></li>
+<li>小技巧：<code>tips</code></li>
+<li>皮肤：<code>skin</code></li>
+<li>充值：<code>pay</code></li>
+<li>活动：<code>activities</code></li>
+<li>推广：<code>promotion</code></li>
+<li>公告：<code>announcement</code></li>
+<li>排行：<code>ranking</code></li>
+<li>公司简介：<code>company_profile</code></li>
+<li>公司设备：<code>equipment</code></li>
+<li>公司荣誉：<code>glories</code></li>
+<li>企业文化：<code>culture</code></li>
+<li>企业规模：<code>scale</code></li>
+<li>营销网络：<code>sales_network</code></li>
+<li>组织机构：<code>organization</code></li>
+<li>技术力量：<code>technology</code></li>
+<li>分支机构：<code>branches</code></li>
+<li>经营理念：<code>operation_principle</code></li>
+<li>经理致辞：<code>manager_oration</code></li>
+<li>发展历程：<code>development_history</code></li>
+<li>工程案例：<code>engineering_projects</code></li>
+<li>分类浏览：<code>browse_by_category</code></li>
+<li>应用领域：<code>application_fields</code></li>
+<li>人力资源：<code>human_resource_hr</code></li>
+<li>领导致辞： <code>leader_oration</code></li>
+<li>客户留言：<code>customer_message</code></li>
+<li>客户服务：<code>customer_service</code></li>
+<li>您的要求：<code>your_requirements</code></li>
+<li>销售信息：<code>sales_information</code></li>
+<li>招商：<code>enterprise_establishing</code></li>
+<li>教育培训：<code>education_training</code></li>
+<li>合作加盟：<code>joinIn_cooperation</code></li>
+<li>产品描述：<code>products_description</code></li>
+<li>业务范围：<code>business_scope</code></li>
+<li>产品销售：<code>sales_sales</code></li>
+<li>联系我们：<code>contact_us</code></li>
+<li>信息发布：<code>information</code></li>
+<li>返回首页：<code>homepage</code></li>
+<li>产品定购：<code>order</code></li>
+<li>电子商务：<code>e_business</code></li>
+<li>版权所有：<code>copy_right</code></li>
+<li>友情连结：<code>hot_link</code></li>
+<li>行业新闻：<code>trade_news</code></li>
+<li>行业动态：<code>trends</code></li>
+<li>邮编：<code>postal_code_zipcode</code></li>
+<li>新闻动态：<code>news_trends</code></li>
+<li>公司名称：<code>company_name</code></li>
+<li>销售热线：<code>sales_hotline</code></li>
+<li>联系人：<code>contact_person</code></li>
+<li>建设中：<code>in_construction</code></li>
+<li>证书：<code>certificate</code></li>
+<li>地址：<code>address</code></li>
+<li>电话：<code>tel</code></li>
+<li>传真：<code>fax</code></li>
+<li>产品名称：<code>product_name</code></li>
+<li>产品说明：<code>description</code></li>
+<li>价格：<code>price</code></li>
+<li>品牌：<code>brand</code></li>
+<li>规格：<code>specification</code></li>
+<li>尺寸：<code>size</code></li>
+<li>生产厂家：<code>manufacuturer</code></li>
+<li>型号：<code>model</code></li>
+<li>产品标号：<code>item_no</code></li>
+<li>技术指标：<code>technique_data</code></li>
+<li>产品描述：<code>description</code></li>
+<li>产地：<code>production_place</code></li>
+<li>用途：<code>application</code></li>
+<li>论坛：<code>forum</code></li>
+<li>在线订购：<code>on_line_order</code></li>
+<li>招标：<code>bidInviting</code></li>
+<li>综述：<code>general</code></li>
+<li>业绩：<code>achievements</code></li>
+<li>大事：<code>great_event</code></li>
+<li>动态：<code>trends</code></li>
+<li>服务：<code>service</code></li>
+<li>投资：<code>investment</code></li>
+<li>行业：<code>industry</code></li>
+<li>规划：<code>programming</code></li>
+<li>环境：<code>environment</code></li>
+<li>发送：<code>delivery</code></li>
+<li>提交：<code>submit</code></li>
+<li>重写：<code>reset</code></li>
+<li>社区：<code>community</code></li>
+<li>业务：<code>business</code></li>
+<li>在线调查：<code>online_inquiry</code></li>
+<li>下载中心：<code>download</code></li>
+<li>意见反馈：<code>feedback</code></li>
+<li>常见问题：<code>faq</code></li>
+<li>中心概况：<code>general_profile</code></li>
+<li>游乐园：<code>amusement_park</code></li>
+<li>专题报道：<code>special_report</code></li>
+<li>图标: <code>icon</code></li>
+<li>注释：<code>note</code></li>
+<li>指南：<code>guild</code></li>
+<li>服务：<code>service</code></li>
+<li>热点：<code>hot</code></li>
+<li>新闻：<code>news</code></li>
+<li>下载：<code>download</code></li>
+<li>投票：<code>vote</code></li>
+<li>商标：<code>label</code>/<code>branding</code></li>
+<li>当前位置：<code>breadcrumb</code>/<code>loc</code></li>
+<li>购物车：<code>shop</code></li>
+<li>标签：<code>tag</code></li>
+<li>信誉：<code>siteinfo_credits</code></li>
+<li>网站信息：<code>siteinfo</code></li>
+<li>法律声明：<code>siteinfo_legal</code></li>
+<li>合作伙伴：<code>partner</code></li>
+<li>友情链接：<code>friendlink</code></li>
+<li>版权：<code>copyright</code></li>
 </ul>
-<h2 id="class命名规范"><a href="#class命名规范" class="headerlink" title="class命名规范"></a>class命名规范</h2><p>分类式命名法（在前端组件优化下尤为重要）</p>
+<h2 id="class-命名规范"><a href="#class-命名规范" class="headerlink" title="class 命名规范"></a>class 命名规范</h2><p>分类式命名法（在前端组件优化下尤为重要）</p>
 <ul>
 <li>布局（grid）（<code>.g-</code>）:将页面分割为几大块，通常有头部，主体，主栏，侧栏，尾部等。</li>
 <li>模块（module）（<code>.m-</code>）:通常是一个语义化可以重复使用的较大整体，比如导航，登录，注册等。</li>
 <li>元件（unit）（<code>.u-</code>）:通常是一个不可再分的较为小巧的个体，通常被重复用于各种模块中，例如按钮，输入框。</li>
 <li>功能（function）（<code>.f-</code>）:为了方便一些重用样式的使用，我们将这些使用频繁的样式剥离出来，按照需求使用，通常这些选择器具有固定样式表现，比如清除浮动等（不可滥用）。</li>
 <li>状态（<code>.z-</code>）:为状态样式加入前缀，统一标识，方便识别，它只能组合使用或作为后代出现。</li>
-<li>javascript（<code>.j-</code>）:j-被专用与JS获取节点，请勿使用j-定义样式。</li>
-<li>class名称中只能出现小写字母和破折号”-“。破折号应当用于相关class的命名（类似于空间命名）例如: .btn和.btn-xxx。</li>
+<li>javascript（<code>.j-</code>）:j-被专用与 JS 获取节点，请勿使用 j-定义样式。</li>
+<li>class 名称中只能出现小写字母和破折号”-“。破折号应当用于相关 class 的命名（类似于空间命名）例如: .btn 和.btn-xxx。</li>
 <li>避免过度任意的简写。例如: <code>.btn</code>代表 button，但是<code>.s</code>不能代表任何意思。</li>
-<li>class名称应当尽可能短，并且意义明确。</li>
+<li>class 名称应当尽可能短，并且意义明确。</li>
 <li>使用有意义的名称，使用有组织或目的地明确的名称，不要使用表现形式的名称。</li>
-<li>基于最近的父class或基本（base）class作为新class的前缀。例如：父class为.btn则子class为.btn-xxx。</li>
-<li>使用j-*class来标识行为（与样式相对），并且不要将这些class包含到css文件中。</li>
+<li>基于最近的父 class 或基本（base）class 作为新 class 的前缀。例如：父 class 为.btn 则子 class 为.btn-xxx。</li>
+<li>使用 j-*class 来标识行为（与样式相对），并且不要将这些 class 包含到 css 文件中。</li>
 </ul>
-<h2 id="服务端nodejs-java命名规则"><a href="#服务端nodejs-java命名规则" class="headerlink" title="服务端nodejs/java命名规则"></a>服务端nodejs/java命名规则</h2><table>
+<h2 id="服务端-nodejs-java-命名规则"><a href="#服务端-nodejs-java-命名规则" class="headerlink" title="服务端 nodejs/java 命名规则"></a>服务端 nodejs/java 命名规则</h2><table>
 <thead>
 <tr>
 <th>类型(名)</th>
@@ -733,32 +700,32 @@
 <tr>
 <td>项目</td>
 <td>全部小写 多个单词用中划线分隔‘-’</td>
-<td>spring-cloud</td>
+<td><code>spring-cloud</code></td>
 </tr>
 <tr>
 <td>包</td>
 <td>全部小写</td>
-<td>com.alibaba.fastjson</td>
+<td><code>com.alibaba.fastjson</code></td>
 </tr>
 <tr>
 <td>类</td>
 <td>单词首字母大写</td>
-<td>Feature, FieldDeserializer</td>
+<td><code>Feature</code>, <code>FieldDeserializer</code></td>
 </tr>
 <tr>
 <td>变量</td>
 <td>首字母小写 多个单词组成时， 除首个单词 其他单词首字母都要大写</td>
-<td>password,  userName</td>
+<td><code>password</code>, <code>userName</code></td>
 </tr>
 <tr>
 <td>常量</td>
-<td>全部大写，多个单词，用’_’分隔</td>
-<td>CACHEEXPIREDTIME</td>
+<td>全部大写，多个单词，用’_‘分隔</td>
+<td><code>CACHEEXPIREDTIME</code></td>
 </tr>
 <tr>
 <td>方法</td>
 <td>同变量</td>
-<td>read(),  getById(Long id)</td>
+<td><code>read()</code>, <code>getById(Long id)</code></td>
 </tr>
 </tbody>
 </table>
@@ -774,40 +741,42 @@
 </thead>
 <tbody>
 <tr>
-<td>indi 或 onem</td>
-<td>indi.发起者名.项目名.模块名.……</td>
-<td>个体项目 个人发起，但非自己独自完成 可公开或私有项目， copyright主要属于发起者。</td>
+<td><code>indi</code> 或 <code>onem</code></td>
+<td><code>indi.发起者名.项目名.模块名.……</code></td>
+<td>个体项目 个人发起，但非自己独自完成 可公开或私有项目， copyright 主要属于发起者。</td>
 </tr>
 <tr>
-<td>pers</td>
-<td>pers.个人名.项目名.模块名.……</td>
-<td>个人项目 指个人发起，独自完成， 可分享的项目 copyright主要属于个人</td>
+<td><code>pers</code></td>
+<td><code>pers.个人名.项目名.模块名.……</code></td>
+<td>个人项目 指个人发起，独自完成， 可分享的项目 copyright 主要属于个人</td>
 </tr>
 <tr>
-<td>priv</td>
-<td>priv.个人名.项目名.模块名.……</td>
-<td>私有项目，指个人发起，独自完成 非公开的私人使用的项目， copyright属于个人。</td>
+<td><code>priv</code></td>
+<td><code>priv.个人名.项目名.模块名.……</code></td>
+<td>私有项目，指个人发起，独自完成 非公开的私人使用的项目， copyright 属于个人。</td>
 </tr>
 <tr>
-<td>team</td>
-<td>team.团队名.项目名.模块名.……</td>
-<td>团队项目，指由团队发起 并由该团队开发的项目 copyright属于该团队所有</td>
+<td><code>team</code></td>
+<td><code>team.团队名.项目名.模块名.……</code></td>
+<td>团队项目，指由团队发起 并由该团队开发的项目 copyright 属于该团队所有</td>
 </tr>
 <tr>
 <td>顶级域名</td>
-<td>com.公司名.项目名.模块名.……</td>
-<td>公司项目 copyright由项目发起的公司所有</td>
+<td><code>com.公司名.项目名.模块名.……</code></td>
+<td>公司项目 copyright 由项目发起的公司所有</td>
 </tr>
 </tbody>
 </table>
 <h3 id="接口的名称"><a href="#接口的名称" class="headerlink" title="接口的名称"></a>接口的名称</h3><p>不要以<code>I</code>为开头。</p>
-<p>如果以<code>~able</code>结尾表示具备某种能力，例如Cloneable和Runnable。</p>
-<h3 id="类的命名"><a href="#类的命名" class="headerlink" title="类的命名"></a>类的命名</h3><p><strong>类名使用大驼峰命名形式</strong>，类命通常时<strong>名词或名词短语</strong>，接口名除了用名词和名词短语以外，还可以使用形容词或形容词短语，如Cloneable，Callable等，表示实现该接口的类有某种功能或能力。对于测试类则以它要测试的类开头，以Test结尾，如HashMapTest。</p>
-<p>对于一些特殊特有名词缩写也可以使用全大写命名，比如XMLHttpRequest，不过通常认为缩写三个字母以内都大写，超过三个字母则按照要给单词算。这个没有标准，如阿里巴巴中<a href="https://github.com/alibaba/fastjson" target="_blank" rel="noopener">fastjson</a>用JSONObject作为类命，而google则使用JsonObjectRequest命名，对于这种特殊的缩写，原则是组织统一就好。</p>
-<p>不要以Base作为开头或者结尾，基类选用的词汇应该是具有通用意义的名称，例如Model、View、Control等。</p>
-<p>子类的命名如果继承父类的名称则会好懂，例如SoftKeyboard extends AbstractKeyboard。</p>
-<p>抽象类前面可以增加Abstract开头，这是当有一个Concrete类存在，而无法直接使用名称为抽象类命名时使用的。例如AbstractInputMethodService。</p>
-<p>兄弟类之间要有明显的区别式赐予，如SoftKeyboard、HardKeyboard。</p>
+<p>如果以<code>~able</code>结尾表示具备某种能力，例如 <code>Cloneable</code> 和 <code>Runnable</code>。</p>
+<h3 id="类的命名"><a href="#类的命名" class="headerlink" title="类的命名"></a>类的命名</h3><ul>
+<li><strong>类名使用大驼峰命名形式</strong>，类命通常时<strong>名词或名词短语</strong>，接口名除了用名词和名词短语以外，还可以使用形容词或形容词短语，如 <code>Cloneable</code>，<code>Callable</code> 等，表示实现该接口的类有某种功能或能力。对于测试类则以它要测试的类开头，以 <code>Test</code> 结尾，如 <code>HashMapTest</code>。</li>
+<li>对于一些特殊特有名词缩写也可以使用全大写命名，比如 XMLHttpRequest，不过通常认为缩写三个字母以内都大写，超过三个字母则按照要给单词算。这个没有标准，如阿里巴巴中<a href="https://github.com/alibaba/fastjson" target="_blank" rel="noopener">fastjson</a>用 JSONObject 作为类命，而 google 则使用 JsonObjectRequest 命名，对于这种特殊的缩写，原则是组织统一就好。</li>
+<li>不要以 <code>Base</code> 作为开头或者结尾，基类选用的词汇应该是具有通用意义的名称，例如 <code>Model</code>、<code>View</code>、<code>Control</code> 等。</li>
+<li>子类的命名如果继承父类的名称则会好懂，例如 <code>SoftKeyboard extends AbstractKeyboard</code>。</li>
+<li>抽象类前面可以增加 <code>Abstract</code> 开头，这是当有一个 Concrete 类存在，而无法直接使用名称为抽象类命名时使用的。例如 <code>AbstractInputMethodService</code>。</li>
+<li>兄弟类之间要有明显的区别式赐予，如 <code>SoftKeyboard</code>、<code>HardKeyboard</code>。</li>
+</ul>
 <table>
 <thead>
 <tr>
@@ -819,75 +788,71 @@
 <tbody>
 <tr>
 <td>抽象</td>
-<td>Abstract  或 Base 开头</td>
-<td>BaseUserService</td>
+<td><code>Abstract</code> 或 <code>Base</code> 开头</td>
+<td><code>BaseUserService</code></td>
 </tr>
 <tr>
 <td>枚举</td>
-<td>Enum 作为后缀</td>
-<td>OSTypeEnum</td>
+<td><code>Enum</code> 作为后缀</td>
+<td><code>OSTypeEnum</code></td>
 </tr>
 <tr>
 <td>工具</td>
-<td>Utils作为后缀</td>
-<td>StringUtils</td>
+<td><code>Utils</code> 作为后缀</td>
+<td><code>StringUtils</code></td>
 </tr>
 <tr>
 <td>异常</td>
-<td>Exception结尾</td>
-<td>RuntimeException</td>
+<td><code>Exception</code> 结尾</td>
+<td><code>RuntimeException</code></td>
 </tr>
 <tr>
 <td>接口实现</td>
-<td>接口名+ Impl</td>
-<td>UserServiceImpl</td>
+<td>接口名+ <code>Impl</code></td>
+<td><code>UserServiceImpl</code></td>
 </tr>
 <tr>
 <td>领域模型相</td>
-<td>/DO/DTO/VO/DAO</td>
-<td>正例：UserDAO 反例：UserDao</td>
+<td><code>DO</code>/<code>DTO</code>/<code>VO</code>/<code>DAO</code></td>
+<td>正例：<code>UserDAO</code> 反例：<code>UserDao</code></td>
 </tr>
 <tr>
 <td>设计模式相关</td>
-<td>Builder，Factory等</td>
-<td>当使用到设计模式时 要使用对应的设计模式作为后缀 如ThreadFactory</td>
+<td><code>Builder</code>，<code>Factory</code>等</td>
+<td>当使用到设计模式时 要使用对应的设计模式作为后缀 如 <code>ThreadFactory</code></td>
 </tr>
 <tr>
 <td>处理特定功能</td>
-<td>Handler，Predicate Validator</td>
-<td>表示处理器，校验器，断言 这些类工厂还有配套的方法名 如handle，predicate，validate</td>
+<td><code>Handler</code>，<code>Predicate</code> <code>Validator</code></td>
+<td>表示处理器，校验器，断言 这些类工厂还有配套的方法名 如 <code>handle</code>，<code>predicate</code>，<code>validate</code></td>
 </tr>
 <tr>
 <td>测试</td>
-<td>Test后缀</td>
-<td>UserServiceTest 表示用来测试UserService类的</td>
+<td><code>Test</code> 后缀</td>
+<td><code>UserServiceTest</code> 表示用来测试 <code>UserService</code> 类的</td>
 </tr>
 <tr>
-<td>MVC分层</td>
-<td>Controller，Service ServiceImpl，DAO 后缀</td>
-<td>UserManageController UserManageDAO</td>
+<td>MVC 分层</td>
+<td><code>Controller</code>，<code>Service ServiceImpl</code>，<code>DAO</code> 后缀</td>
+<td><code>UserManageController</code> <code>UserManageDAO</code></td>
 </tr>
 </tbody>
 </table>
-<h3 id="注解的命名（装饰器）"><a href="#注解的命名（装饰器）" class="headerlink" title="注解的命名（装饰器）"></a>注解的命名（装饰器）</h3><p>要考虑被使用时的样子</p>
+<h3 id="注解的命名（装饰器）"><a href="#注解的命名（装饰器）" class="headerlink" title="注解的命名（装饰器）"></a>注解的命名（装饰器）</h3><p>一定要考虑被使用时的样子。</p>
 <h4 id="原则"><a href="#原则" class="headerlink" title="原则"></a>原则</h4><p>好的命名增加代码阅读性，代码的命名往往有严格的限制。而注解不同，程序员往往可以自由发挥，但并不意味着可以为所欲为之胡作非为。优雅的注解通常要满足三要素。</p>
-<ol>
-<li>Nothing is strange 没有注解的代码对于阅读者非常不友好，哪怕代码写的在清楚，阅读者至少从心理上会有抵触，更何况代码中往往有许多复杂的逻辑，所以一定要写注解，不仅要记录代码的逻辑，还有说清楚修改的逻辑。</li>
-<li>Less is more 从代码维护角度来讲，代码中的注解一定是精华中的精华。合理清晰的命名能让代码易于理解，对于逻辑简单且命名规范，能够清楚表达代码功能的代码不需要注解。滥用注解会增加额外的负担，更何况大部分都是废话。</li>
-<li>Advance with the time 注解应该随着代码的变动而改变，注解表达的信息要与代码中完全一致。通常情况下修改代码后一定要修改注解。</li>
-</ol>
-<h4 id="注解格式"><a href="#注解格式" class="headerlink" title="注解格式"></a>注解格式</h4><p>注解大体上可以分为两种，一种是jsdoc/javadoc注解，另一种是简单注解。参与同一项目开发的同学，尽量设置成相同的注解模板。</p>
+<p>-1. <strong>Nothing is strange.</strong> 没有注解的代码对于阅读者非常不友好，哪怕代码写的在清楚，阅读者至少从心理上会有抵触，更何况代码中往往有许多复杂的逻辑，所以一定要写注解，不仅要记录代码的逻辑，还有说清楚修改的逻辑。<br>-2. <strong>Less is more</strong>. 从代码维护角度来讲，代码中的注解一定是精华中的精华。合理清晰的命名能让代码易于理解，对于逻辑简单且命名规范，能够清楚表达代码功能的代码不需要注解。滥用注解会增加额外的负担，更何况大部分都是废话。<br>-3. <strong>Advance with the time</strong>. 注解应该随着代码的变动而改变，注解表达的信息要与代码中完全一致。通常情况下修改代码后一定要修改注解。</p>
+<h4 id="注解格式"><a href="#注解格式" class="headerlink" title="注解格式"></a>注解格式</h4><p>注解大体上可以分为两种，一种是 jsdoc/javadoc 注解，另一种是简单注解。参与同一项目开发的同学，尽量设置成相同的注解模板。</p>
 <h3 id="枚举的命名"><a href="#枚举的命名" class="headerlink" title="枚举的命名"></a>枚举的命名</h3><p>要考虑到声明和调用时的情形。</p>
 <h3 id="方法的命名"><a href="#方法的命名" class="headerlink" title="方法的命名"></a>方法的命名</h3><p><strong>方法命名采用小驼峰的形式</strong>，首字小写，往后的每个单词首字母都要大写。和类名不同的是，方法命名一般为<strong>动词或动词短语</strong>，与参数或参数名共同组成动宾短语，即动词 + 名词。一个好的函数名一般能通过名字直接获知该函数实现什么样的功能。</p>
 <ul>
 <li>动词+名词式命名的基本原则：要选择合适的动词，动词是方法的灵魂；其次要列明动作的对象，至于动作的修饰符（副词）或者对象的修饰语（定语），放到参数列表里就好了。</li>
-<li>方法名称和返回值之间的关系：如果返回值有可能是个列表，那么方法所带有的名词最好就是复数形式；如果返回值是布尔型的，那么就要用is/can/need/has/contains等开头；如果返回值是确定类型的，那么该类型的名字有可能需要出现在方法名称里；如果返回值是个不确定类型的，那么Object或者父类名称是一个代替；如果是个Getter，那么get对象的名称就是其名词部分。</li>
+<li>方法名称和返回值之间的关系：如果返回值有可能是个列表，那么方法所带有的名词最好就是复数形式；如果返回值是布尔型的，那么就要用 <code>is</code>/<code>can</code>/<code>need</code>/<code>has</code>/<code>contains</code> 等开头；如果返回值是确定类型的，那么该类型的名字有可能需要出现在方法名称里；如果返回值是个不确定类型的，那么 Object 或者父类名称是一个代替；如果是个 Getter，那么 get 对象的名称就是其名词部分。</li>
 <li>考虑被调用时的样子</li>
-<li>“执行”动词的使用：doLogin意味着authenticate，doRegister意味着createUser，doEdit就是Save。</li>
-<li>介词的使用：by、with、and、after等</li>
+<li>“执行”动词的使用：<code>doLogin</code> 意味着 <code>authenticate</code>，<code>doRegister</code> 意味着 <code>createUser</code>，<code>doEdit</code> 就是 Save`。</li>
+<li>介词的使用：<code>by</code>、<code>with</code>、<code>and</code>、<code>after</code> 等</li>
 <li>其他：命名不要有下划线，不要有临时字符。</li>
 </ul>
-<h4 id="返回真伪值的方法"><a href="#返回真伪值的方法" class="headerlink" title="返回真伪值的方法"></a>返回真伪值的方法</h4><p>注：<code>pre-</code> prefix前缀，<code>suf-</code> suffix后缀，<code>alo-</code>alone 单独使用</p>
+<h4 id="返回真伪值的方法"><a href="#返回真伪值的方法" class="headerlink" title="返回真伪值的方法"></a>返回真伪值的方法</h4><p>注：<code>pre-</code> prefix 前缀，<code>suf-</code> suffix 后缀，<code>alo-</code> alone 单独使用</p>
 <table>
 <thead>
 <tr>
@@ -899,27 +864,27 @@
 <tbody>
 <tr>
 <td>pre</td>
-<td>is</td>
+<td><code>is</code></td>
 <td>对象是否符合期待的状态</td>
 </tr>
 <tr>
 <td>pre</td>
-<td>can</td>
+<td><code>can</code></td>
 <td>对象<strong>能否执行</strong>所期待的动作</td>
 </tr>
 <tr>
 <td>pre</td>
-<td>should</td>
+<td><code>should</code></td>
 <td>调用方执行某个命令或方法是好还是不好、应不应该， 或者说推荐还是不推荐</td>
 </tr>
 <tr>
 <td>pre</td>
-<td>has</td>
+<td><code>has</code></td>
 <td>对象<strong>是否持有</strong>所期待的数据和属性</td>
 </tr>
 <tr>
 <td>pre</td>
-<td>needs</td>
+<td><code>needs</code></td>
 <td>调用方<strong>是否需要</strong>执行某个命令或方法</td>
 </tr>
 </tbody>
@@ -934,14 +899,14 @@
 </thead>
 <tbody>
 <tr>
-<td>ensure</td>
-<td>检查是否为期待的状态不是则抛出异常或返回error code</td>
-<td>ensureCapacity</td>
+<td><code>ensure</code></td>
+<td>检查是否为期待的状态不是则抛出异常或返回 error code</td>
+<td><code>ensureCapacity</code></td>
 </tr>
 <tr>
-<td>validate</td>
-<td>检查是否为正确的状态不是则抛出异常或返回error code</td>
-<td>validateInputs</td>
+<td><code>validate</code></td>
+<td>检查是否为正确的状态不是则抛出异常或返回 error code</td>
+<td><code>validateInputs</code></td>
 </tr>
 </tbody>
 </table>
@@ -957,39 +922,39 @@
 <tbody>
 <tr>
 <td>suf</td>
-<td>IfNeeded</td>
+<td><code>IfNeeded</code></td>
 <td>需要的时候执行不需要则什么都不做</td>
-<td>drawIfNeeded</td>
+<td><code>drawIfNeeded</code></td>
 </tr>
 <tr>
 <td>pre</td>
-<td>might</td>
+<td><code>might</code></td>
 <td>同上</td>
-<td>mightCreate</td>
+<td><code>mightCreate</code></td>
 </tr>
 <tr>
 <td>pre</td>
-<td>try</td>
-<td>尝试执行失败时抛出异常或是返回errorcode</td>
-<td>tryCreate</td>
+<td><code>try</code></td>
+<td>尝试执行失败时抛出异常或是返回 errorcode</td>
+<td><code>tryCreate</code></td>
 </tr>
 <tr>
 <td>suf</td>
-<td>OrDefault</td>
+<td><code>OrDefault</code></td>
 <td>尝试执行失败时返回默认值</td>
-<td>getOrDefault</td>
+<td><code>getOrDefault</code></td>
 </tr>
 <tr>
 <td>suf</td>
-<td>OrElse</td>
+<td><code>OrElse</code></td>
 <td>尝试执行失败时返回实际参数中指定的值</td>
-<td>getOrElse</td>
+<td><code>getOrElse</code></td>
 </tr>
 <tr>
 <td>pre</td>
-<td>force</td>
-<td>强制尝试执行error抛出异常或是返回值</td>
-<td>forceCreate, forceStop</td>
+<td><code>force</code></td>
+<td>强制尝试执行 error 抛出异常或是返回值</td>
+<td><code>forceCreate</code>, <code>forceStop</code></td>
 </tr>
 </tbody>
 </table>
@@ -1005,63 +970,63 @@
 <tbody>
 <tr>
 <td>pre</td>
-<td>blocking</td>
+<td><code>blocking</code></td>
 <td>线程阻塞方法</td>
-<td>blockingGetUser</td>
+<td><code>blockingGetUser</code></td>
 </tr>
 <tr>
 <td>suf</td>
-<td>InBackground</td>
+<td><code>InBackground</code></td>
 <td>执行在后台线程</td>
-<td>doInBackground</td>
+<td><code>doInBackground</code></td>
 </tr>
 <tr>
 <td>suf</td>
-<td>Async</td>
+<td><code>Async</code></td>
 <td>异步方法</td>
-<td>sendAsync</td>
+<td><code>sendAsync</code></td>
 </tr>
 <tr>
 <td>suf</td>
-<td>Sync</td>
+<td><code>Sync</code></td>
 <td>同步方法</td>
-<td>sendSync</td>
+<td><code>sendSync</code></td>
 </tr>
 <tr>
 <td>pre / alo</td>
-<td>schedule</td>
-<td>Job和Tas k放入队列</td>
-<td>schedule,  scheduleJob</td>
+<td><code>schedule</code></td>
+<td>Job 和 Tas k 放入队列</td>
+<td><code>schedule</code>, <code>scheduleJob</code></td>
 </tr>
 <tr>
 <td>pre / alo</td>
-<td>post</td>
+<td><code>post</code></td>
 <td>同上</td>
-<td>postJob</td>
+<td><code>postJob</code></td>
 </tr>
 <tr>
 <td>pre / alo</td>
-<td>execute</td>
+<td><code>execute</code></td>
 <td>执行异步 或同步方法</td>
-<td>execute, executeTask</td>
+<td><code>execute</code>, <code>executeTask</code></td>
 </tr>
 <tr>
 <td>pre / alo</td>
-<td>start</td>
+<td><code>start</code></td>
 <td>同上</td>
-<td>start, startJob</td>
+<td><code>start</code>, <code>startJob</code></td>
 </tr>
 <tr>
 <td>pre / alo</td>
-<td>cancel</td>
+<td><code>cancel</code></td>
 <td>停止异步方法</td>
-<td>cance, cancelJob</td>
+<td><code>cance</code>, <code>cancelJob</code></td>
 </tr>
 <tr>
 <td>pre / alo</td>
-<td>stop</td>
+<td><code>stop</code></td>
 <td>同上</td>
-<td>stop,stopJob</td>
+<td><code>stop</code>, <code>stopJob</code></td>
 </tr>
 </tbody>
 </table>
@@ -1077,51 +1042,51 @@
 <tbody>
 <tr>
 <td>pre</td>
-<td>on</td>
+<td><code>on</code></td>
 <td>事件发生时执行</td>
-<td>onCompleted</td>
+<td><code>onCompleted</code></td>
 </tr>
 <tr>
 <td>pre</td>
-<td>before</td>
+<td><code>before</code></td>
 <td>事件发生前执行</td>
-<td>beforeUpdate</td>
+<td><code>beforeUpdate</code></td>
 </tr>
 <tr>
 <td>pre</td>
-<td>pre</td>
+<td><code>pre</code></td>
 <td>同上</td>
-<td>preUpdate</td>
+<td><code>preUpdate</code></td>
 </tr>
 <tr>
 <td>pre</td>
-<td>will</td>
+<td><code>will</code></td>
 <td>同上</td>
-<td>willUpdate</td>
+<td><code>willUpdate</code></td>
 </tr>
 <tr>
 <td>pre</td>
-<td>after</td>
+<td><code>after</code></td>
 <td>事件发生后执行</td>
-<td>afterUpdate</td>
+<td><code>afterUpdate</code></td>
 </tr>
 <tr>
 <td>pre</td>
-<td>post</td>
+<td><code>post</code></td>
 <td>同上</td>
-<td>postUpdate</td>
+<td><code>postUpdate</code></td>
 </tr>
 <tr>
 <td>pre</td>
-<td>did</td>
+<td><code>did</code></td>
 <td>同上</td>
-<td>didUpdate</td>
+<td><code>didUpdate</code></td>
 </tr>
 <tr>
 <td>pre</td>
-<td>should</td>
+<td><code>should</code></td>
 <td>确认事件是否可以执行</td>
-<td>shouldUpdate</td>
+<td><code>shouldUpdate</code></td>
 </tr>
 </tbody>
 </table>
@@ -1135,34 +1100,34 @@
 </thead>
 <tbody>
 <tr>
-<td>initialize</td>
+<td><code>initialize</code></td>
 <td>初始化或延迟初始化使用</td>
-<td>initialize</td>
+<td><code>initialize</code></td>
 </tr>
 <tr>
-<td>pause</td>
+<td><code>pause</code></td>
 <td>暂停</td>
-<td>onPause , pause</td>
+<td><code>onPause</code> , <code>pause</code></td>
 </tr>
 <tr>
-<td>stop</td>
+<td><code>stop</code></td>
 <td>停止</td>
-<td>onStop, stop</td>
+<td><code>onStop</code>, <code>stop</code></td>
 </tr>
 <tr>
-<td>abandon</td>
+<td><code>abandon</code></td>
 <td>销毁的替代</td>
-<td>abandon</td>
+<td><code>abandon</code></td>
 </tr>
 <tr>
-<td>destroy</td>
+<td><code>destroy</code></td>
 <td>同上</td>
-<td>destroy</td>
+<td><code>destroy</code></td>
 </tr>
 <tr>
-<td>dispose</td>
+<td><code>dispose</code></td>
 <td>同上</td>
-<td>dispose</td>
+<td><code>dispose</code></td>
 </tr>
 </tbody>
 </table>
@@ -1176,64 +1141,64 @@
 </thead>
 <tbody>
 <tr>
-<td>contains</td>
+<td><code>contains</code></td>
 <td>是包含指定对象相同的对象</td>
-<td>contains</td>
+<td><code>contains</code></td>
 </tr>
 <tr>
-<td>add</td>
+<td><code>add</code></td>
 <td>添加</td>
-<td>addJob</td>
+<td><code>addJob</code></td>
 </tr>
 <tr>
-<td>append</td>
+<td><code>append</code></td>
 <td>添加</td>
-<td>appendJob</td>
+<td><code>appendJob</code></td>
 </tr>
 <tr>
-<td>insert</td>
-<td>插入到下标n</td>
-<td>insertJob</td>
+<td><code>insert</code></td>
+<td>插入到下标 n</td>
+<td><code>insertJob</code></td>
 </tr>
 <tr>
-<td>put</td>
-<td>添加与key对应的元素</td>
-<td>putJob</td>
+<td><code>put</code></td>
+<td>添加与 key 对应的元素</td>
+<td><code>putJob</code></td>
 </tr>
 <tr>
-<td>remove</td>
+<td><code>remove</code></td>
 <td>移除元素</td>
-<td>removeJob</td>
+<td><code>removeJob</code></td>
 </tr>
 <tr>
-<td>enqueue</td>
+<td><code>enqueue</code></td>
 <td>添加到队列的最末位</td>
-<td>enqueueJob</td>
+<td><code>enqueueJob</code></td>
 </tr>
 <tr>
-<td>dequeue</td>
+<td><code>dequeue</code></td>
 <td>从队列中头部取出并移除</td>
-<td>dequeueJob</td>
+<td><code>dequeueJob</code></td>
 </tr>
 <tr>
-<td>push</td>
+<td><code>push</code></td>
 <td>添加到栈头</td>
-<td>pushJob</td>
+<td><code>pushJob</code></td>
 </tr>
 <tr>
-<td>pop</td>
+<td><code>pop</code></td>
 <td>从栈头取出并移除</td>
-<td>popJob</td>
+<td><code>popJob</code></td>
 </tr>
 <tr>
-<td>peek</td>
+<td><code>peek</code></td>
 <td>从栈头取出但不移除</td>
-<td>peekJob</td>
+<td><code>peekJob</code></td>
 </tr>
 <tr>
-<td>find</td>
+<td><code>find</code></td>
 <td>寻找符合条件的某物</td>
-<td>findById</td>
+<td><code>findById</code></td>
 </tr>
 </tbody>
 </table>
@@ -1247,92 +1212,92 @@
 </thead>
 <tbody>
 <tr>
-<td>create</td>
+<td><code>create</code></td>
 <td>新创建</td>
-<td>createAccount</td>
+<td><code>createAccount</code></td>
 </tr>
 <tr>
-<td>new</td>
+<td><code>new</code></td>
 <td>新创建</td>
-<td>newAccount</td>
+<td><code>newAccount</code></td>
 </tr>
 <tr>
-<td>from</td>
+<td><code>from</code></td>
 <td>从既有的某物新建或是从其他的数据新建</td>
-<td>fromConfig</td>
+<td><code>fromConfig</code></td>
 </tr>
 <tr>
-<td>to</td>
+<td><code>to</code></td>
 <td>转换</td>
-<td>toString</td>
+<td><code>toString</code></td>
 </tr>
 <tr>
-<td>update</td>
+<td><code>update</code></td>
 <td>更新既有某物</td>
-<td>updateAccount</td>
+<td><code>updateAccount</code></td>
 </tr>
 <tr>
-<td>load</td>
+<td><code>load</code></td>
 <td>读取</td>
-<td>loadAccount</td>
+<td><code>loadAccount</code></td>
 </tr>
 <tr>
-<td>fetch</td>
+<td><code>fetch</code></td>
 <td>远程读取</td>
-<td>fetchAccount</td>
+<td><code>fetchAccount</code></td>
 </tr>
 <tr>
-<td>delete</td>
+<td><code>delete</code></td>
 <td>删除</td>
-<td>deleteAccount</td>
+<td><code>deleteAccount</code></td>
 </tr>
 <tr>
-<td>remove</td>
+<td><code>remove</code></td>
 <td>删除</td>
-<td>removeAccount</td>
+<td><code>removeAccount</code></td>
 </tr>
 <tr>
-<td>save</td>
+<td><code>save</code></td>
 <td>保存</td>
-<td>saveAccount</td>
+<td><code>saveAccount</code></td>
 </tr>
 <tr>
-<td>store</td>
+<td><code>store</code></td>
 <td>保存</td>
-<td>storeAccount</td>
+<td><code>storeAccount</code></td>
 </tr>
 <tr>
-<td>commit</td>
+<td><code>commit</code></td>
 <td>保存</td>
-<td>commitChange</td>
+<td><code>commitChange</code></td>
 </tr>
 <tr>
-<td>apply</td>
+<td><code>apply</code></td>
 <td>保存或应用</td>
-<td>applyChange</td>
+<td><code>applyChange</code></td>
 </tr>
 <tr>
-<td>clear</td>
+<td><code>clear</code></td>
 <td>清除或是恢复到初始状态</td>
-<td>clearAll</td>
+<td><code>clearAll</code></td>
 </tr>
 <tr>
-<td>reset</td>
+<td><code>reset</code></td>
 <td>清除或是恢复到初始状态</td>
-<td>resetAll</td>
+<td><code>resetAll</code></td>
 </tr>
 </tbody>
 </table>
 <p>函数的第一规则是要短小，第二条规则是还要更短小</p>
 <h3 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h3><p>一个命名插件：</p>
 <ul>
-<li>在线：<a href="https://unbug.github.io/codelf/，不过不稳定，中文版用了有道翻译api有次数限制" target="_blank" rel="noopener">https://unbug.github.io/codelf/，不过不稳定，中文版用了有道翻译api有次数限制</a></li>
+<li>在线：<a href="https://unbug.github.io/codelf/" target="_blank" rel="noopener">https://unbug.github.io/codelf/</a>，不过不稳定，中文版用了有道翻译api有次数限制。</li>
 </ul>
-<p><a href="https://github.com/unbug/codelf" target="_blank" rel="noopener">https://github.com/unbug/codelf</a></p>
+<p>Github：<a href="https://github.com/unbug/codelf" target="_blank" rel="noopener">https://github.com/unbug/codelf</a></p>
 <p><img src="https://user-images.githubusercontent.com/799578/51435509-a2595d00-1cb3-11e9-8f4e-85ecbc3a2325.png" alt="codeif"></p>
 <hr>
 <h4 id="相关链接"><a href="#相关链接" class="headerlink" title="相关链接"></a>相关链接</h4><ul>
-<li>《Python工匠》案例技巧与工程实践</li>
+<li>《Python 工匠》案例技巧与工程实践</li>
 <li>《编写可读代码的艺术》</li>
 <li>《会说话的代码》</li>
 <li>《代码整洁之道》</li>
@@ -1341,4 +1306,4 @@
 <li><a href="https://juejin.cn/post/6995342820512890893" target="_blank" rel="noopener">https://juejin.cn/post/6995342820512890893</a></li>
 <li><a href="https://jimmysong.io/eng-practices/docs/review/reviewer/looking-for/#%E5%91%BD%E5%90%8D" target="_blank" rel="noopener">https://jimmysong.io/eng-practices/docs/review/reviewer/looking-for/#%E5%91%BD%E5%90%8D</a></li>
 </ul>
-</div></article></div><div class="post-paginator"><div class="post-links"><div class="post-prev"><a href="/2022/07/17/notes/【笔记】越来越快的jsRuntime——Bun/" class="prev">上一篇<span>【笔记】越来越快的jsRuntime——Bun</span></a></div><div class="post-next"><a href="/2022/05/08/notes/【笔记】《这样编码才规范 128个编码好习惯》/" class="next">下一篇<span>【笔记】《这样编码才规范 128个编码好习惯》</span></a></div></div></div></div><div class="sidebar"><div class="social-links"><ul><li class="social-link"><a href="http://github.com/MichealWayne" target="_blank" class="link-github"><i class="icon icon-github"></i></a></li><li class="social-link"><a href="mailto:michealwayne@163.com" target="_self" class="link-mail"><i class="icon icon-mail"></i></a></li></ul></div><div class="recent-posts widget"><h3 class="widget-title"> 近期文章</h3><div class="widget-content"><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2022/12/17/notes/【笔记】《演进式架构》（二）/">【笔记】《演进式架构》学习笔记（二）</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/12/10/notes/【笔记】《演进式架构》（一）/">【笔记】《演进式架构》学习笔记（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/11/19/typescript/浅谈TypeScript的图灵完备性/">浅谈TypeScript的图灵完备性</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/10/23/notes/【笔记】《我的架构思想：基本模型、理论与原则》编三/">【笔记】《我的架构思想：基本模型、理论与原则》编三——架构原则，技艺、艺术与美</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/10/04/notes/【笔记】《我的架构思想：基本模型、理论与原则》编二/">【笔记】《我的架构思想：基本模型、理论与原则》编二——架构是过程，而非结果</a></li></ul></div></div><div class="recent-comment widget"><h3 class="widget-title"> Author</h3><div class="widget-content"><div class="m-author"><div class="u-avatar"><img src="data:image/jpeg;base64,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"></div><div class="u-author_tit"><p>My name is Micheal Wayne and this is my blog.<br>I am a front-end software engineer.<br>Contact: <a href="mailto:michealwayne@163.com"> <span>michealwayne@163.com</span></a></p></div></div></div></div><div class="tag-lists widget"><h3 class="widget-title"> 标签</h3><div class="widget-content"><ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/APM/">APM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BOM/">BOM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Bun/">Bun</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DOM/">DOM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTML/">HTML</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OKR/">OKR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UML/">UML</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UX/">UX</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/">Vue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WebSocket/">WebSocket</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zepto/">Zepto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/canvas/">canvas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/">css</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/es6/">es6</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eslint/">eslint</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/h5/">h5</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/">http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jQuery/">jQuery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/">js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lerna/">lerna</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lottie/">lottie</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/">nodejs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prettier/">prettier</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/">react</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/serviceWorker/">serviceWorker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sketch/">sketch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skywalking/">skywalking</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/taro/">taro</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tslint/">tslint</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/typescript/">typescript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webApi/">webApi</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpack/">webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/代码规范/">代码规范</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/前端/">前端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/动效/">动效</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图形处理/">图形处理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/安全/">安全</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/小程序/">小程序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/工具/">工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/工程/">工程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/微前端/">微前端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/思维逻辑/">思维逻辑</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/性能/">性能</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/架构/">架构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/概念/">概念</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/浏览器/">浏览器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/用户体验/">用户体验</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/笔记/">笔记</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/编码/">编码</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/网络/">网络</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/网络协议/">网络协议</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/设计模式/">设计模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/调试/">调试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/质量/">质量</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/软件工程/">软件工程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/项目管理/">项目管理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/高并发/">高并发</a></li></ul></div></div><div class="archive-lists widget"><h3 class="widget-title"> 归档</h3><div class="widget-content"><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">November 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/05/">May 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">April 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">December 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">August 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">March 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">September 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">November 2017</a><span class="archive-list-count">5</span></li></ul></div></div></div></div></div><footer><div class="copyright"><div class="container"><div class="col-6"><div class="site-info">© 2016 - 2022 <a href="http://blog.michealwayne.cn">Micheal Wayne</a></div></div><div class="col-6"><div class="site-contact"><div class="social-links"><ul><li class="social-link"><a href="http://github.com/MichealWayne" target="_blank" class="link-github"><i class="icon icon-github"></i></a></li><li class="social-link"><a href="mailto:michealwayne@163.com" target="_self" class="link-mail"><i class="icon icon-mail"></i></a></li></ul></div></div></div></div></div></footer><a class="scroll-up"><span class="icon icon-up"></span></a><script src="https://code.jquery.com/jquery-3.1.0.min.js"></script><script src="/js/posfixed.js"></script><script src="/js/utils.js"></script><script src="/js/search.js"></script><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-92791318-1",'auto');ga('send','pageview');</script></body></html>
+</div></article></div><div class="post-paginator"><div class="post-links"><div class="post-prev"><a href="/2022/07/17/notes/【笔记】越来越快的jsRuntime——Bun/" class="prev">上一篇<span>【笔记】越来越快的jsRuntime——Bun</span></a></div><div class="post-next"><a href="/2022/05/08/notes/【笔记】《这样编码才规范 128个编码好习惯》/" class="next">下一篇<span>【笔记】《这样编码才规范 128个编码好习惯》</span></a></div></div></div></div><div class="sidebar"><div class="social-links"><ul><li class="social-link"><a href="http://github.com/MichealWayne" target="_blank" class="link-github"><i class="icon icon-github"></i></a></li><li class="social-link"><a href="mailto:michealwayne@163.com" target="_self" class="link-mail"><i class="icon icon-mail"></i></a></li></ul></div><div class="recent-posts widget"><h3 class="widget-title"> 近期文章</h3><div class="widget-content"><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2023/01/02/notes/【笔记】《演进式架构》（三）/">【笔记】《演进式架构》学习笔记（三）</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/12/17/notes/【笔记】《演进式架构》（二）/">【笔记】《演进式架构》学习笔记（二）</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/12/10/notes/【笔记】《演进式架构》（一）/">【笔记】《演进式架构》学习笔记（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/11/19/typescript/浅谈TypeScript的图灵完备性/">浅谈TypeScript的图灵完备性</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/10/23/notes/【笔记】《我的架构思想：基本模型、理论与原则》编三/">【笔记】《我的架构思想：基本模型、理论与原则》编三——架构原则，技艺、艺术与美</a></li></ul></div></div><div class="recent-comment widget"><h3 class="widget-title"> Author</h3><div class="widget-content"><div class="m-author"><div class="u-avatar"><img src="data:image/jpeg;base64,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"></div><div class="u-author_tit"><p>My name is Micheal Wayne and this is my blog.<br>I am a front-end software engineer.<br>Contact: <a href="mailto:michealwayne@163.com"> <span>michealwayne@163.com</span></a></p></div></div></div></div><div class="tag-lists widget"><h3 class="widget-title"> 标签</h3><div class="widget-content"><ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/APM/">APM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BOM/">BOM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Bun/">Bun</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DOM/">DOM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTML/">HTML</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OKR/">OKR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UML/">UML</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UX/">UX</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/">Vue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WebSocket/">WebSocket</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zepto/">Zepto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/canvas/">canvas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/">css</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/es6/">es6</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eslint/">eslint</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/h5/">h5</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/">http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jQuery/">jQuery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/">js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lerna/">lerna</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lottie/">lottie</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/">nodejs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prettier/">prettier</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/">react</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/serviceWorker/">serviceWorker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sketch/">sketch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skywalking/">skywalking</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/taro/">taro</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tslint/">tslint</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/typescript/">typescript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webApi/">webApi</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpack/">webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/代码规范/">代码规范</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/前端/">前端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/动效/">动效</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图形处理/">图形处理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/安全/">安全</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/小程序/">小程序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/工具/">工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/工程/">工程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/微前端/">微前端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/思维逻辑/">思维逻辑</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/性能/">性能</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/架构/">架构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/概念/">概念</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/浏览器/">浏览器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/用户体验/">用户体验</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/笔记/">笔记</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/编码/">编码</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/网络/">网络</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/网络协议/">网络协议</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/设计模式/">设计模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/调试/">调试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/质量/">质量</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/软件工程/">软件工程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/项目管理/">项目管理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/高并发/">高并发</a></li></ul></div></div><div class="archive-lists widget"><h3 class="widget-title"> 归档</h3><div class="widget-content"><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">November 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/05/">May 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">April 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">December 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">August 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">March 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">September 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">November 2017</a><span class="archive-list-count">5</span></li></ul></div></div></div></div></div><footer><div class="copyright"><div class="container"><div class="col-6"><div class="site-info">© 2016 - 2023 <a href="http://blog.michealwayne.cn">Micheal Wayne</a></div></div><div class="col-6"><div class="site-contact"><div class="social-links"><ul><li class="social-link"><a href="http://github.com/MichealWayne" target="_blank" class="link-github"><i class="icon icon-github"></i></a></li><li class="social-link"><a href="mailto:michealwayne@163.com" target="_self" class="link-mail"><i class="icon icon-mail"></i></a></li></ul></div></div></div></div></div></footer><a class="scroll-up"><span class="icon icon-up"></span></a><script src="https://code.jquery.com/jquery-3.1.0.min.js"></script><script src="/js/posfixed.js"></script><script src="/js/utils.js"></script><script src="/js/search.js"></script><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script></body></html>
