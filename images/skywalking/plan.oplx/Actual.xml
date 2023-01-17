@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scenario xmlns="http://www.omnigroup.com/namespace/OmniPlan/v2" xmlns:opns="http://www.omnigroup.com/namespace/OmniPlan/v2" id="a-ttsuoyS71">
+  <start-date>2021-05-21T00:00:00.000Z</start-date>
+  <prototype-task>
+    <task id="t-2">
+      <title>Task 1</title>
+      <effort>28800</effort>
+    </task>
+  </prototype-task>
+  <prototype-task>
+    <task id="t-3">
+      <title>Milestone 1</title>
+      <type>milestone</type>
+    </task>
+  </prototype-task>
+  <prototype-task>
+    <task id="t-4">
+      <title>Group 1</title>
+      <type>group</type>
+    </task>
+  </prototype-task>
+  <prototype-resource>
+    <resource id="r-2">
+      <name>Resource 1</name>
+      <type>Staff</type>
+    </resource>
+  </prototype-resource>
+  <prototype-resource>
+    <resource id="r-3">
+      <name>Equipment 1</name>
+      <type>Equipment</type>
+    </resource>
+  </prototype-resource>
+  <prototype-resource>
+    <resource id="r-4">
+      <name>Material 1</name>
+      <type>Material</type>
+      <units-available>0</units-available>
+      <efficiency>0</efficiency>
+    </resource>
+  </prototype-resource>
+  <prototype-resource>
+    <resource id="r-5">
+      <name>Group 1</name>
+      <type>Group</type>
+    </resource>
+  </prototype-resource>
+  <top-resource idref="r-1"/>
+  <resource id="r-1">
+    <name/>
+    <type>Group</type>
+    <child-resource idref="r1"/>
+  </resource>
+  <resource id="r1">
+    <name>Resource 1</name>
+    <type>Staff</type>
+  </resource>
+  <top-task idref="t-1"/>
+  <task id="t-1">
+    <type>group</type>
+    <child-task idref="t1"/>
+    <child-task idref="t2"/>
+    <child-task idref="t11"/>
+    <child-task idref="t16"/>
+    <child-task idref="t17"/>
+    <child-task idref="t10"/>
+    <child-task idref="t3"/>
+    <child-task idref="t4"/>
+    <child-task idref="t13"/>
+    <child-task idref="t15"/>
+  </task>
+  <task id="t1">
+    <title>web ajax全链路</title>
+    <effort>57600</effort>
+    <start-constraint-date>2021-05-25T00:00:00.000Z</start-constraint-date>
+    <start-no-earlier-than>2021-05-25T00:00:00.000Z</start-no-earlier-than>
+  </task>
+  <task id="t2">
+    <title>web异常收集</title>
+    <effort>28800</effort>
+    <start-constraint-date>2021-05-27T00:00:00.000Z</start-constraint-date>
+    <prerequisite-task idref="t1"/>
+    <start-no-earlier-than>2021-05-27T00:00:00.000Z</start-no-earlier-than>
+  </task>
+  <task id="t3">
+    <title>测试环境接入</title>
+    <effort>57600</effort>
+    <start-constraint-date>2021-05-21T00:00:00.000Z</start-constraint-date>
+    <start-no-earlier-than>2021-05-21T00:00:00.000Z</start-no-earlier-than>
+  </task>
+  <task id="t4">
+    <title>预发布环境接入</title>
+    <effort>57600</effort>
+    <prerequisite-task idref="t2"/>
+    <prerequisite-task idref="t3"/>
+    <prerequisite-task idref="t10"/>
+  </task>
+  <task id="t10">
+    <title>js-sdk分析</title>
+    <effort>144000</effort>
+    <start-constraint-date>2021-05-25T00:00:00.000Z</start-constraint-date>
+    <start-no-earlier-than>2021-05-25T00:00:00.000Z</start-no-earlier-than>
+  </task>
+  <task id="t11">
+    <title>UI demo分析</title>
+    <effort>144000</effort>
+    <start-constraint-date>2021-05-31T00:00:00.000Z</start-constraint-date>
+    <prerequisite-task idref="t2"/>
+    <start-no-earlier-than>2021-05-31T00:00:00.000Z</start-no-earlier-than>
+  </task>
+  <task id="t13">
+    <title>生产环境接入</title>
+    <effort>57600</effort>
+    <prerequisite-task idref="t4"/>
+  </task>
+  <task id="t15">
+    <title>skywalking web接入说明</title>
+    <type>milestone</type>
+    <prerequisite-task idref="t13"/>
+  </task>
+  <task id="t16">
+    <title>iOS/Android及nodejs分析</title>
+    <effort>28800</effort>
+    <prerequisite-task idref="t11"/>
+  </task>
+  <task id="t17">
+    <title>skywalking预研报告</title>
+    <type>milestone</type>
+    <prerequisite-task idref="t16"/>
+  </task>
+  <critical-path root="-1" enabled="false" resources="false">
+    <color space="srgb" r="1" g="0.5" b="0.5"/>
+  </critical-path>
+</scenario>

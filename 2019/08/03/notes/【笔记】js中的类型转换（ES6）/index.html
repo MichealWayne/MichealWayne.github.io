@@ -1,0 +1,370 @@
+<!DOCTYPE html><html><head><meta name="generator" content="Hexo 3.9.0"><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> 【笔记】js中的类型转换（ES6） | Wayne的博客</title><meta name="description" content="【笔记】js中的类型转换（ES6） - Micheal Wayne"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/scss/casual.css"><link rel="stylesheet" href="/css/icon.css"><link rel="search" type="application/opensearchdescription+xml" href="http://blog.michealwayne.cn/atom.xml" title="Wayne的博客"></head><script>(function (w) {w.frontjsConfig={token:"81a82620fb0dca7680f2f06be134fa4f",behaviour:8,FPSThreshold:10};w.frontjsTmpData = {r:[],e:[],l:[]};w.frontjsTmpCollector = function (ev) {(ev.message ? window.frontjsTmpData.e : window.frontjsTmpData.r).push([new Date().getTime(), ev])};w.FrontJS = {addEventListener: function (t, f) {w.frontjsTmpData.l.push([t, f]);return f;},removeEventListener: function (t, f) {for (var i = 0; i < w.frontjsTmpData.l.length; i++) {t === w.frontjsTmpData.l[i][0] && f === w.frontjsTmpData.l[i][1] && w.frontjsTmpData.l.splice(i, 1);}return f;}};w.document.addEventListener("error", w.frontjsTmpCollector, true);w.addEventListener("error", w.frontjsTmpCollector, true);w.addEventListener("load", function () {var n = w.document.createElement("script");n.src = "https://frontjs-static.pgyer.com/dist/current/frontjs.web.min.js"; w.document.body.appendChild(n);}, true);})(window);</script><body><div class="header"><header class="site-header"><div class="site-nav"><span class="button-toggle"></span><div class="container"><div class="nav-item"><a href="/" target="_self" data-text="home">Home</a></div><div class="nav-item"><a href="/archives" target="_self" data-text="archive">Archive</a></div><div class="nav-item"><a href="/about" target="_self" data-text="about">About</a></div></div><form id="search-form" class="nav-item"><input type="text" id="local-search-input" name="q" results="0" placeholder="search" autocomplete="off" autocorrect="off" class="search form-control"><span onclick="resetSearch()" class="fa fa-times"> </span></form><div id="local-search-result"></div><p class="no-result">No results found</p></div></header></div><div class="main"><div class="container"><div class="content"><div class="post"><article class="post-block"><h1 class="post-title">【笔记】js中的类型转换（ES6）</h1><span class="post-date">Aug 3, 2019</span><span class="post-tag"><a href="/tags/笔记/">笔记</a><a href="/tags/js/">js</a></span><img src="/images/icons/js.png" class="bgimage"><div class="post-content"><h1 id="js中的类型转换（ES6）"><a href="#js中的类型转换（ES6）" class="headerlink" title="js中的类型转换（ES6）"></a>js中的类型转换（ES6）</h1><ul>
+<li><a href="http://www.ecma-international.org/ecma-262/6.0/#sec-type-conversion" target="_blank" rel="noopener">http://www.ecma-international.org/ecma-262/6.0/#sec-type-conversion</a></li>
+</ul>
+<p>我们一直知道js是一种动态类型的语言，也正因为这种特性，我们使用的时候既觉得灵活有时候也会觉得坑。以下整理了ES6涉及到的转换操作。</p>
+<blockquote>
+<p>ECMAScript会根据需要隐式执行自动类型转换。为了明确某些构造的语义，定义一组转换抽象操作是很有用的。转换抽象操作是多态的；它们可以接受任何ECMAScript语言类型或完成记录值的值。但是这些操作没有使用其他规范类型。</p>
+</blockquote>
+<h2 id="1-ToPrimitive-input-PreferredType-转换原始类型。"><a href="#1-ToPrimitive-input-PreferredType-转换原始类型。" class="headerlink" title="1 ToPrimitive(input[, PreferredType])转换原始类型。"></a>1 <code>ToPrimitive(input[, PreferredType])</code>转换原始类型。</h2><p>抽象操作ToPrimitive接受input参数和可选参数preferredType。抽象操作ToPrimitive将其输入参数转换为非对象类型。如果一个对象能够转换为多种原始类型，那么它可以使用可选的参数PreferredType来支持该类型转换。根据下表：</p>
+<table>
+<thead>
+<tr>
+<th>输入类型</th>
+<th>输出结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Completion Record</td>
+<td>如果输入参数input是一个中断完成（break这种），返回input；否则返回ToPrimitive(input.[[value]])并且传入可选的提示PreferredType。</td>
+</tr>
+<tr>
+<td>Undefined</td>
+<td>返回Undefined</td>
+</tr>
+<tr>
+<td>Null</td>
+<td>返回Null</td>
+</tr>
+<tr>
+<td>Boolean</td>
+<td>返回Boolean input</td>
+</tr>
+<tr>
+<td>Number</td>
+<td>返回Number input</td>
+</tr>
+<tr>
+<td>String</td>
+<td>返回String input</td>
+</tr>
+<tr>
+<td>Symbol</td>
+<td>返回Symbol input</td>
+</tr>
+<tr>
+<td>Object</td>
+<td>根据下列1.1流程：</td>
+</tr>
+</tbody>
+</table>
+<p>（其中Completion Record：完成类型是一个记录，用于解释值和控制流的运行时传播，例如执行非本地控制传输的语句，如break、continue、return和throw的行为。）</p>
+<h3 id="1-1-Object转为原始类型"><a href="#1-1-Object转为原始类型" class="headerlink" title="1.1 Object转为原始类型"></a>1.1 Object转为原始类型</h3><ul>
+<li>1.如果PreferredType没有赋值，hint为<code>&quot;default&quot;</code>（hint为转换示意）；</li>
+<li>2.如果PreferredType是String的示意，hint为<code>&quot;string&quot;</code>；</li>
+<li>3.如果PreferredType是Number的示意，hint为<code>&quot;number&quot;</code>；</li>
+<li>4.设置抽象值exoticToPrim为抽象函数GetMethod(input, @@toPrimitive)的返回结果（<a href="http://www.ecma-international.org/ecma-262/6.0/#sec-getmethod" target="_blank" rel="noopener">GetMethod</a>用于获取对象的特定属性的值，此处即获取input的转原始类型方法）；</li>
+<li>（中断判断exoticToPrim）；</li>
+<li>6.如果exoticToPrim是undefined，那么<ul>
+<li>设置result等于Call(exoticToPrim, input, « hint »)，即执行exoticToPrim(hint)；</li>
+<li>（中断判断result）；</li>
+<li>如果result是原始数据类型，返回result；</li>
+<li>抛出一个TypeError异常；</li>
+</ul>
+</li>
+<li>如果hint是<code>&quot;default&quot;</code>，使hint为<code>&quot;number&quot;</code>；</li>
+<li>返回下列OrdinaryToPrimitive(input, hint)的值。</li>
+</ul>
+<h4 id="OrdinaryToPrimitive-input-hint"><a href="#OrdinaryToPrimitive-input-hint" class="headerlink" title="OrdinaryToPrimitive(input, hint)"></a>OrdinaryToPrimitive(input, hint)</h4><ul>
+<li>input：Object，数据类型</li>
+<li>hint：String，转换示意，’string’或’number’</li>
+</ul>
+<p>执行步骤：</p>
+<ul>
+<li>1.判断input是不是对象；</li>
+<li>2.判断hint是不是’string’或’number’；</li>
+<li>3.如果hint是<code>&quot;string&quot;</code>，设置methodNames等于<code>« &quot;toString&quot;, &quot;valueOf&quot; »</code>；</li>
+<li>4.如果hint是<code>&quot;number&quot;</code>（记住不是’string’就是’number’），设置methodNames等于<code>« &quot;valueOf&quot;, &quot;toString&quot; »</code>；</li>
+<li>5.对刚设置的变量methodNames的每一项进行迭代并执行：<ul>
+<li>获取对象的执行方式，如<code>input.toString</code></li>
+<li>（中断判断method）；</li>
+<li>如果是可执行的，那么<ul>
+<li>设置result为执行调用结果</li>
+<li>如果result的类型不是Object，返回result</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>抛出一个TypeError异常；</li>
+</ul>
+<blockquote>
+<p>toPrimitive是可以定义修改的。<a href="http://www.ecma-international.org/ecma-262/6.0/#sec-symbol.toprimitive" target="_blank" rel="noopener">Symbol.toPrimitive</a></p>
+</blockquote>
+<p>来猜测一下以下执行的结果：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Q1</span></span><br><span class="line"><span class="keyword">var</span> obj1 = &#123;</span><br><span class="line">	[<span class="built_in">Symbol</span>.toPrimitive] (hint) &#123;</span><br><span class="line">		<span class="keyword">if</span> (hint === <span class="string">'number'</span>) &#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="number">123456</span></span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="string">'陈冠希'</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="built_in">String</span>(obj1);</span><br><span class="line"><span class="built_in">Number</span>(obj1);</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Q2</span></span><br><span class="line"><span class="keyword">var</span> obj2 = &#123;</span><br><span class="line">	valueOf () &#123;</span><br><span class="line">		<span class="keyword">return</span> [<span class="number">1</span>,<span class="number">2</span>]</span><br><span class="line">	&#125;,</span><br><span class="line">	toString () &#123;</span><br><span class="line">		<span class="keyword">return</span> [<span class="number">3</span>,<span class="number">4</span>]</span><br><span class="line">	&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="built_in">String</span>(obj2);</span><br><span class="line"><span class="built_in">Number</span>(obj2);</span><br></pre></td></tr></table></figure>
+<p>更多问题可见<a href="https://github.com/MichealWayne/study-js-from-questions" target="_blank" rel="noopener">https://github.com/MichealWayne/study-js-from-questions</a></p>
+<h2 id="2-ToBoolean-argument-转换布尔值"><a href="#2-ToBoolean-argument-转换布尔值" class="headerlink" title="2.ToBoolean ( argument )转换布尔值"></a>2.<code>ToBoolean ( argument )</code>转换布尔值</h2><p>抽象操作ToBoolean将参数argument转为一个布尔值。根据下表：</p>
+<table>
+<thead>
+<tr>
+<th>输入类型</th>
+<th>输出结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Completion Record</td>
+<td>如果输入参数input是一个中断完成（break这种），返回input；否则返回ToPrimitive(input.[[value]])并且传入可选的提示PreferredType。</td>
+</tr>
+<tr>
+<td>Undefined</td>
+<td>返回false</td>
+</tr>
+<tr>
+<td>Null</td>
+<td>返回false</td>
+</tr>
+<tr>
+<td>Boolean</td>
+<td>返回Boolean argument</td>
+</tr>
+<tr>
+<td>Number</td>
+<td>如果argument是<code>+0</code>、<code>-0</code>或<code>NaN</code>返回false，否则返回true</td>
+</tr>
+<tr>
+<td>String</td>
+<td>如果是空字符串（’’/“”）返回false，否则返回true</td>
+</tr>
+<tr>
+<td>Symbol</td>
+<td>返回true</td>
+</tr>
+<tr>
+<td>Object</td>
+<td>返回true</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3-ToNumber-argument-转换为数字"><a href="#3-ToNumber-argument-转换为数字" class="headerlink" title="3.ToNumber ( argument )转换为数字"></a>3.<code>ToNumber ( argument )</code>转换为数字</h2><p>抽象操作ToNumber将参数argument转为一个数字值。根据下表：</p>
+<table>
+<thead>
+<tr>
+<th>输入类型</th>
+<th>输出结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Completion Record</td>
+<td>如果输入参数input是一个中断完成（break这种），返回input；否则返回ToPrimitive(input.[[value]])并且传入可选的提示PreferredType。</td>
+</tr>
+<tr>
+<td>Undefined</td>
+<td>返回NaN</td>
+</tr>
+<tr>
+<td>Null</td>
+<td>返回+0</td>
+</tr>
+<tr>
+<td>Boolean</td>
+<td>如果是true返回1，如果是false返回+0</td>
+</tr>
+<tr>
+<td>Number</td>
+<td>返回Number argument</td>
+</tr>
+<tr>
+<td>String</td>
+<td>见下面3.1</td>
+</tr>
+<tr>
+<td>Symbol</td>
+<td>抛出一个TypeError异常</td>
+</tr>
+<tr>
+<td>Object</td>
+<td>第一步转为原始类型获得变量primValue，hint为’number’（ToPrimitive(argument, hint Number)），第二步调用数字转换<code>ToNumber(primValue).</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-1-ToNumber-String"><a href="#3-1-ToNumber-String" class="headerlink" title="3.1 ToNumber(String)"></a>3.1 ToNumber(String)</h3><h4 id="先判断是否合规"><a href="#先判断是否合规" class="headerlink" title="先判断是否合规"></a>先判断是否合规</h4><p>首先ToNumber的字符串String的应用于解释为UTF-16编码代码点序列的输入字符串。如果语法无法将字符串解释为StringNumericLiteral的扩展，即如果字符串包含任何补充代码点或任何不成对的代理代码点的UTF-16编码，则ToNumber的结果是NaN。</p>
+<p>语法<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">StrWhiteSpace(opt)</span><br><span class="line">或</span><br><span class="line">StrWhiteSpace(opt) StrNumericLiteral StrWhiteSpace(opt)</span><br></pre></td></tr></table></figure></p>
+<p>其中</p>
+<ul>
+<li>StrWhiteSpace：空格、行终止</li>
+<li>StrNumericLiteral:<ul>
+<li>StrDecimalLiteral：十进制字符</li>
+<li>BinaryIntegerLiteral：二进制字符</li>
+<li>OctalIntegerLiteral：八进制字符</li>
+<li>HexIntegerLiteral：十六进制字符</li>
+</ul>
+</li>
+</ul>
+<p>详细的不多说，基本要在以下字符中找：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">+ - e E 0 1 2 3 4 5 6 7 8 9 Infinity</span><br></pre></td></tr></table></figure></p>
+<p>所以像以下这种字符都不行(NaN)<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&apos;1 1&apos;</span><br><span class="line">&apos;1a&apos;</span><br><span class="line">&apos;infinity&apos;</span><br></pre></td></tr></table></figure></p>
+<p>以下这种倒又是可以的<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&apos;\n1&apos;</span><br><span class="line">&apos; 1&apos;</span><br><span class="line">&apos;-1E2&apos;</span><br><span class="line">&apos; Infinity &apos;</span><br></pre></td></tr></table></figure></p>
+<h4 id="再进行转换：mv"><a href="#再进行转换：mv" class="headerlink" title="再进行转换：mv"></a>再进行转换：mv</h4><p>将字符串转换为数字值的整个过程与确定数字文本的数字值类似，但有些细节不同。该值分两步确定：<br>-<br>第一步，从字符串数字文本派生一个数学值（mv）；<br>第二步，如下文所述对该数学值进行四舍五入。</p>
+<p>具体细节在这就不记录了。</p>
+<h2 id="4-ToInteger-argument-转换为整数"><a href="#4-ToInteger-argument-转换为整数" class="headerlink" title="4.ToInteger ( argument )转换为整数"></a>4.<code>ToInteger ( argument )</code>转换为整数</h2><p>抽象操作ToInteger将参数argument转为一个整数数字值。根据以下流程：</p>
+<ul>
+<li>1.设置number为<code>ToNumber(argument)</code>；</li>
+<li>（中断判断number）；</li>
+<li>2.如果number是NaN，返回+0；</li>
+<li>3.如果number是+0、-0、+∞或-∞，返回number；</li>
+<li>4.返回符号sign和floor(abs(number))向下取正取整。</li>
+</ul>
+<h2 id="5-ToInt32-argument-转为32位整数（有符号）"><a href="#5-ToInt32-argument-转为32位整数（有符号）" class="headerlink" title="5.ToInt32 ( argument )转为32位整数（有符号）"></a>5.<code>ToInt32 ( argument )</code>转为32位整数（有符号）</h2><p>抽象操作ToInt32将参数argument转为-2^31 ~ 2^31-1范围内的一个整数数值。根据以下流程：</p>
+<ul>
+<li>1.设置number为<code>ToNumber(argument)</code>；</li>
+<li>（中断判断number）；</li>
+<li>2.如果number是NaN、+0、-0、+∞或-∞，返回+0；</li>
+<li>3.设置int为返回符号sign和floor(abs(number))向下取正取整；</li>
+<li>4.设置int32bit按2^32取模计算；</li>
+<li>5.如果int32bit大于2^31，返回int32bit-2^32，否则返回int32bit。</li>
+</ul>
+<h2 id="6-ToUint32-argument-转为无符号32位整数"><a href="#6-ToUint32-argument-转为无符号32位整数" class="headerlink" title="6.ToUint32 ( argument )转为无符号32位整数"></a>6.<code>ToUint32 ( argument )</code>转为无符号32位整数</h2><p>抽象操作ToUint32将参数argument转为0 ~ 2^32-1范围内的一个整数数值。根据以下流程：</p>
+<ul>
+<li>1.设置number为<code>ToNumber(argument)</code>；</li>
+<li>（中断判断number）；</li>
+<li>2.如果number是NaN、+0、-0、+∞或-∞，返回+0；</li>
+<li>3.设置int为返回符号sign和floor(abs(number))向下取正取整；</li>
+<li>4.设置int32bit按2^32取模计算；</li>
+<li>5.返回int32bit</li>
+</ul>
+<h2 id="7-ToInt16-argument-转为16位整数（有符号）"><a href="#7-ToInt16-argument-转为16位整数（有符号）" class="headerlink" title="7.ToInt16 ( argument )转为16位整数（有符号）"></a>7.<code>ToInt16 ( argument )</code>转为16位整数（有符号）</h2><p>类似于ToInt32，范围是 −32768~32767</p>
+<h2 id="8-ToUint16-argument-转为无符号16位整数"><a href="#8-ToUint16-argument-转为无符号16位整数" class="headerlink" title="8.ToUint16 ( argument )转为无符号16位整数"></a>8.<code>ToUint16 ( argument )</code>转为无符号16位整数</h2><p>类似于ToUint32，范围是0 ~ 2^16−1</p>
+<h2 id="9-ToInt8-argument-转为8位整数（有符号）"><a href="#9-ToInt8-argument-转为8位整数（有符号）" class="headerlink" title="9.ToInt8 ( argument )转为8位整数（有符号）"></a>9.<code>ToInt8 ( argument )</code>转为8位整数（有符号）</h2><p>类似于ToInt32，范围是 −128~127</p>
+<h2 id="10-ToUint8-argument-转为无符号8位整数"><a href="#10-ToUint8-argument-转为无符号8位整数" class="headerlink" title="10.ToUint8 ( argument )转为无符号8位整数"></a>10.<code>ToUint8 ( argument )</code>转为无符号8位整数</h2><p>类似于ToUint32，范围是0 ~ 255</p>
+<h2 id="11-ToUint8Clamp-argument"><a href="#11-ToUint8Clamp-argument" class="headerlink" title="11.ToUint8Clamp ( argument )"></a>11.<code>ToUint8Clamp ( argument )</code></h2><p>与ToUint8类似，但执行步骤有所不同</p>
+<ul>
+<li>1.设置number为<code>ToNumber(argument)</code>；</li>
+<li>（中断判断number）；</li>
+<li>2.如果number是NaN，返回+0；</li>
+<li>3.如果number小于等于0，返回+0；</li>
+<li>4.如果number大于等于255，返回255；</li>
+<li>5.设置f为number向下取整（floor(number)）；</li>
+<li>6.如果f+0.5 &lt; number，返回f + 1；</li>
+<li>7.如果number &lt; f+0.5，返回f；</li>
+<li>8.如果f是奇数，返回f+1；</li>
+<li>9.返回f。</li>
+</ul>
+<h2 id="12-ToString-argument-转为字符串"><a href="#12-ToString-argument-转为字符串" class="headerlink" title="12.ToString ( argument )转为字符串"></a>12.<code>ToString ( argument )</code>转为字符串</h2><p>抽象操作ToString将参数argument转为一个字符串，根据下表：</p>
+<table>
+<thead>
+<tr>
+<th>输入类型</th>
+<th>输出结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Completion Record</td>
+<td>如果输入参数input是一个中断完成（break这种），返回input；否则返回ToPrimitive(input.[[value]])并且传入可选的提示PreferredType。</td>
+</tr>
+<tr>
+<td>Undefined</td>
+<td>返回字符串”undefined”</td>
+</tr>
+<tr>
+<td>Null</td>
+<td>返回字符串”null”</td>
+</tr>
+<tr>
+<td>Boolean</td>
+<td>argument为true则返回字符串”true”，否则返回字符串”false”</td>
+</tr>
+<tr>
+<td>Number</td>
+<td>见下面12.1</td>
+</tr>
+<tr>
+<td>String</td>
+<td>返回String argument</td>
+</tr>
+<tr>
+<td>Symbol</td>
+<td>抛出一个TypeError异常</td>
+</tr>
+<tr>
+<td>Object</td>
+<td>第一步转为原始类型获得变量primValue，hint为”string”，，第二步调用字符串转换<code>ToString(primValue).</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="12-1-ToString-Number"><a href="#12-1-ToString-Number" class="headerlink" title="12.1 ToString(Number)"></a>12.1 <code>ToString(Number)</code></h3><ul>
+<li>1.如果argument是NaN，返回字符串”NaN”；</li>
+<li>2.如果argument是+0或-0，返回字符串”0”；</li>
+<li>3.如果argument小于0，返回字符串”-“和<code>ToString(-argument)</code>；</li>
+<li>4.如果m是+∞，返回字符串”Infinity’；</li>
+<li>5.设置整数n, k, s，其中k &gt;= 1, 10^(k-1) &lt;= s &lt; 10^k。argument = s * 10^(n - k)，并且k尽可能小。注意，k是s的十进制表示中的位数，s不能被10整除并且s的最低有效位不一定由这些标准唯一确定。。</li>
+<li>6.如果k &lt;= n &lt;= 21，返回由s的十进制表示的k位数的代码单位组成的字符串（按顺序，不带前导零），然后是代码单位0x030（数字零）的n-k次出现。</li>
+<li>7.如果0 &lt; n &lt;= 21，则返回字符串，该字符串由S的十进制表示中最有效n位的代码单位组成，然后是代码单位0x002E（完全停止），然后是S的十进制表示中剩余k-n位的代码单位。</li>
+<li>8.如果−6 &lt; n &lt;= 0，则返回由代码单元0x030（数字零）组成的字符串，然后返回代码单元0x002E（完全停止），然后返回代码单元0x030（数字零）的−n次出现，最后返回十进制表示s的k位的代码单元。</li>
+<li>9.否则，如果k=1，返回根据n−1是正数还是负数，返回由s的单个数字的代码单位组成的字符串，后跟代码单位0x0065（拉丁文小写字母E），后跟代码单位0x002b（加号）或代码单位0x002d（连字符-减号），后跟代码单位整数abs（n-1）的十进制表示（不带前导零）。</li>
+<li>10.返回一个字符串，该字符串由s的小数表示形式中最有效位的代码单位组成，后跟代码单位0x002E（完全停止），然后是s的小数表示形式中剩余k−1位的代码单位，最后是代码单位0x0065（拉丁文小写字母E），然后是代码单元0x002B（加号）或代码单元0x002D（连字符-减号），根据n−1是正数还是负数，然后是整数abs（n−1）的十进制表示的代码单元（不带前导零）。</li>
+</ul>
+<h2 id="13-ToObject-argument-转为对象"><a href="#13-ToObject-argument-转为对象" class="headerlink" title="13.ToObject ( argument )转为对象"></a>13.<code>ToObject ( argument )</code>转为对象</h2><p>抽象操作ToObject将参数argument转为一个Object，根据下表：</p>
+<table>
+<thead>
+<tr>
+<th>输入类型</th>
+<th>输出结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Completion Record</td>
+<td>如果输入参数input是一个中断完成（break这种），返回input；否则返回ToPrimitive(input.[[value]])并且传入可选的提示PreferredType。</td>
+</tr>
+<tr>
+<td>Undefined</td>
+<td>抛出一个TypeError异常</td>
+</tr>
+<tr>
+<td>Null</td>
+<td>抛出一个TypeError异常</td>
+</tr>
+<tr>
+<td>Boolean</td>
+<td>返回一个新的Boolean布尔对象，该对象的[[booleandata]]内部设置为参数值</td>
+</tr>
+<tr>
+<td>Number</td>
+<td>返回一个新的Number数字对象，该对象的 [[NumberData]] 内部设置为参数值</td>
+</tr>
+<tr>
+<td>String</td>
+<td>返回一个新的String字符对象，该对象的 [[StringData]] 内部设置为参数值</td>
+</tr>
+<tr>
+<td>Symbol</td>
+<td>返回一个新的Symbol对象，该对象的 [[SymbolData]] 内部设置为参数值</td>
+</tr>
+<tr>
+<td>Object</td>
+<td>返回Object argument</td>
+</tr>
+</tbody>
+</table>
+<h2 id="14-ToPropertyKey-argument-转为属性键"><a href="#14-ToPropertyKey-argument-转为属性键" class="headerlink" title="14 ToPropertyKey ( argument )转为属性键"></a>14 <code>ToPropertyKey ( argument )</code>转为属性键</h2><p>抽象操作ToPropertyKey将参数argument转为一个能作为属性键（key）的值，流程如下：</p>
+<ul>
+<li>1.设置key为argument转换为原始类型的值（<code>ToPrimitive(argument, hint String).</code>）</li>
+<li>（中断判断）；</li>
+<li>2.如果key的类型是Symbol，返回key</li>
+<li>3.将key转为字符串（ToString(key)）后返回</li>
+</ul>
+<h2 id="15-ToLength-argument-转为适合用作类数组对象长度的整数"><a href="#15-ToLength-argument-转为适合用作类数组对象长度的整数" class="headerlink" title="15 ToLength ( argument )转为适合用作类数组对象长度的整数"></a>15 <code>ToLength ( argument )</code>转为适合用作类数组对象长度的整数</h2><p>抽象操作ToLength将参数argument转为一个适合用作类数组对象长度的整数，流程如下：</p>
+<ul>
+<li>（中断判断argument）；</li>
+<li>1.设置len为argument转为整数的值（ToInteger(argument)）；</li>
+<li>（中断判断len）；</li>
+<li>2.如果len &lt;= +0，返回+0；</li>
+<li>3.如果len是+∞，返回2^53-1；</li>
+<li>返回len和2^53-1两者的较小值（min(len, 2^53 - 1)）</li>
+</ul>
+<h2 id="16-CanonicalNumericIndexString-argument-规范数字索引字符串"><a href="#16-CanonicalNumericIndexString-argument-规范数字索引字符串" class="headerlink" title="16 CanonicalNumericIndexString ( argument )规范数字索引字符串"></a>16 <code>CanonicalNumericIndexString ( argument )</code>规范数字索引字符串</h2><p>抽象操作CanonicalNumericIndexString将参数argument转为一个数值，如果该参数是ToString或字符串“-0”将生成的数字的字符串表示形式。否则，返回未定义。流程如下：</p>
+<ul>
+<li>1.确认argument是一个字符串</li>
+<li>2.如果argument是”-0”，返回-0；</li>
+<li>3.设置n为argument转为数字的值（ToNumber(argument)）；</li>
+<li>4.如果ToString(n)与argument不相同，返回Undefined</li>
+<li>5.返回数字n。</li>
+</ul>
+<blockquote>
+<p>规范数字字符串是CanonicalNumericIndexString抽象操作后未返回Undefined的任何字符串值。</p>
+</blockquote>
+<hr>
+<p>细节点还是很多的。</p>
+</div></article></div><div class="post-paginator"><div class="post-links"><div class="post-prev"><a href="/2019/08/22/notes/【笔记】ES6随手记（持续）/" class="prev">Previous Post<span>【笔记】ES6随手记（持续）</span></a></div><div class="post-next"><a href="/2019/08/01/tools_study/【工具】前端动画解决方案Lottie（小程序和react-native篇）/" class="next">Next Post<span>【工具】前端动画解决方案Lottie（小程序/react-native篇）</span></a></div></div></div></div><div class="sidebar"><div class="social-links"><ul><li class="social-link"><a href="http://github.com/MichealWayne" target="_blank" class="link-github"><i class="icon icon-github"></i></a></li><li class="social-link"><a href="mailto:michealwayne@163.com" target="_self" class="link-mail"><i class="icon icon-mail"></i></a></li></ul></div><div class="recent-posts widget"><h3 class="widget-title"> Recent Posts</h3><div class="widget-content"><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2023/01/15/notes/【笔记】StateOfJs2022中的ES语言特性/">【笔记】State Of Js2022中的ES语言特性</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/02/notes/【笔记】《演进式架构》（三）/">【笔记】《演进式架构》学习笔记（三）</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/12/17/notes/【笔记】《演进式架构》（二）/">【笔记】《演进式架构》学习笔记（二）</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/12/10/notes/【笔记】《演进式架构》（一）/">【笔记】《演进式架构》学习笔记（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/11/19/typescript/浅谈TypeScript的图灵完备性/">浅谈TypeScript的图灵完备性</a></li></ul></div></div><div class="recent-comment widget"><h3 class="widget-title"> Author</h3><div class="widget-content"><div class="m-author"><div class="u-avatar"><img src="data:image/jpeg;base64,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"></div><div class="u-author_tit"><p>My name is Micheal Wayne and this is my blog.<br>I am a front-end software engineer.<br>Contact: <a href="mailto:michealwayne@163.com"> <span>michealwayne@163.com</span></a></p></div></div></div></div><div class="tag-lists widget"><h3 class="widget-title"> Tags</h3><div class="widget-content"><ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/APM/">APM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BOM/">BOM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Bun/">Bun</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DOM/">DOM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTML/">HTML</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OKR/">OKR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UML/">UML</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UX/">UX</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/">Vue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WebSocket/">WebSocket</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zepto/">Zepto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/canvas/">canvas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/">css</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/es6/">es6</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eslint/">eslint</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/h5/">h5</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/">http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jQuery/">jQuery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/">js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lerna/">lerna</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lottie/">lottie</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/">nodejs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prettier/">prettier</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/">react</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/serviceWorker/">serviceWorker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sketch/">sketch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skywalking/">skywalking</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/taro/">taro</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tslint/">tslint</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/typescript/">typescript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webApi/">webApi</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpack/">webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/代码规范/">代码规范</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/前端/">前端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/动效/">动效</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图形处理/">图形处理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/安全/">安全</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/小程序/">小程序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/工具/">工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/工程/">工程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/微前端/">微前端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/思维逻辑/">思维逻辑</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/性能/">性能</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/架构/">架构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/概念/">概念</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/浏览器/">浏览器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/用户体验/">用户体验</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/笔记/">笔记</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/编码/">编码</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/网络/">网络</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/网络协议/">网络协议</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/设计模式/">设计模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/调试/">调试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/质量/">质量</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/软件工程/">软件工程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/项目管理/">项目管理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/高并发/">高并发</a></li></ul></div></div><div class="archive-lists widget"><h3 class="widget-title"> Archive</h3><div class="widget-content"><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">November 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/05/">May 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">April 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">December 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">August 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">March 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">September 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">November 2017</a><span class="archive-list-count">5</span></li></ul></div></div></div></div></div><footer><div class="copyright"><div class="container"><div class="col-6"><div class="site-info">© 2016 - 2023 <a href="http://blog.michealwayne.cn">Micheal Wayne</a></div></div><div class="col-6"><div class="site-contact"><div class="social-links"><ul><li class="social-link"><a href="http://github.com/MichealWayne" target="_blank" class="link-github"><i class="icon icon-github"></i></a></li><li class="social-link"><a href="mailto:michealwayne@163.com" target="_self" class="link-mail"><i class="icon icon-mail"></i></a></li></ul></div></div></div></div></div></footer><a class="scroll-up"><span class="icon icon-up"></span></a><script src="https://code.jquery.com/jquery-3.1.0.min.js"></script><script src="/js/posfixed.js"></script><script src="/js/utils.js"></script><script src="/js/search.js"></script></body></html>

@@ -1,0 +1,481 @@
+<!DOCTYPE html><html><head><meta name="generator" content="Hexo 3.9.0"><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> 【笔记】可持续性Docker学习可记录 | Wayne的博客</title><meta name="description" content="【笔记】可持续性Docker学习可记录 - Micheal Wayne"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/scss/casual.css"><link rel="stylesheet" href="/css/icon.css"><link rel="search" type="application/opensearchdescription+xml" href="http://blog.michealwayne.cn/atom.xml" title="Wayne的博客"></head><script>(function (w) {w.frontjsConfig={token:"81a82620fb0dca7680f2f06be134fa4f",behaviour:8,FPSThreshold:10};w.frontjsTmpData = {r:[],e:[],l:[]};w.frontjsTmpCollector = function (ev) {(ev.message ? window.frontjsTmpData.e : window.frontjsTmpData.r).push([new Date().getTime(), ev])};w.FrontJS = {addEventListener: function (t, f) {w.frontjsTmpData.l.push([t, f]);return f;},removeEventListener: function (t, f) {for (var i = 0; i < w.frontjsTmpData.l.length; i++) {t === w.frontjsTmpData.l[i][0] && f === w.frontjsTmpData.l[i][1] && w.frontjsTmpData.l.splice(i, 1);}return f;}};w.document.addEventListener("error", w.frontjsTmpCollector, true);w.addEventListener("error", w.frontjsTmpCollector, true);w.addEventListener("load", function () {var n = w.document.createElement("script");n.src = "https://frontjs-static.pgyer.com/dist/current/frontjs.web.min.js"; w.document.body.appendChild(n);}, true);})(window);</script><body><div class="header"><header class="site-header"><div class="site-nav"><span class="button-toggle"></span><div class="container"><div class="nav-item"><a href="/" target="_self" data-text="home">Home</a></div><div class="nav-item"><a href="/archives" target="_self" data-text="archive">Archive</a></div><div class="nav-item"><a href="/about" target="_self" data-text="about">About</a></div></div><form id="search-form" class="nav-item"><input type="text" id="local-search-input" name="q" results="0" placeholder="search" autocomplete="off" autocorrect="off" class="search form-control"><span onclick="resetSearch()" class="fa fa-times"> </span></form><div id="local-search-result"></div><p class="no-result">No results found</p></div></header></div><div class="main"><div class="container"><div class="content"><div class="post"><article class="post-block"><h1 class="post-title">【笔记】可持续性Docker学习可记录</h1><span class="post-date">Nov 17, 2019</span><span class="post-tag"><a href="/tags/笔记/">笔记</a><a href="/tags/docker/">docker</a></span><img src="/images/notes/docker/logo.jpg" class="bgimage"><div class="post-content"><p>部分导航：</p>
+<ul>
+<li><a href="https://docs.docker.com/" target="_blank" rel="noopener">docker官网</a></li>
+<li><a href="https://www.runoob.com/docker/windows-docker-install.html" target="_blank" rel="noopener">docker安装及入门</a></li>
+<li><a href="https://blog.csdn.net/weixin_43695104/article/details/88554443?spm=a2c4e.10696291.0.0.6bd819a4VD3kIo#32_kvm_web_192" target="_blank" rel="noopener">KVM虚拟化</a></li>
+</ul>
+<p><img src="/images/notes/docker/p-guide.png" alt="p-guide.png"></p>
+<h1 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h1><blockquote>
+<p>Docker使用Google公司推出的Go语言进行开发实现，基于Linux内核的cgroup、namespace，以及AUFS类的UnionFS等技术，对进程进行封装隔离，属于操作系统层面的虚拟化技术。由于隔离的进程独立于宿主和其他的隔离的进程，因此也称为容器。容器就是将软件打包成标准化单元，以用于开发、交付和部署。</p>
+</blockquote>
+<p>Docker 可以解决虚拟机能够解决的问题，也可以解决虚拟机由于资源要求过高而无法解决的问题。</p>
+<ul>
+<li>隔离应用依赖</li>
+<li>创建应用镜像并复制</li>
+<li>创建易于分发的即开即用的应用或者应用镜像</li>
+<li>允许实例简单快速扩展</li>
+<li>易于测试和销毁</li>
+</ul>
+<p>Docker 的初衷是创建软件程序可移植的轻量容器，让软件可以在任何安装了 Docker 的主机上运行，而不用关心底层操作系统。</p>
+<h2 id="1-初识Docker"><a href="#1-初识Docker" class="headerlink" title="1 初识Docker"></a>1 初识Docker</h2><p>Docker是基于Go语言实现的云开源项目，诞生于2013年初。</p>
+<h3 id="1-1-为什么要使用Docker"><a href="#1-1-为什么要使用Docker" class="headerlink" title="1.1 为什么要使用Docker"></a>1.1 为什么要使用Docker</h3><p>Docker的主要目标是“Build, Ship and Run Any App, Anywhere.”，即通过对应用组件的封装（Packaging）、分发（Distribution）、部署（Deployment）、运行（Runtime）等生命周期的管理，达到应用组件级别的“一次封装，到处运行”。这里的应用组件，既可以是一个Web应用，也可以是一套数据库服务，甚至是一个操作系统或编译器。</p>
+<h4 id="Linux容器技术"><a href="#Linux容器技术" class="headerlink" title="Linux容器技术"></a>Linux容器技术</h4><p>Docker引擎的基础是Linux容器（Linux Containers, LXC）技术。</p>
+<blockquote>
+<p>IBM Developer Works给出了关于容器技术的描述：容器有效地将由单个操作系统管理的资源划分到鼓励的组中，以便更好地在孤立的组之间平衡有冲突的资源使用需求。与虚拟化相比，这样既不需要指令级模拟，也不需要即时编译。容器可以在核心CPU本地运行指令，而不需要任何专门的解释机制。此外，也避免了准虚拟化（paravirtualization）和系统调用替换中的复杂性。</p>
+</blockquote>
+<h4 id="从Linux容器到Docker"><a href="#从Linux容器到Docker" class="headerlink" title="从Linux容器到Docker"></a>从Linux容器到Docker</h4><p>Docker进一步优化了LXC容器的使用体验，它提供了各种容器管理工具（如分发、版本、移植等）让用户无需关注底层的操作，可以简单明了地管理和使用容器。用户操作Docker就像操作一个轻量级的虚拟机一样简单。</p>
+<p>可以简单地将Docker容器理解为一种沙盒（Sandbox）。每个容器内运行一个应用，不同的容器相互隔离，容器之间也可以建立通信机制。容器的创建和停止都十分快速，容器自身对资源的需求也十分有限，远远低于虚拟机。</p>
+<h3 id="1-2-为什么要使用Docker"><a href="#1-2-为什么要使用Docker" class="headerlink" title="1.2 为什么要使用Docker"></a>1.2 为什么要使用Docker</h3><h4 id="Docker容器虚拟化的好处"><a href="#Docker容器虚拟化的好处" class="headerlink" title="Docker容器虚拟化的好处"></a>Docker容器虚拟化的好处</h4><p>现在开发者需要能方便地创建运行在云平台上的应用，也就是说应用必须能够脱离底层机器，而且同时必须是“任何时间任何地点”可获取的，因此开发者人需要一种创建分布式应用程序的方式-&gt;Docker。</p>
+<h4 id="Docker在开发和运维中的优势"><a href="#Docker在开发和运维中的优势" class="headerlink" title="Docker在开发和运维中的优势"></a>Docker在开发和运维中的优势</h4><ul>
+<li>更快速的交付和部署。</li>
+<li>更高效的资源利用。它是内核级的虚拟化，可以实现更高的性能，同时对资源的额外需求很低</li>
+<li>更轻松的迁移和拓展。</li>
+<li>更简单的更新管理。使用Dockerfile。</li>
+</ul>
+<h4 id="Docker与虚拟机比较"><a href="#Docker与虚拟机比较" class="headerlink" title="Docker与虚拟机比较"></a>Docker与虚拟机比较</h4><ul>
+<li>Docker容器更快</li>
+<li>Docker容器对系统资源需求很少</li>
+<li>Docker通过类似Git的操作来方便用户获取、分发和更新应用镜像，指令简明，学习成本较低。</li>
+<li>Docker通过Dockerfile配置文件来支持灵活的自动化创建和部署机制，提高工作效率</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>容器</th>
+<th>虚拟机</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>启动速度</td>
+<td>秒级</td>
+<td>分钟级</td>
+</tr>
+<tr>
+<td>硬盘使用</td>
+<td>一般为MB</td>
+<td>一般为GB</td>
+</tr>
+<tr>
+<td>性能</td>
+<td>接近原生</td>
+<td>弱于</td>
+</tr>
+<tr>
+<td>系统支持量</td>
+<td>单机支持上千个容器</td>
+<td>一般几十个</td>
+</tr>
+<tr>
+<td>隔离性</td>
+<td>安全隔离</td>
+<td>完全隔离</td>
+</tr>
+</tbody>
+</table>
+<p>Docker 不是虚拟机，传统的虚拟机是先虚拟硬件资源，然后在虚拟的硬件资源之上运行操作系统。而 Docker 容器作为一个进程，直接运行于宿主主机内核，因此 Docker 更加快捷</p>
+<p><img src="/Users/wayne/Desktop/study/safes/docker/p-1.png" alt="enter image description here"></p>
+<p>正是由于这些不同，使得 Docker 具有很多优势：</p>
+<ul>
+<li>高效利用系统资源（没有虚拟硬件的额外开销）。</li>
+<li>更快的启动时间（通常可以在1秒内启动）。</li>
+<li>便于部署（镜像包含了应用和相关依赖，可以运行在任何配置了 Docker 的主机上）。</li>
+<li>轻松迁移。</li>
+<li>分层存储，提高存储效率。</li>
+</ul>
+<h3 id="1-3-虚拟化与Docker"><a href="#1-3-虚拟化与Docker" class="headerlink" title="1.3 虚拟化与Docker"></a>1.3 虚拟化与Docker</h3><p>虚拟化技术是一个通用的概念，在不同领域有不同的理解。在计算领域，一般指的是计算虚拟化（Computing Virtualization），或通常说的服务器虚拟化。</p>
+<blockquote>
+<p>在计算机技术中，虚拟化（Virtualization）是一种资源管理技术，是将计算机的各种实体资源，如服务器、网络、内存及存储等，予以抽象、转换后呈现出来，打破实体结构间的不可切割的障碍，使用户可以用比原生的组态更好的方式来应用这些资源。    ——wiki</p>
+</blockquote>
+<p>虚拟化的核心是对资源进行抽象。从大类上分，虚拟化技术可分为基于硬件的虚拟化和基于软件的虚拟化。</p>
+<p>基于软件的虚拟化从对象所在的层次，又可以分为应用虚拟化和平台虚拟化。</p>
+<p>平台虚拟化可以细分为如下几个子类：</p>
+<ul>
+<li>完全虚拟化。虚拟机模拟完整的底层硬件环境和特权指令的执行过程，客户操作系统无需进行修改。如VMware Workstation，VirtualBox、QEMU等。</li>
+<li>硬件辅助虚拟化。利用硬件（主要是CPU）辅助支持处理敏感指令来实现完全虚拟化的功能，客户操作系统无需修改，如VMware Workstation、Xen、KVM。</li>
+<li>部分虚拟化。只针对部分硬件资源进行虚拟化，客户操作系统需要进行修改。</li>
+<li>超虚拟化（Paravirtualization）。部分硬件接口以软件的形式提供给客户机操作系统，客户操作系统需要进行修改，如早期的Xen。</li>
+<li>操作系统级虚拟化。内核通过创建多个虚拟的操作系统实例（内核和库）来隔离不同的进程。Docker及其他容器相关技术在这个范畴。</li>
+</ul>
+<p><img src="/images/notes/docker/1-1.jpg" alt="1-1"></p>
+<p><img src="/images/notes/docker/1-2.jpg" alt="1-2"></p>
+<h3 id="1-4-Namespaces"><a href="#1-4-Namespaces" class="headerlink" title="1.4 Namespaces"></a>1.4 Namespaces</h3><p>命名空间（namespaces）是 Linux 为我们提供的用于分离进程树、网络接口、挂载点以及进程间通信等资源的方法。在日常使用 Linux 或者 macOS 时，我们并没有运行多个完全分离的服务器的需要，但是如果我们在服务器上启动了多个服务，这些服务其实会相互影响的，每一个服务都能看到其他服务的进程，也可以访问宿主机器上的任意文件，这是很多时候我们都不愿意看到的，我们更希望运行在同一台机器上的不同服务能做到完全隔离，就像运行在多台不同的机器上一样。</p>
+<p>在这种情况下，一旦服务器上的某一个服务被入侵，那么入侵者就能够访问当前机器上的所有服务和文件，这也是我们不想看到的，而 Docker 其实就通过 Linux 的 Namespaces 对不同的容器实现了隔离。</p>
+<p>Linux 的命名空间机制提供了以下七种不同的命名空间，包括 CLONE_NEWCGROUP、CLONE_NEWIPC、CLONE_NEWNET、CLONE_NEWNS、CLONE_NEWPID、CLONE_NEWUSER 和 CLONE_NEWUTS，通过这七个选项我们能在创建新的进程时设置新进程应该在哪些资源上与宿主机器进行隔离。</p>
+<h3 id="1-5-cgroup"><a href="#1-5-cgroup" class="headerlink" title="1.5 cgroup"></a>1.5 cgroup</h3><p>Docker 容器使用 linux namespace 来隔离其运行环境，使得容器中的进程看起来就像一个独立环境中运行一样。但是，光有运行环境隔离还不够，因为这些进程还是可以不受限制地使用系统资源，比如网络、磁盘、CPU以及内存 等。关于其目的，一方面，是为了防止它占用了太多的资源而影响到其它进程；另一方面，在系统资源耗尽的时候，linux 内核会触发 OOM，这会让一些被杀掉的进程成了无辜的替死鬼。因此，为了让容器中的进程更加可控，Docker 使用 Linux cgroups 来限制容器中的进程允许使用的系统资源。</p>
+<p>Linux Cgroup 可为系统中所运行任务（进程）的用户定义组群分配资源 — 比如 CPU 时间、系统内存、网络带宽或者这些资源的组合。可以监控管理员配置的 cgroup，拒绝 cgroup 访问某些资源，甚至在运行的系统中动态配置 cgroup。所以，可以将 controll groups 理解为 controller （system resource） （for） （process）groups，也就是是说它以一组进程为目标进行系统资源分配和控制。它主要提供了如下功能：</p>
+<ul>
+<li><p>Resource limitation: 限制资源使用，比如内存使用上限以及文件系统的缓存限制。</p>
+</li>
+<li><p>Prioritization: 优先级控制，比如：CPU利用和磁盘IO吞吐。</p>
+</li>
+<li><p>Accounting: 一些审计或一些统计，主要目的是为了计费。</p>
+</li>
+<li><p>Controll: 挂起进程，恢复执行进程。</p>
+</li>
+</ul>
+<p>使用 cgroup，系统管理员可更具体地控制对系统资源的分配、优先顺序、拒绝、管理和监控。可更好地根据任务和用户分配硬件资源，提高总体效率。</p>
+<p>在实践中，系统管理员一般会利用CGroup做下面这些事：</p>
+<ul>
+<li><p>隔离一个进程集合（比如：nginx的所有进程），并限制他们所消费的资源，比如绑定CPU的核。</p>
+</li>
+<li><p>为这组进程分配其足够使用的内存</p>
+</li>
+<li><p>为这组进程分配相应的网络带宽和磁盘存储限制</p>
+</li>
+<li><p>限制访问某些设备（通过设置设备的白名单）</p>
+</li>
+</ul>
+<p><a href="http://dockone.io/article/2941" target="_blank" rel="noopener">&gt;&gt;Docker 核心技术与实现原理</a></p>
+<h2 id="2-Docker的核心概念和安装"><a href="#2-Docker的核心概念和安装" class="headerlink" title="2 Docker的核心概念和安装"></a>2 Docker的核心概念和安装</h2><h3 id="2-1-核心概念"><a href="#2-1-核心概念" class="headerlink" title="2.1 核心概念"></a>2.1 核心概念</h3><p>Docker的三大核心概念：</p>
+<ul>
+<li>镜像（Image）</li>
+<li>容器（Container）</li>
+<li>仓库（Repository）</li>
+</ul>
+<h4 id="Docker镜像-Image"><a href="#Docker镜像-Image" class="headerlink" title="Docker镜像(Image)"></a>Docker镜像(Image)</h4><p>Docker镜像类似于虚拟机镜像。可以将它理解为一个面向Docker引擎的只读模板，包含了文件系统。</p>
+<p>Docker 镜像是一个特殊的文件系统，类似于 Linux 的 root 文件系统，镜像提供了容器运行时所需的程序、库、资源、配置等文件，还包含了一些为运行时准备的一些配置参数。镜像是一个静态的概念，镜像不包含任何动态数据，其内容在构建之后也不会被改变。</p>
+<p>由于镜像包含完整的 Linux root 文件系统，所以它可能会很庞大。因此，Docker 的设计者充分利用 Unions FS 技术，把 Docker 设计为分层存储的结构，什么意思呢？</p>
+<p>意思是说，镜像是分层构建的，每一层是上面一层的基础，每一层在构建完成之后都不会再发生变化，这提醒我们，构建镜像的时候我们要保证每一层都只包含我们的应用需要的东西，不要有包含不需要的文件，因为每一层在构建之后不再发生变化，所以即使你在之上的层删除了那些不需要的文件，这些文件也只是被标记为删除，实际上并没有真正删除；如果每一层都包含一些可有可无的文件，就会使得我们的镜像越来越臃肿。通过之前的叙述，我们可以看出，一个镜像实际上并不是一个文件，而是一组分层文件。分层存储还使得不同的镜像可以共享某些层，便于镜像的复用。</p>
+<h4 id="Docker容器-Container"><a href="#Docker容器-Container" class="headerlink" title="Docker容器(Container)"></a>Docker容器(Container)</h4><p>Docker容器类似于一个轻量级的沙箱，Docker利用容器来运行和隔离应用。<br>容器是从镜像创建的应用运行实例，可以将其启动、开始、停止、删除，而这些容器都是相互隔离、互不可见的。</p>
+<p>可以把容器看做一个简易版的Linux系统环境（包括root用户权限、进程空间、用户空间和网络空间等），以及运行在其中的应用程序打包而成的应用盒子。</p>
+<p>镜像自身是子都的。容器从镜像启动的时候，Docker会在镜像的最上层创建一个可写层，镜像本身将保持不变。</p>
+<p>你可以从镜像创建容器，就像从快照创建虚拟机一样。容器是一个动态的概念，你的程序都是在容器里运行的。</p>
+<p>容器就是一个进程，但是它有自己独立的命名空间，拥有自己独立的文件系统，独立的网络等资源。因此，容器就好像一个完全独立于宿主主机的操作系统一样，完全可以被当做一个独立的操作系统使用。</p>
+<p>容器也是分层存储的，当你从一个镜像创建并运行一个容器的时候，是以镜像作为基础层，在此之上创建一个容器的存储层，你对容器的读写都是在这一层完成的。但是当容器消亡的时候，容器的存储层也会随之消失</p>
+<h4 id="Docker仓库-Registry"><a href="#Docker仓库-Registry" class="headerlink" title="Docker仓库(Registry)"></a>Docker仓库(Registry)</h4><p>Docker仓库类似于代码仓库，是Docker集中存放镜像文件的场所。<br>注册服务器是存放仓库的地方，其上往往存放着多个仓库，每个仓库集中存放某一类镜像，往往包括多个镜像文件，通过不同的标签来进行区分。根据所存储的镜像公开分享与否，Docker仓库可以分为公开仓库（Public）和私有仓库（Private）两种形式。</p>
+<p>目前，最大的公开仓库是Docker Hub，存放了数量庞大的镜像提供用户下载。国内的公开仓库包括Docker Pool等，可以提供稳定的国内访问。当然如果用户徐希望公开分享自己的镜像文件，Docker也支持用户再本地网络内创建一个只能自己访问的私有仓库。</p>
+<p>Docker 仓库是一个集中存储和分发镜像的服务，你可以建立自己的私有仓库，也可以使用共有仓库，比如 <a href="https://store.docker.com/" target="_blank" rel="noopener">Docker Store</a>。你可以从仓库里搜索你需要的镜像，也可以把你自己构建的镜像分享到仓库供别人下载使用。</p>
+<h4 id="Docker-究竟做了什么？"><a href="#Docker-究竟做了什么？" class="headerlink" title="Docker 究竟做了什么？"></a>Docker 究竟做了什么？</h4><p>为了理解 Docker 帮助我们做了什么，我们先来看看 Linux 内核做了什么。简单来说，Linux 内核做了下面几件事：</p>
+<ul>
+<li>对来自硬件的消息作出响应；</li>
+<li>启动和规划程序的运行；</li>
+<li>控制和组织存储；</li>
+<li>在程序之间传递消息；</li>
+<li>分配资源——内存，CPU，网络等；</li>
+</ul>
+<h5 id="Docker-的-C-S-模型"><a href="#Docker-的-C-S-模型" class="headerlink" title="Docker 的 C/S 模型"></a>Docker 的 C/S 模型</h5><p>Docker 采用了 C/S 架构，包括客户端（Client）和服务端（Server），服务端通过 socket 接受来自客户端的请求，这些请求可以是创建镜像，运行容器，终止容器等等。</p>
+<p><img src="/images/notes/docker/p-518-2.jpg" alt="p-518-2.png"></p>
+<p><strong>服务端既可以运行在本地主机，也可以运行在远程服务器或者云端，只要你可以访问 Docker 的服务端</strong>，你甚至可以在容器里运行容器。现在，我们来看看在 Docker 容器里运行 Docker 容器的例子：</p>
+<p><img src="/images/notes/docker/p-518-3.jpg" alt="p-518-3.png"></p>
+<h5 id="网络"><a href="#网络" class="headerlink" title="网络"></a>网络</h5><p>在深入讲解 Docker 网络原理之前，不得不简单提一下网络有关的知识：</p>
+<ul>
+<li>Ethernet（以太网）：通过有线或者无线传递“帧”（frame）</li>
+<li>IP Layer：在局域网内传递数据包</li>
+<li>Routing（路由）：在不同网络之间传递数据包</li>
+<li>Ports（端口）：寻址一台主机的特定程序，这里指的是某些程序监听某些端口</li>
+</ul>
+<p>其实在之前学习 Docker 网络操作部分的时候，我们已经介绍过 Docker 网络的一些原理了。Docker 并不是像变魔术一样直接在容器之间传递包，而是运行的时候会自动在宿主主机上创建一个名为 docker0 的虚拟网桥，它就像软件交换机一样，在挂载到它的网口之间进行消息转发。运行一个 Docker 容器时，会创建 veth 对（Virtual Ethernet Pair）接口，这对接口一端在容器内，另一端挂载到 Docker 的网桥（默认 docker0，或者使用– net 参数指定网络）。veth 总是成对出现，并且从一端进入的数据会从另一端流出，这样就可以实现挂载到同一网桥的容器间通信。</p>
+<p><img src="/images/notes/docker/p-518-4.jpg" alt="p-518-4.png"></p>
+<p>之前在学习 Docker 端口映射的时候，使用 -p 参数将宿主主机的端口映射到容器内部，这个过程用到了 Linux 的防火墙命令 iptable，iptable 会创建映射规则。</p>
+<h5 id="进程和控制组"><a href="#进程和控制组" class="headerlink" title="进程和控制组"></a>进程和控制组</h5><p>先来简单描述一下 Linux 进程有关知识。</p>
+<p>Linux 的进程都是来自一个父进程，所以进程之间是父子关系。当一个子进程结束的时候，会返回一个退出代码给父进程。在众多进程中，有一个进程是特殊的，它就是初始化进程（init），进程号为0，这个进程负责启动所有其它进程。</p>
+<p>使用 Docker 运行容器时，容器启动的时候也有一个初始化进程，当这个进程终止的时候，对应的容器也就终止了。</p>
+<p>并且，Docker 使用 Linux <strong>控制组（cgroup, control group）</strong> 来对容器进程进行隔离。cgroup 是 Linux 内核的特性之一，它保证所有在一个控制组内的进程组成一个私密的、隔离的空间。控制组内的进程有自己的进程号，并且无法访问所在控制组之外的进程。所以控制组可以把你的系统中的进程划分为若干相互隔离的区域，并且控制组内的父进程衍生的子进程依旧在这个控制组内。Docker 正是利用这个特性实现容器间进程隔离。同时，控制组还提供了资源限制，资源审计等功能，这些在 Docker 里都有所体现。</p>
+<h3 id="分层存储"><a href="#分层存储" class="headerlink" title="分层存储"></a>分层存储</h3><p>在学习编写 Dockerfile 的部分，我们已经详细介绍过了 Docker 的分层存储架构，所以如果忘记了，请返回去复习相关内容。</p>
+<h3 id="2-2-安装Docker"><a href="#2-2-安装Docker" class="headerlink" title="2.2 安装Docker"></a>2.2 安装Docker</h3><p>Docker在Linux平台上是原生支持，体验最好。</p>
+<p>具体安装在此就不介绍了。</p>
+<h3 id="2-3-Docker总体架构"><a href="#2-3-Docker总体架构" class="headerlink" title="2.3 Docker总体架构"></a>2.3 Docker总体架构</h3><p><img src="/images/notes/docker/2-1.jpg" alt="2-1.jpg"></p>
+<p>其中：</p>
+<ul>
+<li>distribution 负责与docker registry交互，上传洗澡镜像以及v2 registry 有关的源数据</li>
+<li>registry负责docker registry有关的身份认证、镜像查找、镜像验证以及管理registry mirror等交互操作</li>
+<li>image 负责与镜像源数据有关的存储、查找，镜像层的索引、查找以及镜像tar包有关的导入、导出操作</li>
+<li>reference负责存储本地所有镜像的repository和tag名，并维护与镜像id之间的映射关系</li>
+<li>layer模块负责与镜像层和容器层源数据有关的增删改查，并负责将镜像层的增删改查映射到实际存储镜像层文件的graphdriver模块</li>
+<li>graghdriver是所有与容器镜像相关操作的执行者</li>
+</ul>
+<h2 id="3-镜像"><a href="#3-镜像" class="headerlink" title="3 镜像"></a>3 镜像</h2><p>Docker运行容器前需要本地存在对应的镜像，如果镜像不存在本地，Docker会尝试先从默认镜像仓库下载（默认使用Docker Hub公共注册服务器中的仓库），用户也可以通过配置，使用自定义的镜像仓库。</p>
+<h3 id="3-1-获取镜像"><a href="#3-1-获取镜像" class="headerlink" title="3.1 获取镜像"></a>3.1 获取镜像</h3><p>可以使用<code>docker pull</code>命令从网络上下周镜像。格式<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker pull NAME[:TAG]</span><br></pre></td></tr></table></figure></p>
+<p>如果不显式地指定TAG，则默认会选择latest标签（最新版本）。</p>
+<p>如<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker pull ubuntu</span><br></pre></td></tr></table></figure></p>
+<p>其中下载过程中可以看出，镜像文件一般由若干层组成，下载过程中会获取并输出镜像的各层信息。层（Layer）其实是AUFS（Advanced Union File System， 一种联合文件系统）中的重要概念，是实现增量保存与更新的基础。</p>
+<p>下载镜像到本地后，即可随时使用该镜像了，例如利用该镜像创建一个容器，在其中运行bash应用。<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker run -t -i ubuntu /bin/bash</span><br></pre></td></tr></table></figure></p>
+<h3 id="3-2-查看镜像信息"><a href="#3-2-查看镜像信息" class="headerlink" title="3.2 查看镜像信息"></a>3.2 查看镜像信息</h3><p>使用docker images命令可以列出本地主机上已有的镜像。<br>如<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker images</span><br></pre></td></tr></table></figure></p>
+<p>在列出信息中，可以看到几个字段信息：</p>
+<ul>
+<li>来自于那个仓库，比如Ubuntu仓库</li>
+<li>镜像的标签信息，比如14.04</li>
+<li>镜像的ID号</li>
+<li>创建时间</li>
+<li>镜像大小</li>
+</ul>
+<p>TAG信息用于标记来自同一个仓库的不同镜像。为了方便子啊后续工作中使用这个镜像，还可以使用docker tag命令为本地镜像添加新的标签，如<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker tag dl.dockerpool.com:5000/ubuntu:latest ubuntu:latest</span><br></pre></td></tr></table></figure></p>
+<p>使用docker inspect命令可以获取该镜像的详细信息，它返回的是一个JSON格式的消息，如果我们只要其中一项内容时，可以使用-f参数来指定。</p>
+<h3 id="3-3-搜寻镜像"><a href="#3-3-搜寻镜像" class="headerlink" title="3.3 搜寻镜像"></a>3.3 搜寻镜像</h3><p>使用docker search命令可以搜索远端仓库中共享的镜像，默认搜索Docker Hub官方仓库中的镜像。使用方法为<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker search TERM</span><br></pre></td></tr></table></figure></p>
+<p>支持的参数包括：</p>
+<ul>
+<li><code>--automated=false</code>：仅显示自动创建的镜像</li>
+<li><code>--no-trunc=false</code>：输出信息不截断显示</li>
+<li><code>-s</code>、<code>--stars=0</code>：指定仅显示评价为指定星级以上的镜像。</li>
+</ul>
+<h3 id="3-4-删除镜像"><a href="#3-4-删除镜像" class="headerlink" title="3.4 删除镜像"></a>3.4 删除镜像</h3><p>使用docker rmi命令可以删除镜像，格式为<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker rmi IMAGE[IMAGE...]</span><br></pre></td></tr></table></figure></p>
+<p>其中IMAGE可以为标签或ID。</p>
+<p>例如要删除dl.dockerpool.com:5000/ubuntu:latest镜像，可以使用如下命令：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker rmi dl.dockerpool.com:5000/ubuntu</span><br></pre></td></tr></table></figure></p>
+<p>当同一个镜像拥有多个标签的时候，docker rmi命令只是删除了该镜像多个标签中的指定标签而已，并不影响镜像文件。但当镜像只剩下一个标签的时候就要小心了，此时再使用docker rmi命令会彻底删除该镜像。</p>
+<h4 id="使用镜像ID删除镜像"><a href="#使用镜像ID删除镜像" class="headerlink" title="使用镜像ID删除镜像"></a>使用镜像ID删除镜像</h4><p>当使用docker rmi命令后面跟上镜像的ID（或ID部分前缀）时，会先尝试删除所有指向该镜像的标签，然后删除该镜像文件本身。</p>
+<blockquote>
+<p>注意，当有该镜像创建的容器存在时，镜像文件默认是无法被删除的。如果要强行删除镜像，可以使用-f参数，但并不推荐。推荐先删除依赖该镜像的所有容器，再来删除镜像</p>
+</blockquote>
+<h3 id="3-5-创建镜像"><a href="#3-5-创建镜像" class="headerlink" title="3.5 创建镜像"></a>3.5 创建镜像</h3><p>创建镜像的方法有三种：<strong>基于已有镜像的容器创建、基于本地模板导入、基于Dockerfile创建。</strong></p>
+<h4 id="基于已有镜像的容器创建"><a href="#基于已有镜像的容器创建" class="headerlink" title="基于已有镜像的容器创建"></a>基于已有镜像的容器创建</h4><p>该方法主要是使用docker commit命令，命令格式<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker commit [OPTIONS] CONTAINER [REPOSITORY[:TAG]]</span><br></pre></td></tr></table></figure></p>
+<p>主要选项为：</p>
+<ul>
+<li><code>-a</code>、<code>--author=&quot;&quot;</code>：作者信息</li>
+<li><code>-m</code>、<code>--message=&quot;&quot;</code>：提交信息</li>
+<li><code>-p</code>、<code>--pause=true</code>：提交时暂停容器运行</li>
+</ul>
+<p>如下创建一个新镜像：<br>首先启动一个镜像，并在其中进行修改操作<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo docker run -ti ubuntu:14.04 /bin/bash</span><br><span class="line">touch <span class="built_in">test</span>	<span class="comment"># 创建一个test文件</span></span><br><span class="line"><span class="built_in">exit</span>	<span class="comment"># 退出</span></span><br></pre></td></tr></table></figure></p>
+<p>提交为一个新的镜像，并用ID或名称来指定容器：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker commit -m <span class="string">"added a new file"</span> -a <span class="string">"Docker newbee"</span> a925cb3923gd <span class="built_in">test</span></span><br></pre></td></tr></table></figure></p>
+<p>顺利的话会返回新创建的镜像的ID信息</p>
+<h4 id="基于本地模板导入"><a href="#基于本地模板导入" class="headerlink" title="基于本地模板导入"></a>基于本地模板导入</h4><p>比如使用OpenVZ提供的模板来创建（下载地址：<a href="http://openva.org/Download/templates/precreated" target="_blank" rel="noopener">http://openva.org/Download/templates/precreated</a>）。</p>
+<p>比如现已下载了一个Ubuntu14.04的模板压缩包后，可以使用以下命令导入：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo cat ubuntu-14.040x86_64-minimal.tar.gz |docker import -ubuntu:14.04</span><br></pre></td></tr></table></figure></p>
+<h3 id="3-6-存出和载入镜像"><a href="#3-6-存出和载入镜像" class="headerlink" title="3.6 存出和载入镜像"></a>3.6 存出和载入镜像</h3><p>可以使用docker save和docker load命令来存出和载入镜像。</p>
+<h4 id="存出镜像"><a href="#存出镜像" class="headerlink" title="存出镜像"></a>存出镜像</h4><p>如果要存出镜像到本地文件，可以使用docker save命令</p>
+<p>如<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker save -o ubuntu_14.04.tar ubuntu:14.04</span><br></pre></td></tr></table></figure></p>
+<h4 id="载入镜像"><a href="#载入镜像" class="headerlink" title="载入镜像"></a>载入镜像</h4><p>可以使用docker load从存出的本地文件中再导入到本地镜像库，如<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker load --input ubuntu_14.04.tar</span><br></pre></td></tr></table></figure></p>
+<p>或<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker load &lt; ubuntu_14.04.tar</span><br></pre></td></tr></table></figure></p>
+<h3 id="3-7-上传镜像"><a href="#3-7-上传镜像" class="headerlink" title="3.7 上传镜像"></a>3.7 上传镜像</h3><p>可以使用docker push命令上传镜像到仓库，默认上传到DockerHub官方仓库，格式<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker push NAME[:TAG]</span><br></pre></td></tr></table></figure></p>
+<p>用户在DockerHub网站注册后，即可上传自制的镜像。如<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo docker tag <span class="built_in">test</span>:latest user/<span class="built_in">test</span>:latest</span><br><span class="line">sudo docker push user/<span class="built_in">test</span>:latest</span><br></pre></td></tr></table></figure></p>
+<h2 id="4-容器"><a href="#4-容器" class="headerlink" title="4 容器"></a>4 容器</h2><p>容器是镜像的一个运行实例，所不同的是，它带有额外的可写文件层。</p>
+<h3 id="4-1-创建容器"><a href="#4-1-创建容器" class="headerlink" title="4.1 创建容器"></a>4.1 创建容器</h3><h4 id="新建容器"><a href="#新建容器" class="headerlink" title="新建容器"></a>新建容器</h4><p>可以使用<code>docker create</code>命令新建一个容器，如<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker create -it ubuntu:latest</span><br></pre></td></tr></table></figure></p>
+<p>查看<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker ps -a</span><br></pre></td></tr></table></figure></p>
+<p>使用<code>docker create</code>命令新建的容器处于停止状态，可以使用<code>docker start</code>命令来启动它。</p>
+<h4 id="新建并启动容器"><a href="#新建并启动容器" class="headerlink" title="新建并启动容器"></a>新建并启动容器</h4><p>启动容器有两种方式，一种是基于镜像新建一个容器并启动，另外一个是将在终止状态（stopped）的容器重新启动。所需要的命令主要为docker run，等价于先执行<code>docker create</code>命令，再执行<code>docker start</code>命令。</p>
+<p>当利用<code>docker run</code>来创建并启动容器时，Docker在后台运行的标准操作包括：</p>
+<ul>
+<li>检查本地是否存在指定的镜像，不存在就从公有仓库下载。</li>
+<li>利用镜像创建并启动一个容器。</li>
+<li>分配一个文件系统，并在只读的镜像层外面挂载一层可读写层。</li>
+<li>从宿主主机配置的网桥接口中桥接一个虚拟接口倒容器中去。</li>
+<li>从地址池配置一个IP地址给容器。</li>
+<li>执行用户指定的应用程序。</li>
+<li>执行完毕后容器被终止。</li>
+</ul>
+<p>下面的命令则启动一个bash终端，允许用户进行交互：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker run -t -i ubuntu:14.04 /bin/bash</span><br></pre></td></tr></table></figure></p>
+<p>其中，<code>-t</code>选项让Docker分配一个伪终端（pseudo-tty）并绑定到容器的标准输入上，<code>-i</code>则让容器的标准输入保持打开。</p>
+<p>在交互模式下，用户可以通过所创建的终端来输入命令，例如：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">pwd</span></span><br><span class="line">ls</span><br></pre></td></tr></table></figure></p>
+<p>用户可以按Ctrl+d或输入<code>exit</code>命令来退出容器</p>
+<p>对于所创建的bash容器，当使用exit命令退出之后，该容器就自动处于终止状态了。这是因为对于Docker容器来说，当运行的应用退出后，容器也就没有继续运行的必要了。</p>
+<h4 id="守护态运行"><a href="#守护态运行" class="headerlink" title="守护态运行"></a>守护态运行</h4><p>更多的时候，需要让Docker容器在后台以<strong>守护态（Daemonized）</strong>形式运行。用户可以通过添加<code>-d</code>参数来实现。</p>
+<p>如：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker run -d ubuntu /bin/sh -c <span class="string">"while true; do echo hello; sleep 1; done"</span></span><br></pre></td></tr></table></figure></p>
+<p>容器启动后会返回一个唯一的ID，也可以通过<code>docker ps</code>命令来查看容器信息，要获取容器的输出信息，可以通过<code>docker logs</code>命令</p>
+<h3 id="4-2-终止容器"><a href="#4-2-终止容器" class="headerlink" title="4.2 终止容器"></a>4.2 终止容器</h3><p>可以使用<code>docker stop</code>来终止一个运行中的容器，命令的格式为：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker stop [-t|--time[=10]]</span><br></pre></td></tr></table></figure></p>
+<p>它会首先向容器发送SIGTERM信号，等待一段时间后（默认为10s），再发送SIGKILL信号终止容器。</p>
+<p>此外，当Docker容器中指定的应用终结时，容器也自动终止。例如对于上一节中只启动了一个终端的容器，用户通过<code>exit</code>命令或Ctrl+d来退出终端时，所创建的容器立刻终止。</p>
+<p>此外，可以使用<code>docker stop</code>来终止一个运行中的容器：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker stop ce5</span><br></pre></td></tr></table></figure></p>
+<blockquote>
+<p><code>docker kill</code>命令会直接发送SIGKILL信号来强行终止容器。</p>
+</blockquote>
+<p>可以使用<code>docker ps -a -q</code>命令看到处于终止状态的容器的ID信息。处于终止状态的容器，可以通过<code>docker start</code>命令来重新启动。</p>
+<p>此外，<code>docker restart</code>命令会将一个运行态的容器终止，然后再重新启动它。</p>
+<h3 id="4-3-进入容器"><a href="#4-3-进入容器" class="headerlink" title="4.3 进入容器"></a>4.3 进入容器</h3><h4 id="attach命令"><a href="#attach命令" class="headerlink" title="attach命令"></a>attach命令</h4><p><img src="/images/notes/docker/4-1.jpg" alt="4-1.jpg"></p>
+<p>使用attach命令有时候并不方便，当多个窗口同时attach到同一个容器的时候，所有窗口都会同步显示。当某个窗口因命令阻塞时，其他窗口也无法执行操作了。</p>
+<h4 id="exec命令（v1-3起）"><a href="#exec命令（v1-3起）" class="headerlink" title="exec命令（v1.3起）"></a>exec命令（v1.3起）</h4><p>如进入到刚创建的容器中并启动一个bash：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker <span class="built_in">exec</span> -ti 243c32535da7 /bin/bash</span><br></pre></td></tr></table></figure></p>
+<h4 id="nsenter工具"><a href="#nsenter工具" class="headerlink" title="nsenter工具"></a>nsenter工具</h4><h3 id="4-4-删除容器"><a href="#4-4-删除容器" class="headerlink" title="4.4 删除容器"></a>4.4 删除容器</h3><p>可以使用<code>docker rm</code>命令删除处于终止状态的容器，命令格式为：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker rm [OPTIONS] CONTAINER [CONTAINER...]</span><br></pre></td></tr></table></figure></p>
+<p>支持的选项：</p>
+<ul>
+<li><code>-f</code>/<code>--force=false</code>：强行终止并删除一个运行中的容器。</li>
+<li><code>-l</code>/<code>--link=false</code>：删除容器的连接，但保留容器。</li>
+<li><code>-v</code>/<code>--volumes=false</code>：删除容器挂载的数据券。</li>
+</ul>
+<h3 id="4-5-导入和导出容器"><a href="#4-5-导入和导出容器" class="headerlink" title="4.5 导入和导出容器"></a>4.5 导入和导出容器</h3><h4 id="导出容器"><a href="#导出容器" class="headerlink" title="导出容器"></a>导出容器</h4><p>导出容器是指导出一个已经创建的容器到一个文件，不管此时这个容器是否处于运行状态。可以使用<code>docker export</code>命令，命令格式为：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker export CONTAINER</span><br></pre></td></tr></table></figure></p>
+<p>如：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker <span class="built_in">export</span> ce5 &gt;test_for_run.tar</span><br></pre></td></tr></table></figure></p>
+<h4 id="导入容器"><a href="#导入容器" class="headerlink" title="导入容器"></a>导入容器</h4><p>导出的文件又可以使用<code>docker import</code> 命令导入，成为镜像。如<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cat test_for_run.tar | sudo docker import - <span class="built_in">test</span>/ubuntu:v1.0</span><br><span class="line">sudo docker images</span><br></pre></td></tr></table></figure></p>
+<p>import和load命令很像，都可以用来导入一个镜像文件到本地。<br>只不过load命令来导入镜像存储文件到本地的镜像库，import命令来导入一个容器快照到本地镜像库。区别在与容器快照文件将丢弃所有的历史记录和元数据信息（即仅保存容器当时的快照状态）。而镜像存储文件将保存完整记录，体积也要打。此外，从容器快照文件导入时可以重新指定标签等元数据信息。</p>
+<h2 id="5-仓库"><a href="#5-仓库" class="headerlink" title="5 仓库"></a>5 仓库</h2><p>仓库（Repository）是集中存放镜像的地方。仓库又分为公共仓库和私有仓库。</p>
+<h3 id="5-1-Docker-Hub"><a href="#5-1-Docker-Hub" class="headerlink" title="5.1 Docker Hub"></a>5.1 Docker Hub</h3><p>Docker官方维护的一个公共仓库<a href="https://hub.docker.com" target="_blank" rel="noopener">https://hub.docker.com</a></p>
+<h4 id="登录"><a href="#登录" class="headerlink" title="登录"></a>登录</h4><p>可以通过执行<code>docker login</code>命令来输入用户名、密码和邮箱来完成注册和登录。注册成功后本地用户目录的<code>.dockercfg</code>中将保存用户的认证信息。</p>
+<h4 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h4><ul>
+<li>docker search：查找官方仓库中的镜像（无需登录）。</li>
+<li>docker pull：下载镜像到本地。</li>
+<li>docker push：将本地镜像推送到Docker Hub。</li>
+</ul>
+<h3 id="5-2-Docker-Pool"><a href="#5-2-Docker-Pool" class="headerlink" title="5.2 Docker Pool"></a>5.2 Docker Pool</h3><p>技术社区</p>
+<h3 id="5-3-创建和使用私有仓库"><a href="#5-3-创建和使用私有仓库" class="headerlink" title="5.3 创建和使用私有仓库"></a>5.3 创建和使用私有仓库</h3><h4 id="使用registry镜像创建私有仓库"><a href="#使用registry镜像创建私有仓库" class="headerlink" title="使用registry镜像创建私有仓库"></a>使用registry镜像创建私有仓库</h4><p>安装Docker后，可以通过官方提供的registry镜像来简单搭建一套本地私有仓库环境：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker run -d -p 5000:5000 registry</span><br></pre></td></tr></table></figure></p>
+<p>这将自动下载并启动一个registry容器，创建本地的私有仓库服务。</p>
+<p>默认情况下，会将仓库创建在容器的<code>/tmp/registry</code>目录下，可以通过<code>-v</code>参数来将镜像文件存放在本地的指定路径上。</p>
+<p>如下面的例子将上传的镜像放到<code>/opt/data/registry</code>目录：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker run -d -p 5000:5000 -v /opt/data/registry:/tmp/registry registry</span><br></pre></td></tr></table></figure></p>
+<p>此时，在本地将启动一个私有仓库服务，监听端口为5000。</p>
+<h4 id="管理私有仓库镜像"><a href="#管理私有仓库镜像" class="headerlink" title="管理私有仓库镜像"></a>管理私有仓库镜像</h4><p><img src="/images/notes/docker/5-1.jpg" alt="5-1.jpg"></p>
+<h2 id="6-数据管理"><a href="#6-数据管理" class="headerlink" title="6 数据管理"></a>6 数据管理</h2><p>用户在使用Docker的过程中，往往需要能查看容器内应用产生的数据，或者需要把容器内的数据进行备份，甚至多个容器之间进行数据的共享，这必然涉及容器的数据管理操作。</p>
+<p>容器中管理数据主要有两种方式：</p>
+<ul>
+<li>数据卷（Data Volumes）</li>
+<li>数据卷容器（Data Volume Dontainers）</li>
+</ul>
+<h3 id="6-1-数据卷"><a href="#6-1-数据卷" class="headerlink" title="6.1 数据卷"></a>6.1 数据卷</h3><p>数据卷是一个可供容器使用的特殊目录，它绕过文件系统，可以提供很多有用的特性：</p>
+<ul>
+<li>数据卷可以在容器之间共享和重用。</li>
+<li>对数据卷的修改会立马生效。</li>
+<li>对数据卷的更新，不会影响镜像。</li>
+<li>卷会一直存在，直到没有容器使用。</li>
+</ul>
+<p>数据卷的使用，类似于Linux下对目录或文件进行mount操作。</p>
+<h4 id="在容器内创建一个数据卷"><a href="#在容器内创建一个数据卷" class="headerlink" title="在容器内创建一个数据卷"></a>在容器内创建一个数据卷</h4><p>在使用<code>docker run</code>命令的时候，使用<code>-v</code>标记可以在容器内创建一个数据卷。多次使用<code>-v</code>标记可以创建多个数据卷。</p>
+<p>如，使用<code>training/webapp</code>镜像创建一个Web容器，并创建一个数据卷挂载到容器的<code>/webapp</code>目录：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker run -d -P --name web -v /webapp training/webapp python app.py</span><br></pre></td></tr></table></figure></p>
+<blockquote>
+<p><code>-P</code>是允许外部访问容器需要暴露的端口。</p>
+</blockquote>
+<h4 id="挂载一个主机目录作为数据卷"><a href="#挂载一个主机目录作为数据卷" class="headerlink" title="挂载一个主机目录作为数据卷"></a>挂载一个主机目录作为数据卷</h4><p>使用<code>-v</code>标记也可以指定挂载一个本地的已有目录到容器中去作为数据卷：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker run -d -P --name web -v /src/webapp:/opt/webapp training/webapp python app.py</span><br></pre></td></tr></table></figure>
+<p>上面的命令加载主机的/src/webapp目录到容器的/opt/webapp目录。这个功能在进行测试的时候十分方便，比如用户可以放置一些程序或数据到本地目录中，然后在容器内运行和使用。另外，本地目录的路径必须是绝对路径，如果目录不存在，Docker会自动创建。</p>
+<p>Docker挂载数据卷的默认权限是读写（rw），用户也可以通过，ro指定为只读：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo docker run -d -P --name web -v /src/webapp:/opt/webapp:ro</span><br><span class="line">training/webapp python app.py</span><br></pre></td></tr></table></figure></p>
+<p>加了<code>:ro</code>之后，容器内挂载的数据卷的数据就无法修改了。</p>
+<h4 id="挂载一个本地主机文件作为数据卷"><a href="#挂载一个本地主机文件作为数据卷" class="headerlink" title="挂载一个本地主机文件作为数据卷"></a>挂载一个本地主机文件作为数据卷</h4><p><code>-v</code>标记也可以从主机挂载耽搁文件到容器中作为数据卷：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker run --rm -it -v ~/.bash_history:/.bash_history ubuntu /bin/bash</span><br></pre></td></tr></table></figure></p>
+<p>这样就可以记录在容器输入过的命令历史了。</p>
+<h3 id="6-2-数据卷容器"><a href="#6-2-数据卷容器" class="headerlink" title="6.2 数据卷容器"></a>6.2 数据卷容器</h3><p>如果用户需要再容器之间共享一些持续更新的数据，最简单的方式是使用数据卷容器。数据卷容器其实是一个普通的容器，专门用它提供数据卷供其他容器挂载使用。方法如下。</p>
+<p>首先创建一个数据卷容器dbdata，并在其中创建一个数据卷挂载到/dbdata。<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker run -it -v /dbdata --name dbdata ubuntu</span><br></pre></td></tr></table></figure></p>
+<p>然后可以子啊其他容器中使用<code>--volumes-from</code>来挂载dbdata容器中的数据卷，例如创建db1和db2两个容器，并从dbdata容器挂载数据卷：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo docker run -it --volumes-form dbdata --name db1 ubuntu</span><br><span class="line">sudo docker run -it --volumes-form dbdata --name db2 ubuntu</span><br></pre></td></tr></table></figure>
+<p>此时，容器db1和db2都挂载同一个数据卷到相同的/dbdata目录。三个容器任何一方在该目录下的写入，其他容器都可以看到。</p>
+<p>例如，在dbdata容器中创建一个test文件：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /dbdata</span><br><span class="line">touch <span class="built_in">test</span></span><br><span class="line">ls</span><br></pre></td></tr></table></figure></p>
+<p>可以多次使用<code>--volumes-form</code>参数来从多个容器挂载多个数据卷。还可以从其他已经挂载了容器卷的容器来挂载数据卷：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker run -d --name db3 --volumes-form db1 training/postgres</span><br></pre></td></tr></table></figure></p>
+<blockquote>
+<p>使用<code>--volumes-form</code>参数所挂载数据卷的容器本身并不需要保持在运行状态。</p>
+</blockquote>
+<p>如果删除了了挂载的容器（包括dbdata、db1和db2），数据卷并不会被自动删除。如果要删除一个数据卷，必须在删除最后一个还挂载着它的容器时显式使用<code>docker rm -v</code>命令来指定同时删除关联的容器。</p>
+<p>使用数据卷容器可以让用户在容器之间自由地升级和移动数据卷。</p>
+<h3 id="6-3-利用数据卷容器迁移数据"><a href="#6-3-利用数据卷容器迁移数据" class="headerlink" title="6.3 利用数据卷容器迁移数据"></a>6.3 利用数据卷容器迁移数据</h3><p>可以利用数据卷容器对其中的数据卷进行备份、恢复，以实现数据的迁移。</p>
+<h4 id="备份"><a href="#备份" class="headerlink" title="备份"></a>备份</h4><p>如：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker run --volumes-form dbdata -v $(<span class="built_in">pwd</span>):/backup --name worker ubuntu tar cvf /backup/backup.tar /dbdata</span><br></pre></td></tr></table></figure></p>
+<p>这个命令首先利用Ubuntu镜像创建了一个容器worker，使用<code>--volumes-from dbdata</code>参数来让worker容器挂载dbdata容器的数据卷（即dbdata数据卷）；使用<code>-v $(pwd):/backup</code>参数来挂载本地的当前目录到worker容器的/backup目录。worker容器启动后，使用了<code>tar cvf /backup/backup.tar /dbdata</code>命令来将/dbdata下内容备份为容器内的/backup/backup.tar，即宿主主机当前目录下的backup.tar。</p>
+<h4 id="恢复"><a href="#恢复" class="headerlink" title="恢复"></a>恢复</h4><p>首先创建一个带有数据卷的容器dbdata2：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker run -v /dbdata --name dbdata2 ubuntu /bin/sh</span><br></pre></td></tr></table></figure></p>
+<p>然后创建另一个新的容器，挂载dbdata2的容器，并使用untar解压备份文件到所挂载的容器卷中即可：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker run --volumes-form dbdata2 -v $(<span class="built_in">pwd</span>):/backup busybos tar xvf /backup/backup.tar</span><br></pre></td></tr></table></figure></p>
+<h2 id="7-网络基础配置"><a href="#7-网络基础配置" class="headerlink" title="7 网络基础配置"></a>7 网络基础配置</h2><p>Docker目前提供了映射容器端口到宿主主机和容器互联机制来为容器提供网络服务。</p>
+<h3 id="7-1-端口映射实现访问容器"><a href="#7-1-端口映射实现访问容器" class="headerlink" title="7.1 端口映射实现访问容器"></a>7.1 端口映射实现访问容器</h3><h4 id="从外部访问容器应用"><a href="#从外部访问容器应用" class="headerlink" title="从外部访问容器应用"></a>从外部访问容器应用</h4><p>在启动容器的时候，如果不指定对应参数，在容器外部是无法通过网络来访问容器内的网络应用和服务的。</p>
+<p>当容器中运行一些网络应用，要让外部访问这些应用时，可以通过<code>-P</code>或<code>-p</code>参数来指定端口映射。当使用<code>-P</code>标记时，Docker会随机映射一个49000~49900的端口至容器内部开放的网络端口</p>
+<p>如：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker run -d -P training/webapp python app.py</span><br></pre></td></tr></table></figure></p>
+<p>此时，可以使用<code>docker ps</code>看到，本地主机的49155被映射到了容器的5000端口。访问宿主主机的49155端口即可访问容器内Web应用提供的界面。</p>
+<p>同样，可以通过<code>docker logs</code>命令来查看应用的信息：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker logs -f nostalgic_morse</span><br></pre></td></tr></table></figure></p>
+<p><code>-p</code>则可以指定要映射的端口，并且，在一个指定端口上只可以绑定一个容器。</p>
+<h5 id="映射所有接口地址"><a href="#映射所有接口地址" class="headerlink" title="映射所有接口地址"></a>映射所有接口地址</h5><p>使用hostPort:containerPort格式将本地的5000端口映射到容器的5000端口，可以执行如下命令：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker run -d -p 5000:5000 training/webapp python app.python</span><br></pre></td></tr></table></figure></p>
+<p>此时默认会绑定本地所有接口上的所有地址。多次使用<code>-p</code>标记可以绑定多个端口。如<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker run -d -p 5000:5000 -p 3000:80 training/webapp python app.python</span><br></pre></td></tr></table></figure></p>
+<h5 id="映射到指定地址的指定端口"><a href="#映射到指定地址的指定端口" class="headerlink" title="映射到指定地址的指定端口"></a>映射到指定地址的指定端口</h5><p>可以使用ip:hostPort:containerPort格式指定映射使用搞一个特定地址，比如localhost地址127.0.0.1：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker run -d -p 127.0.0.1:5000:5000 training/webapp python app.py</span><br></pre></td></tr></table></figure></p>
+<h5 id="映射到指定地址的任意端口"><a href="#映射到指定地址的任意端口" class="headerlink" title="映射到指定地址的任意端口"></a>映射到指定地址的任意端口</h5><p>使用ip::containerPort绑定localhost的任意端口到容器的5000端口，本地主机会自动分配一个端口：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker run -d -p 127.0.0.1::5000 training/webapp python app.python</span><br></pre></td></tr></table></figure></p>
+<p>还可以使用udp标记来指定udp端口：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker run -d -p 127.0.0.1:5000:5000/udp training/webapp python app.python</span><br></pre></td></tr></table></figure></p>
+<h5 id="查看映射端口配置"><a href="#查看映射端口配置" class="headerlink" title="查看映射端口配置"></a>查看映射端口配置</h5><p>使用<code>docker port</code>来查看当前映射的端口配置，也可以查看到绑定的地址：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker port nosealgic_morse 5000</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>容器有自己的内部网络和IP地址（使用<code>docker inspect+容器ID</code>可以获取所有的变量值）</p>
+</blockquote>
+<h3 id="7-2-容器互联实现容器间通信"><a href="#7-2-容器互联实现容器间通信" class="headerlink" title="7.2 容器互联实现容器间通信"></a>7.2 容器互联实现容器间通信</h3><p>容器的连接（linking）系统是除了端口映射外另一种可以与容器中应用进行交互的方式。它会在源和接收容器之间创建一个隧道，接收容器可以看到源容器指定的信息。</p>
+<h4 id="自定义容器命令"><a href="#自定义容器命令" class="headerlink" title="自定义容器命令"></a>自定义容器命令</h4><p>使用<code>--name</code>标记可以为容器自定义命名：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker run -d -P --name web training/webapp python app.py</span><br></pre></td></tr></table></figure></p>
+<blockquote>
+<p>容器的名称是唯一的。如果已经命名了一个叫web的容器，当你要再次使用web这个名称的时候，需要先用<code>docker rm</code>来删除之前创建的同名容器。</p>
+</blockquote>
+<p>在执行<code>docker run</code>的时候如果添加<code>--rm</code>标记，则容器在终止后会立刻删除。（<code>--rm</code>和<code>-d</code>不能同时使用）</p>
+<h4 id="容器互联"><a href="#容器互联" class="headerlink" title="容器互联"></a>容器互联</h4><p>使用<code>--link</code>参数可以让容器之间安全的进行交互。</p>
+<p>先创建一个新的数据库容器：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker run -d --name db training/postgres</span><br></pre></td></tr></table></figure></p>
+<p>删除之前创建的web容器<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker rm -f web</span><br></pre></td></tr></table></figure></p>
+<p>然后创建一个新的web容器，并将它连接到db容器：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker run -d -P --name web --link db:db training/webapp python app.py</span><br></pre></td></tr></table></figure></p>
+<p>此时，db容器和web容器简历互联关系。</p>
+<p><code>--link</code>参数的格式为<code>--link name:alias</code>，其中name是要链接的容器的名称，alias是这个链接的别名。</p>
+<p>Docker在两个互联的容器之间创建了一个安全隧道，并且不用映射它们的端口到宿主主机上。在启动db容器的时候并没有使用<code>-p</code>和<code>-P</code>标记，从而避免了保留数据库端口到外部网络上。</p>
+<p>Docker通过两种方式为容器公开连接信息：</p>
+<ul>
+<li>环境变量</li>
+<li>更新/etc/hosts/文件</li>
+</ul>
+<h2 id="8-使用Dockerfile创建镜像"><a href="#8-使用Dockerfile创建镜像" class="headerlink" title="8 使用Dockerfile创建镜像"></a>8 使用Dockerfile创建镜像</h2><p>Dockerfile是一个文本格式的配置文件，用户可以使用Dockerfile快速创建自定义的镜像。</p>
+<h3 id="8-1-基本结构"><a href="#8-1-基本结构" class="headerlink" title="8.1 基本结构"></a>8.1 基本结构</h3><p>Dockerfile由一行行命令语句组成，并且支持以<code>#</code>开头的注释行。</p>
+<p>一般而言，Dockerfile分为4部分：基础镜像信息、维护信息、镜像操作指令和容器启动时执行指令。如<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"># dockerfile</span><br><span class="line"></span><br><span class="line"># 第一行必须制定基于的基础镜像</span><br><span class="line">FROM ubuntu</span><br><span class="line"></span><br><span class="line"># 维护者信息</span><br><span class="line">MAINTAINER docker_user docker_user@email.com</span><br><span class="line"></span><br><span class="line"># 镜像的操作指令</span><br><span class="line">RUN echo &quot;deb http://archive.ubuntu.com/ubuntu/ raring main universe&quot; &gt;&gt; /etc/apt/sources.list</span><br><span class="line">RUN apt-get update &amp;&amp; apt-get install -y nginx</span><br><span class="line">RUN echo &quot;\ndaemon off;&quot; &gt;&gt; /etc/nginx/nginx.conf</span><br><span class="line"></span><br><span class="line"># 容器启动时执行命令</span><br><span class="line">CMD /usr/sbin/nginx</span><br></pre></td></tr></table></figure></p>
+<h3 id="8-2-指令"><a href="#8-2-指令" class="headerlink" title="8.2 指令"></a>8.2 指令</h3><p>指令的一般格式为<code>INSTRUCTION arguments</code>，指令包括FROM、MAINTAINER、RUN等。</p>
+<h4 id="FROM"><a href="#FROM" class="headerlink" title="FROM"></a>FROM</h4><p>格式为<code>FROM &lt;image&gt;</code>或<code>FROM&lt;image&gt;:&lt;tag&gt;</code>。</p>
+<p>第一条指令必须为FROM指令。并且，如果在同一个Dockerfiel中创建多个镜像时，可以使用多个FROM指令（每个镜像一次）。</p>
+<h4 id="MAINTAINER"><a href="#MAINTAINER" class="headerlink" title="MAINTAINER"></a>MAINTAINER</h4><p>格式为<code>MAINTAINER &lt;name&gt;</code>，指定维护者信息</p>
+<h4 id="RUN"><a href="#RUN" class="headerlink" title="RUN"></a>RUN</h4><p>格式为<code>RUN &lt;command&gt;</code>或<code>RUN [&quot;executable&quot;, &quot;param1&quot;, &quot;param2&quot;]</code>。<br>前者将在shell终端中运行命令，即<code>/bin/sh -c</code>；后者则使用exec执行。指定使用其他终端可以通过第二种方式实现，例如<code>RUM [&quot;/bin/bash&quot;, &quot;-c&quot;, &quot;echo hello&quot;]</code>。</p>
+<p>每条RUN指令将在当前镜像基础上执行指定命令，并提交为新的镜像。当命令较长时可以使用<code>\</code>来换行。</p>
+<h4 id="CMD"><a href="#CMD" class="headerlink" title="CMD"></a>CMD</h4><p>支持三种格式：</p>
+<ul>
+<li><code>CMD [&quot;executable&quot;, &quot;param1&quot;, &quot;param2&quot;]</code>使用exec执行，推荐方式。</li>
+<li><code>CMD command param1 param2</code>在/bin/sh中执行，提供给需要交互的应用。</li>
+<li><code>CMD [&quot;param1&quot;, &quot;param2&quot;]</code>提供给ENTRYPOINT的默认参数。</li>
+</ul>
+<p>指定启动容器时执行的命令，每个Dockerfile只能有一条CMD命令。如果指定了多条命令，只有最后一条会被执行。</p>
+<p>如果用户启动容器时指定了运行的命令，则会覆盖掉CMD指定的命令。</p>
+<h4 id="EXPOSE"><a href="#EXPOSE" class="headerlink" title="EXPOSE"></a>EXPOSE</h4><p>格式为<code>EXPOSE &lt;port&gt; [&lt;port&gt;...]</code></p>
+<p>告诉DOcker服务端容器暴露的端口号，供互联系统使用。在启动容器时需要通过<code>-P</code>，Docker主机会自动分配一个端口转发到指定的端口；使用<code>-p</code>，则可以具体指定那个本地端口映射过来。</p>
+<h4 id="ENV"><a href="#ENV" class="headerlink" title="ENV"></a>ENV</h4><p>格式为<code>ENV &lt;key&gt; &lt;value&gt;</code>。指定一个环境变量，会被后续RUN指令使用，并在容器运行时保持。</p>
+<h4 id="ADD"><a href="#ADD" class="headerlink" title="ADD"></a>ADD</h4><p>格式为<code>ADD &lt;src&gt; &lt;dest&gt;</code>。该命令将复制指定的<src>到容器中的<dest>。其中<src>可以是DOckerfile所在目录的一个相对路径（文件或目录）；也可以是一个URL；还可以是一个tar文件（自动解压为目录）。</src></dest></src></p>
+<h4 id="COPY"><a href="#COPY" class="headerlink" title="COPY"></a>COPY</h4><p>格式为<code>COPY &lt;src&gt; &lt;dest&gt;</code>。复制本地主机的<src>（为Dockerfile所在目录的相对路径，文件或目录）为容器中的<dest>。目标路径不存在时，会自动构建。</dest></src></p>
+<h4 id="ENTRYPOINT"><a href="#ENTRYPOINT" class="headerlink" title="ENTRYPOINT"></a>ENTRYPOINT</h4><p>有两种格式：</p>
+<ul>
+<li><code>ENTRYPOINT [&quot;executable&quot;, &quot;param1&quot;, &quot;param2&quot;]</code></li>
+<li><code>ENTRYPOINT command param1 param2</code></li>
+</ul>
+<p>配置容器启动后执行的命令，并且不可被docker run提供的参数覆盖。<br>每个Dockerfile中只能有一个ENTRYPOINT，当指定多个ENTRYPOINT时，只有最后一个生效。</p>
+<h4 id="VOLUME"><a href="#VOLUME" class="headerlink" title="VOLUME"></a>VOLUME</h4><p>格式为<code>VOLUME [&quot;/data&quot;]</code>。创建一个可以从本地主机或其他容器挂载的挂载点，一般用来存放数据库和需要保持的数据等。</p>
+<h4 id="USER"><a href="#USER" class="headerlink" title="USER"></a>USER</h4><p>格式为<code>USER daemon</code>。指定运行容器时的用户名或UID，后续的RUN也会使用指定用户。</p>
+<p>当服务不需要管理员权限时，可以通过该命令指定运行用户。并且可以在之前创建所需要的用户。例如<code>RUN groupadd -r postgres &amp;&amp; useradd -r -g postgres postgres</code>。要临时获取管理员权限可以使用gosu，而不推荐sudo。</p>
+<h4 id="WORKDIR"><a href="#WORKDIR" class="headerlink" title="WORKDIR"></a>WORKDIR</h4><p>格式为<code>WORKDIR /path/to/workdir</code>。为后续的RUN、CMD、ENTRYPOINT指令配置工作目录。<br>可以使用多个WORKDIR指令，后续命令如果参数是相对路径，则会基于之前命令指定的路径。如<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">WORKDIR /a</span><br><span class="line">WORKDIR b</span><br><span class="line">WORKDIR c</span><br><span class="line">RUN pwd</span><br></pre></td></tr></table></figure></p>
+<p>则最终路径为/a/b/c。</p>
+<h4 id="ONBUILD"><a href="#ONBUILD" class="headerlink" title="ONBUILD"></a>ONBUILD</h4><p>格式为<code>ONBUILD [INSTRUCTION]</code>。配置当所创建的镜像作为其他新创建镜像的基础镜像时，所执行的操作指令。</p>
+<p>例如，Dockerfile使用如下的内容创建了镜像image-A。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[...]</span><br><span class="line">ONBUILD ADD . /app/src</span><br><span class="line">ONBUILD RUN /usr/local/bin/python-build --dir /app/src</span><br><span class="line">[...]</span><br></pre></td></tr></table></figure></p>
+<p>如果基于image-A创建新的镜像时，新的Dockerfile中使用FROM image-A指定基础镜像时，会自动执行ONBUILD指令内容，等价于在后面添加了两条指令。</p>
+<h3 id="8-3-创建镜像"><a href="#8-3-创建镜像" class="headerlink" title="8.3 创建镜像"></a>8.3 创建镜像</h3><p>编写完Dockerfile之后，可以通过<code>docker build</code>命令来创建镜像。</p>
+<p>格式为：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker build [选项] 路径</span><br></pre></td></tr></table></figure></p>
+<p>该命令将读取指定路径下（包括子目录）的Dockerfile，并将该路径下所有内容发送给Docker服务端，由服务端来创建镜像。因此一般建议防止Dockerfile的目录为空目录。</p>
+<p>另外，可以通过<code>.dockerugnore</code>文件（每一行添加一条匹配模式）来让Docker忽略路径下的目录和文件。</p>
+<p>要指定镜像的标签信息，可以通过<code>-t</code>选项。</p>
+<p>如<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker build -t build_repo/first_image /tmp/docker_builder</span><br></pre></td></tr></table></figure></p>
+<p>指定Dockerfile所在路径为/tmp/docker_builder/，并且希望生成镜像标签为build_repo/first_image。</p>
+<hr>
+<h1 id="k8s"><a href="#k8s" class="headerlink" title="k8s"></a>k8s</h1><p>已经有了Docker，为什么还要k8s？Docker作为容器提供应用级的系统抽象；而k8s提供应用级的集群抽象。</p>
+<h2 id="1-概念"><a href="#1-概念" class="headerlink" title="1.概念"></a>1.概念</h2><p>Kubernetes（k8s）是自动化容器操作的开源平台，这些操作包括部署，调度和节点集群间扩展。如果你曾经用过Docker容器技术部署容器，那么可以将Docker看成Kubernetes内部使用的低级别组件。Kubernetes不仅仅支持Docker，还支持Rocket，这是另一种容器技术。使用Kubernetes可以：</p>
+<ul>
+<li>自动化容器的部署和复制</li>
+<li>随时扩展或收缩容器规模</li>
+<li>将容器组织成组，并且提供容器间的负载均衡</li>
+<li>很容易地升级应用程序容器的新版本</li>
+<li>提供容器弹性，如果容器失效就替换它，等等…</li>
+</ul>
+<p>实际上，使用Kubernetes只需一个部署文件，使用一条命令就可以部署多层容器（前端，后台等）的完整集群：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl create -f single-config-file.yaml</span><br></pre></td></tr></table></figure></p>
+<p>kubectl是和Kubernetes API交互的命令行程序。现在介绍一些核心概念。</p>
+<h2 id="2-集群"><a href="#2-集群" class="headerlink" title="2.集群"></a>2.集群</h2><p>集群是一组节点，这些节点可以是物理服务器或者虚拟机，之上安装了Kubernetes平台。下图展示这样的集群。注意该图为了强调核心概念有所简化。</p>
+<p><img src="/images/notes/docker/p-cluster.png" alt="p-cluster.png"></p>
+<p>上图可以看到如下组件，使用特别的图标表示Service和Label：</p>
+<ul>
+<li>Pod</li>
+<li>Container（容器）</li>
+<li>Label(label)（标签）</li>
+<li>Replication Controller（复制控制器）</li>
+<li>Service（enter image description here）（服务）</li>
+<li>Node（节点）</li>
+<li>Kubernetes Master（Kubernetes主节点）</li>
+</ul>
+<h3 id="2-1-Pod"><a href="#2-1-Pod" class="headerlink" title="2.1 Pod"></a>2.1 Pod</h3><p>Pod（上图绿色方框）安排在节点上，包含一组容器和卷。同一个Pod里的容器共享同一个网络命名空间，可以使用localhost互相通信。Pod是短暂的，不是持续性实体。你可能会有这些问题：</p>
+<ul>
+<li>如果Pod是短暂的，那么我怎么才能持久化容器数据使其能够跨重启而存在呢？ 是的，Kubernetes支持卷的概念，因此可以使用持久化的卷类型。</li>
+<li>是否手动创建Pod，如果想要创建同一个容器的多份拷贝，需要一个个分别创建出来么？可以手动创建单个Pod，但是也可以使用Replication Controller使用Pod模板创建出多份拷贝，下文会详细介绍。</li>
+<li>如果Pod是短暂的，那么重启时IP地址可能会改变，那么怎么才能从前端容器正确可靠地指向后台容器呢？这时可以使用Service，下文会详细介绍。</li>
+</ul>
+<h3 id="2-2-Lable"><a href="#2-2-Lable" class="headerlink" title="2.2 Lable"></a>2.2 Lable</h3><p>正如图所示，一些Pod有Label（enter image description here）。一个Label是attach到Pod的一对键/值对，用来传递用户定义的属性。比如，你可能创建了一个”tier”和“app”标签，通过Label（tier=frontend, app=myapp）来标记前端Pod容器，使用Label（tier=backend, app=myapp）标记后台Pod。然后可以使用Selectors选择带有特定Label的Pod，并且将Service或者Replication Controller应用到上面。</p>
+<h3 id="2-3-Replication-Controller"><a href="#2-3-Replication-Controller" class="headerlink" title="2.3 Replication Controller"></a>2.3 Replication Controller</h3><p>是否手动创建Pod，如果想要创建同一个容器的多份拷贝，需要一个个分别创建出来么，能否将Pods划到逻辑组里？</p>
+<p>Replication Controller确保任意时间都有指定数量的Pod“副本”在运行。如果为某个Pod创建了Replication Controller并且指定3个副本，它会创建3个Pod，并且持续监控它们。如果某个Pod不响应，那么Replication Controller会替换它，保持总数为3.如下面的动画所示：</p>
+<p><img src="/images/notes/docker/p-rec.png" alt="p-rec.png"></p>
+<p>如果之前不响应的Pod恢复了，现在就有4个Pod了，那么Replication Controller会将其中一个终止保持总数为3。如果在运行中将副本总数改为5，Replication Controller会立刻启动2个新Pod，保证总数为5。还可以按照这样的方式缩小Pod，这个特性在执行滚动升级时很有用。</p>
+<p>当创建Replication Controller时，需要指定两个东西：</p>
+<ul>
+<li>Pod模板：用来创建Pod副本的模板</li>
+<li>Label：Replication Controller需要监控的Pod的标签。</li>
+</ul>
+<p>现在已经创建了Pod的一些副本，那么在这些副本上如何均衡负载呢？我们需要的是Service。</p>
+<h3 id="2-4-Service"><a href="#2-4-Service" class="headerlink" title="2.4 Service"></a>2.4 Service</h3><p>如果Pods是短暂的，那么重启时IP地址可能会改变，怎么才能从前端容器正确可靠地指向后台容器呢？</p>
+<p>Service是定义一系列Pod以及访问这些Pod的策略的一层抽象。Service通过Label找到Pod组。因为Service是抽象的，所以在图表里通常看不到它们的存在，这也就让这一概念更难以理解。</p>
+<p>现在，假定有2个后台Pod，并且定义后台Service的名称为‘backend-service’，lable选择器为（tier=backend, app=myapp）。backend-service 的Service会完成如下两件重要的事情：</p>
+<ul>
+<li>会为Service创建一个本地集群的DNS入口，因此前端Pod只需要DNS查找主机名为 ‘backend-service’，就能够解析出前端应用程序可用的IP地址。</li>
+<li>现在前端已经得到了后台服务的IP地址，但是它应该访问2个后台Pod的哪一个呢？Service在这2个后台Pod之间提供透明的负载均衡，会将请求分发给其中的任意一个（如下面的动画所示）。通过每个Node上运行的代理（kube-proxy）完成。这里有更多技术细节。</li>
+</ul>
+<p>有一个特别类型的Kubernetes Service，称为’LoadBalancer’，作为外部负载均衡器使用，在一定数量的Pod之间均衡流量。比如，对于负载均衡Web流量很有用。</p>
+<h3 id="2-5-Node"><a href="#2-5-Node" class="headerlink" title="2.5 Node"></a>2.5 Node</h3><p>节点（上图橘色方框）是物理或者虚拟机器，作为Kubernetes worker，通常称为Minion。每个节点都运行如下Kubernetes关键组件：</p>
+<ul>
+<li>Kubelet：是主节点代理。</li>
+<li>Kube-proxy：Service使用其将链接路由到Pod，如上文所述。</li>
+<li>Docker或Rocket：Kubernetes使用的容器技术来创建容器。</li>
+</ul>
+<h3 id="2-6-Kubernetes-Master"><a href="#2-6-Kubernetes-Master" class="headerlink" title="2.6 Kubernetes Master"></a>2.6 Kubernetes Master</h3><p>集群拥有一个Kubernetes Master（紫色方框）。Kubernetes Master提供集群的独特视角，并且拥有一系列组件，比如Kubernetes API Server。API Server提供可以用来和集群交互的REST端点。master节点包括用来创建和复制Pod的Replication Controller。</p>
+<p>docker的生命周期图：<br><img src="/images/notes/docker/2-2.jpg" alt="2-2.jpg"></p>
+<hr>
+</div></article></div><div class="post-paginator"><div class="post-links"><div class="post-prev"><a href="/2019/12/07/git/【笔记】git随手记（持续）/" class="prev">Previous Post<span>【笔记】git随手记</span></a></div><div class="post-next"><a href="/2019/11/11/notes/【笔记】第七种基本数据类型BigInt/" class="next">Next Post<span>【笔记】第七种基本数据类型BigInt</span></a></div></div></div></div><div class="sidebar"><div class="social-links"><ul><li class="social-link"><a href="http://github.com/MichealWayne" target="_blank" class="link-github"><i class="icon icon-github"></i></a></li><li class="social-link"><a href="mailto:michealwayne@163.com" target="_self" class="link-mail"><i class="icon icon-mail"></i></a></li></ul></div><div class="recent-posts widget"><h3 class="widget-title"> Recent Posts</h3><div class="widget-content"><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2023/01/15/notes/【笔记】StateOfJs2022中的ES语言特性/">【笔记】State Of Js2022中的ES语言特性</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/02/notes/【笔记】《演进式架构》（三）/">【笔记】《演进式架构》学习笔记（三）</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/12/17/notes/【笔记】《演进式架构》（二）/">【笔记】《演进式架构》学习笔记（二）</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/12/10/notes/【笔记】《演进式架构》（一）/">【笔记】《演进式架构》学习笔记（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/11/19/typescript/浅谈TypeScript的图灵完备性/">浅谈TypeScript的图灵完备性</a></li></ul></div></div><div class="recent-comment widget"><h3 class="widget-title"> Author</h3><div class="widget-content"><div class="m-author"><div class="u-avatar"><img src="data:image/jpeg;base64,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"></div><div class="u-author_tit"><p>My name is Micheal Wayne and this is my blog.<br>I am a front-end software engineer.<br>Contact: <a href="mailto:michealwayne@163.com"> <span>michealwayne@163.com</span></a></p></div></div></div></div><div class="tag-lists widget"><h3 class="widget-title"> Tags</h3><div class="widget-content"><ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/APM/">APM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BOM/">BOM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Bun/">Bun</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DOM/">DOM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTML/">HTML</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OKR/">OKR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UML/">UML</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UX/">UX</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/">Vue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WebSocket/">WebSocket</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zepto/">Zepto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/canvas/">canvas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/">css</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/es6/">es6</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eslint/">eslint</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/h5/">h5</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/">http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jQuery/">jQuery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/">js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lerna/">lerna</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lottie/">lottie</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/">nodejs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prettier/">prettier</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/">react</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/serviceWorker/">serviceWorker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sketch/">sketch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skywalking/">skywalking</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/taro/">taro</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tslint/">tslint</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/typescript/">typescript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webApi/">webApi</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpack/">webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/代码规范/">代码规范</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/前端/">前端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/动效/">动效</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图形处理/">图形处理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/安全/">安全</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/小程序/">小程序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/工具/">工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/工程/">工程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/微前端/">微前端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/思维逻辑/">思维逻辑</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/性能/">性能</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/架构/">架构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/概念/">概念</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/浏览器/">浏览器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/用户体验/">用户体验</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/笔记/">笔记</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/编码/">编码</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/网络/">网络</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/网络协议/">网络协议</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/设计模式/">设计模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/调试/">调试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/质量/">质量</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/软件工程/">软件工程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/项目管理/">项目管理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/高并发/">高并发</a></li></ul></div></div><div class="archive-lists widget"><h3 class="widget-title"> Archive</h3><div class="widget-content"><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">November 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/05/">May 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">April 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">December 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">August 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">March 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">September 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">November 2017</a><span class="archive-list-count">5</span></li></ul></div></div></div></div></div><footer><div class="copyright"><div class="container"><div class="col-6"><div class="site-info">© 2016 - 2023 <a href="http://blog.michealwayne.cn">Micheal Wayne</a></div></div><div class="col-6"><div class="site-contact"><div class="social-links"><ul><li class="social-link"><a href="http://github.com/MichealWayne" target="_blank" class="link-github"><i class="icon icon-github"></i></a></li><li class="social-link"><a href="mailto:michealwayne@163.com" target="_self" class="link-mail"><i class="icon icon-mail"></i></a></li></ul></div></div></div></div></div></footer><a class="scroll-up"><span class="icon icon-up"></span></a><script src="https://code.jquery.com/jquery-3.1.0.min.js"></script><script src="/js/posfixed.js"></script><script src="/js/utils.js"></script><script src="/js/search.js"></script></body></html>

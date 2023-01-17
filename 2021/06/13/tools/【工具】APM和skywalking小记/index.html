@@ -1,0 +1,478 @@
+<!DOCTYPE html><html><head><meta name="generator" content="Hexo 3.9.0"><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> 【工具】APM和SkyWalking小记 | Wayne的博客</title><meta name="description" content="【工具】APM和SkyWalking小记 - Micheal Wayne"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/scss/casual.css"><link rel="stylesheet" href="/css/icon.css"><link rel="search" type="application/opensearchdescription+xml" href="http://blog.michealwayne.cn/atom.xml" title="Wayne的博客"></head><script>(function (w) {w.frontjsConfig={token:"81a82620fb0dca7680f2f06be134fa4f",behaviour:8,FPSThreshold:10};w.frontjsTmpData = {r:[],e:[],l:[]};w.frontjsTmpCollector = function (ev) {(ev.message ? window.frontjsTmpData.e : window.frontjsTmpData.r).push([new Date().getTime(), ev])};w.FrontJS = {addEventListener: function (t, f) {w.frontjsTmpData.l.push([t, f]);return f;},removeEventListener: function (t, f) {for (var i = 0; i < w.frontjsTmpData.l.length; i++) {t === w.frontjsTmpData.l[i][0] && f === w.frontjsTmpData.l[i][1] && w.frontjsTmpData.l.splice(i, 1);}return f;}};w.document.addEventListener("error", w.frontjsTmpCollector, true);w.addEventListener("error", w.frontjsTmpCollector, true);w.addEventListener("load", function () {var n = w.document.createElement("script");n.src = "https://frontjs-static.pgyer.com/dist/current/frontjs.web.min.js"; w.document.body.appendChild(n);}, true);})(window);</script><body><div class="header"><header class="site-header"><div class="site-nav"><span class="button-toggle"></span><div class="container"><div class="nav-item"><a href="/" target="_self" data-text="home">Home</a></div><div class="nav-item"><a href="/archives" target="_self" data-text="archive">Archive</a></div><div class="nav-item"><a href="/about" target="_self" data-text="about">About</a></div></div><form id="search-form" class="nav-item"><input type="text" id="local-search-input" name="q" results="0" placeholder="search" autocomplete="off" autocorrect="off" class="search form-control"><span onclick="resetSearch()" class="fa fa-times"> </span></form><div id="local-search-result"></div><p class="no-result">No results found</p></div></header></div><div class="main"><div class="container"><div class="content"><div class="post"><article class="post-block"><h1 class="post-title">【工具】APM和SkyWalking小记</h1><span class="post-date">Jun 13, 2021</span><span class="post-tag"><a href="/tags/工具/">工具</a><a href="/tags/skywalking/">skywalking</a><a href="/tags/APM/">APM</a></span><img src="/images/skywalking/i-logo.png" class="bgimage"><div class="post-content"><h1 id="APM和SkyWalking小记"><a href="#APM和SkyWalking小记" class="headerlink" title="APM和SkyWalking小记"></a>APM和SkyWalking小记</h1><h2 id="APM"><a href="#APM" class="headerlink" title="APM"></a>APM</h2><p>APM，Application Performance Management，应用性能管理系统。是对企业的应用系统进行实时监控，实现对应用性能管理和故障定位的系统化解决方案。开源产品：美团的 CAT、Twitter 的 Zipkin，韩国开源的 Pinpoint 和国人开源的 SkyWalking 等。大多数会自研，如阿里的<a href="https://www.infoq.cn/article/kMPZTgJqs7VJC5vkVCR2/" target="_blank" rel="noopener">鹰眼</a>，Google 的 <a href="https://static.googleusercontent.com/media/research.google.com/zh-CN//archive/papers/dapper-2010-1.pdf" target="_blank" rel="noopener">Dapper</a> 等。</p>
+<ul>
+<li><a href="https://github.com/dianping/cat" target="_blank" rel="noopener">CAT</a>：基于 Java 语言开发，目前支持 Java、C/C++、Nodejs、Python、Go 等语言的客户端，监控数据会全量统计。主要用户：美团点评、携程、拼多多等。CAT 需要开发人员手动在应用程序中埋点，对代码侵入性比较强；</li>
+<li><a href="https://zipkin.io/" target="_blank" rel="noopener">Zipkin</a>：基于 Java 语言开发。侵入性相对于 CAT 要低一点，需要对 web.xml 等相关配置文件进行修改，但依然对系统有一定的侵入性。Zipkin 可以轻松与 Spring Cloud 进行集成，也是 Spring Cloud 推荐的 APM 系统。</li>
+<li><a href="https://app.pinpoint.com/" target="_blank" rel="noopener">PinPoint</a>：运用了字节码增强技术，只需要在启动时添加启动参数即可实现 APM 功能，对代码无侵入。目前支持 Java 和 PHP 语言，底层采用 HBase 来存储数据，探针收集的数据粒度非常细，但性能损耗较大，因其出现的时间较长，完成度较高，文档丰富，因此应用的公司较多。</li>
+<li><a href="https://skywalking.apache.org/" target="_blank" rel="noopener">SkyWalking</a>：国人开源，数据存储支持 MySQL、ElasticSearch 等。与 PinPoint 相同，Java 探针采用字节码增强技术实现，对业务代码无侵入。探针采集数据粒度相较于 Pinpoint 较粗，但性能表现优秀。SkyWalking 支持很多框架，比如 Dubbo、gRPC、SOFARPC 等。</li>
+</ul>
+<p>SkyWalking 的优势：</p>
+<ul>
+<li>1.支持 Java、.Net、Nodejs 等多款语言的探针，还提供多种开源框架的插件，例如 Dubbo、gRPC、SOFARPC 等；</li>
+<li>2.基于 OpenTracing 规范，专门为微服务架构以及云原生架构而设计的，2019 年从 Apache 基金会孵化器毕业成为定级项目；</li>
+<li>3.SkyWalking 没有企业束缚，社区活跃，增长势头强劲；</li>
+<li>4.使用面广，比如腾讯、阿里云、华为、滴滴、电信等；</li>
+<li>5.是国人开源的（2012 年到 2015 年，吴晟因参与中国联通的首个全国集中系统，饱受分布式系统错误定位的困扰，决定着手建立 SkyWalking 这个项目。2017 年年底，SkyWalking 作为中国的个人项目社区加入 Apache 孵化器），中文文档齐全；</li>
+<li>6.有很多开发者持续不断地向社区提供插件，<a href="https://skywalking.apache.org/docs/" target="_blank" rel="noopener">https://skywalking.apache.org/docs/</a>。</li>
+</ul>
+<h3 id="SkyWalking-典型案例"><a href="#SkyWalking-典型案例" class="headerlink" title="SkyWalking 典型案例"></a>SkyWalking 典型案例</h3><ul>
+<li><p><a href>https://github.com/apache/skywalking-website/blob/master/data/homepage.yml</a></p>
+</li>
+<li><p>拉勾网：</p>
+<ul>
+<li>SkyWalking 正在观测超过 100 个服务，500 多个 JVM 实例</li>
+<li>SkyWalking 每天收集和分析 40 多亿个跟踪数据，用来分析性能，其中包括 30 万个端点和依赖关系的指标</li>
+<li>在整个群集中监控&gt;50k 流量/秒</li>
+</ul>
+</li>
+<li>永辉超市<ul>
+<li>SkyWalking 每天分析至少 100 多亿（3B）的跟踪数据</li>
+<li>其次，SkyWalking 用较小的部署，每天分析 2 亿多个跟踪数据</li>
+</ul>
+</li>
+<li>百度<ul>
+<li>SkyWalking 每天从 1400 多个 pod 中，从 120 多个服务收集 1T 以上的跟踪数据</li>
+<li>随着更多服务的增加，规模会持续增大</li>
+</ul>
+</li>
+<li>贝壳找房(ke.com)<ul>
+<li>很早就使用了 SkyWalking，有两名成员已经成为 PMC</li>
+<li>Deployments 每天收集 160 多亿个跟踪数据</li>
+</ul>
+</li>
+<li>阿里云效<ul>
+<li>SkyWalking 每天收集和分析数十亿个 span</li>
+<li>SkyWalking 使阿里云的 45 项服务和~300 个实例保持稳定</li>
+</ul>
+</li>
+<li>阿里巴巴天猫<ul>
+<li>SkyWalking 个性化定制版，每天监控数十亿跟踪数据</li>
+<li>与此同时，他们基于 SkyWalking 的 Agent 技术栈，利用其跟踪和上下文传播能力，正在构建一个全链路压测平台</li>
+</ul>
+</li>
+</ul>
+<h3 id="SkyWalking-Web-功能"><a href="#SkyWalking-Web-功能" class="headerlink" title="SkyWalking Web 功能"></a>SkyWalking Web 功能</h3><p>对于 Web 侧来说，我们主要需要的是 SkyWalking 的全链路和 OAP 功能。</p>
+<ul>
+<li>1.Ajax 全链路追踪。符合 OpenTracing 的请求全链路追踪。</li>
+<li>2.上报 Performance 性能信息。包含 DNS、DOMReady 等 permance 信息及 FMP 等业务统计时间。<ul>
+<li>redirectTime: 重定向时间</li>
+<li>dnsTime: DNS 解析时间</li>
+<li>ttfbTime: 首个资源响应时间</li>
+<li>tcpTime: TCP 连接时间</li>
+<li>transTime: HTTP 应答时间</li>
+<li>domAnalysisTime: DOM 解析时间</li>
+<li>fptTime: 白屏时间</li>
+<li>domReadyTime: DOM 完成时间</li>
+<li>loadPageTime: 页面加载时间</li>
+<li>resTime: 页面同步资源加载时间</li>
+<li>sslTime: HTTPS 的 SSL 通信时间</li>
+<li>ttlTime: 交互时间</li>
+<li>firstPackTime: 第一个包的时间</li>
+<li>fmpTime: 首屏/重要内容加载时间</li>
+</ul>
+</li>
+<li>3.上报异常信息。<ul>
+<li>js error: JS 异常</li>
+<li>promise error: 全局 Promise 异常捕获</li>
+<li>css/js/link resources error: 资源异常</li>
+<li>vue errorHandler: Vue 异常捕获</li>
+</ul>
+</li>
+</ul>
+<h2 id="js-sdk-skywalking-client-js"><a href="#js-sdk-skywalking-client-js" class="headerlink" title="js-sdk(skywalking-client-js)"></a>js-sdk(skywalking-client-js)</h2><ul>
+<li>基本信息：<strong>ts 项目，业务依赖：js-base64。压缩后 js 大小 33.4k。</strong></li>
+<li>功能：注册并触发上报前端性能、异常、片段、请求 trace 数据。</li>
+</ul>
+<h3 id="模式介绍"><a href="#模式介绍" class="headerlink" title="模式介绍"></a>模式介绍</h3><p><img src="/images/skywalking/p-sw_structure.jpg" alt="p-sw_structure.jpg"></p>
+<p>整个架构，分成上、下、左、右四部分：（考虑到让描述更简单，这里舍弃掉 Metric 指标相关，而着重在 Tracing 链路相关功能。）</p>
+<ul>
+<li>上部分 Agent ：负责从应用中，收集链路信息，发送给 SkyWalking OAP 服务器。目前支持 SkyWalking、Zikpin、Jaeger 等提供的 Tracing 数据信息。而我们目前采用的是，SkyWalking Agent 收集 SkyWalking Tracing 数据，传递给服务器。</li>
+<li>下部分 SkyWalking OAP ：负责接收 Agent 发送的 Tracing 数据信息，然后进行分析(Analysis Core) ，存储到外部存储器( Storage )，最终提供查询( Query )功能。</li>
+<li>右部分 Storage ：Tracing 数据存储。目前支持 ES、MySQL、Sharding Sphere、TiDB、H2 多种存储器。而我们目前采用的是 ES ，主要考虑是 SkyWalking 开发团队自己的生产环境采用 ES 为主。</li>
+<li>左部分 SkyWalking UI ：负责提供控台，查看链路等等。</li>
+</ul>
+<h3 id="使用方式"><a href="#使用方式" class="headerlink" title="使用方式"></a>使用方式</h3><h4 id="1-引用-skywalking-client-js（v0-5-1）"><a href="#1-引用-skywalking-client-js（v0-5-1）" class="headerlink" title="1.引用 skywalking-client-js（v0.5.1）"></a>1.引用 skywalking-client-js（v0.5.1）</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ES6 module</span></span><br><span class="line"><span class="keyword">import</span> ClientMonitor <span class="keyword">from</span> <span class="string">"skywalking-client-js"</span>;</span><br></pre></td></tr></table></figure>
+<p>或直接引入打包后的 js</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"./js/skywalking-client-js"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<h4 id="2-注册"><a href="#2-注册" class="headerlink" title="2.注册"></a>2.注册</h4><p>注册方式 1：自动上报，<code>ClientMonitor.register(options)</code></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">ClientMonitor.register(&#123;</span><br><span class="line">  collector: <span class="string">"http://127.0.0.1:8080"</span>, <span class="comment">// 采集器</span></span><br><span class="line">  service: <span class="string">"test-ui"</span>, <span class="comment">// 服务标识</span></span><br><span class="line">  pagePath: <span class="string">"/current/page/name"</span>, <span class="comment">// 服务路径</span></span><br><span class="line">  serviceVersion: <span class="string">"v1.0.0"</span>, <span class="comment">// 服务版本信息</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>注册方式 2：手动上报，<code>ClientMonitor.setPerformance(options)</code>。注意手动上报需要将注册 SDK 的<code>autoTracePerf</code>参数改为<code>false</code>。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">ClientMonitor.setPerformance(&#123;</span><br><span class="line">  collector: <span class="string">"http://127.0.0.1:8080"</span>,</span><br><span class="line">  service: <span class="string">"browser-app"</span>,</span><br><span class="line">  serviceVersion: <span class="string">"1.0.0"</span>,</span><br><span class="line">  pagePath: location.href,</span><br><span class="line">  useFmp: <span class="literal">true</span>,</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>两者的区别在于：自动上报会根据 options 直接修改 ajax 请求方法（XMLHttpRequest、fetch），根据参数注册错误监听事件；而手动上报只会上报性能信息。</p>
+<h3 id="上报流程"><a href="#上报流程" class="headerlink" title="上报流程"></a>上报流程</h3><p><img src="/images/skywalking/p-chain.png" alt="p-chain.png"></p>
+<p>自动上报模式下，默认配置会执行以下流程：</p>
+<ul>
+<li>1.页面初始化，注册事件。执行到 skyWalking-client-js 时，此 js 会开始根据配置参数注册各种事件监听，比如 addListener error。</li>
+<li>2.判断 document Complete 状态，确定 performance 上报机制。如果执行 skyWalking-client-js 时 document.readyState 状态已经是’complete’（即 document 加载完成，并且所有 resource 都加载完毕）时，则直接记录 performance 信息；如果不是，则注册 window load 事件，触发事件时记录 performance 信息。</li>
+<li>3.判断是否记录 FMP （first meaningful paint）信息。如果设置里开启了 FMP 的记录，则根据首屏节点及媒体元素信息进行 FMP 计算。最后 6 秒后发出性能信息上报。</li>
+<li>4.判断是否开启了 SPA 的判断开关。如果开启，则在发生路由变化时（hash change 事件）进行性能上报。</li>
+<li>5.根据配置参数注册 error、unload 等事件监听。至此页面初始化的 SDK 逻辑执行完成。</li>
+<li>6.当触发注册事件时，上报对应信息。</li>
+</ul>
+<h3 id="default-custom-options"><a href="#default-custom-options" class="headerlink" title="default/custom options"></a>default/custom options</h3><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>格式</th>
+<th>默认值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>collector</td>
+<td>string</td>
+<td>location.origin</td>
+<td>采集器</td>
+</tr>
+<tr>
+<td>pagePath</td>
+<td>string</td>
+<td>‘’</td>
+<td>路径/路由地址</td>
+</tr>
+<tr>
+<td>jsErrors</td>
+<td>boolean</td>
+<td>true</td>
+<td>是否采集 js 错误</td>
+</tr>
+<tr>
+<td>apiErrors</td>
+<td>boolean</td>
+<td>true</td>
+<td>是否采集 api 错误</td>
+</tr>
+<tr>
+<td>resourceErrors</td>
+<td>boolean</td>
+<td>true</td>
+<td>是否采集资源错误</td>
+</tr>
+<tr>
+<td>autoTracePerf</td>
+<td>boolean</td>
+<td>true</td>
+<td>是否采集性能信息</td>
+</tr>
+<tr>
+<td>useFmp</td>
+<td>boolean</td>
+<td>false</td>
+<td>是否采集首批加载信息</td>
+</tr>
+<tr>
+<td>enableSPA</td>
+<td>boolean</td>
+<td>false</td>
+<td>是否考虑 SPA 场景</td>
+</tr>
+<tr>
+<td>vue</td>
+<td>any</td>
+<td>false</td>
+<td>是否考虑 vue 全局异常捕获（需要打开 jsErrors）</td>
+</tr>
+<tr>
+<td>traceSDKInternal</td>
+<td>boolean</td>
+<td>false</td>
+<td>是否为自定义 trace SDK。true，则 trace 的实现由自己实现；false，则用 sw8 的默认 trace。</td>
+</tr>
+<tr>
+<td>detailMode</td>
+<td>boolean</td>
+<td>true</td>
+<td>是否开启详细模式，开启则可以添加 tags 标签（默认有 http.method 和 url 两个 tags）；否则不开启 tags 标签</td>
+</tr>
+<tr>
+<td>noTraceOrigins</td>
+<td>(string 或 RegExp)</td>
+<td><code>[]</code></td>
+<td>trace 过滤器</td>
+</tr>
+</tbody>
+</table>
+<h4 id="默认上传信息"><a href="#默认上传信息" class="headerlink" title="默认上传信息"></a>默认上传信息</h4><ul>
+<li>1.performance 性能信息，默认上传（6 秒后），没有队列机制</li>
+<li>2.error 信息，默认上传（60 秒后），没有队列机制</li>
+<li>3.页面生命周期中，每隔 300 秒发送片段信息；</li>
+<li>4.页面 unload 发送片段信息。</li>
+</ul>
+<h4 id="涉及接口"><a href="#涉及接口" class="headerlink" title="涉及接口"></a>涉及接口</h4><ul>
+<li>ERROR: 单个异常，<code>POST /browser/errorLog</code></li>
+<li>ERRORS: 队列异常，<code>POST /browser/errorLogs</code></li>
+<li>PERF: 性能上报，<code>POST /browser/perfData</code></li>
+<li>SEGMENT: 片段信息，<code>POST /v3/segment</code></li>
+<li>SEGMENTS: 定时片段信息，<code>POST /v3/segments</code></li>
+</ul>
+<h3 id="performance-性能上报"><a href="#performance-性能上报" class="headerlink" title="performance 性能上报"></a>performance 性能上报</h3><ul>
+<li><code>POST /browser/perfData</code><ul>
+<li>post Params: <code>{Object}</code></li>
+</ul>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>格式</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>redirectTime</td>
+<td>number 或 undefined</td>
+<td>Time of redirection</td>
+</tr>
+<tr>
+<td>dnsTime</td>
+<td>number 或 undefined</td>
+<td>DNS query time</td>
+</tr>
+<tr>
+<td>ttfbTime</td>
+<td>number 或 undefined</td>
+<td>Time to First Byte</td>
+</tr>
+<tr>
+<td>tcpTime</td>
+<td>number 或 undefined</td>
+<td>Tcp connection time</td>
+</tr>
+<tr>
+<td>transTime</td>
+<td>number 或 undefined</td>
+<td>Content transfer time</td>
+</tr>
+<tr>
+<td>domAnalysisTime</td>
+<td>number 或 undefined</td>
+<td>Dom parsing time</td>
+</tr>
+<tr>
+<td>fptTime</td>
+<td>number 或 undefined</td>
+<td>First Paint Time or Blank Screen Time</td>
+</tr>
+<tr>
+<td>domReadyTime</td>
+<td>number 或 undefined</td>
+<td>Dom ready time</td>
+</tr>
+<tr>
+<td>loadPageTime</td>
+<td>number 或 undefined</td>
+<td>Page full load time</td>
+</tr>
+<tr>
+<td>resTime</td>
+<td>number 或 undefined</td>
+<td>Synchronous load resources in the page</td>
+</tr>
+<tr>
+<td>sslTime</td>
+<td>number 或 undefined</td>
+<td>Only valid for HTTPS</td>
+</tr>
+<tr>
+<td>ttlTime</td>
+<td>number 或 undefined</td>
+<td>Time to interact</td>
+</tr>
+<tr>
+<td>firstPackTime</td>
+<td>number 或 undefined</td>
+<td>first pack time</td>
+</tr>
+<tr>
+<td>fmpTime</td>
+<td>number 或 undefined</td>
+<td>First Meaningful Paint 依赖于资源图片的 load</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>性能上报默认在 js-sdk 代码执行 6s 后发送（setTimeout）</p>
+</blockquote>
+<h3 id="Error-异常信息"><a href="#Error-异常信息" class="headerlink" title="Error 异常信息"></a>Error 异常信息</h3><h4 id="异常采集内容"><a href="#异常采集内容" class="headerlink" title="异常采集内容"></a>异常采集内容</h4><ul>
+<li>ajax</li>
+<li>promise error</li>
+<li>js error</li>
+<li>css/js/link resources error</li>
+<li>vue errorHandler</li>
+</ul>
+<h4 id="上报接口"><a href="#上报接口" class="headerlink" title="上报接口"></a>上报接口</h4><ul>
+<li><code>POST</code>: <code>/browser/errorLogs</code><ul>
+<li>post Params: Array，ArrayItem：</li>
+</ul>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>格式</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>uniqueId</td>
+<td>string</td>
+<td>唯一标识符</td>
+</tr>
+<tr>
+<td>category</td>
+<td>string</td>
+<td>类型</td>
+</tr>
+<tr>
+<td>grade</td>
+<td>string</td>
+<td>级别</td>
+</tr>
+<tr>
+<td>message</td>
+<td>any</td>
+<td>信息</td>
+</tr>
+<tr>
+<td>errorUrl</td>
+<td>string</td>
+<td>错误地址</td>
+</tr>
+<tr>
+<td>line?</td>
+<td>number</td>
+<td>行数</td>
+</tr>
+<tr>
+<td>col?</td>
+<td>number</td>
+<td>列数</td>
+</tr>
+<tr>
+<td>stack?</td>
+<td>string</td>
+<td>堆栈信息</td>
+</tr>
+<tr>
+<td>firstReportedError</td>
+<td>boolean</td>
+<td>是否第一次报告</td>
+</tr>
+</tbody>
+</table>
+<p>其中 grade：</p>
+<ul>
+<li>默认：Info</li>
+<li>资源错误：Warning</li>
+<li>异常：Error</li>
+</ul>
+<h3 id="ajax-全链路"><a href="#ajax-全链路" class="headerlink" title="ajax 全链路"></a>ajax 全链路</h3><p>js-sdk 会重写 XMLHttpRequest 和 fetch API，后续所有接口均带入 trace 信息。</p>
+<h4 id="3-trace-提交信息"><a href="#3-trace-提交信息" class="headerlink" title="3.trace 提交信息"></a>3.trace 提交信息</h4><p>默认请求 header 增加 sw8 字段，即 base64 处理后的 traceID。格式：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$&#123;1&#125;-$&#123;traceIdStr&#125;-$&#123;segmentId&#125;-$&#123;index&#125;-$&#123;service&#125;-$&#123;instance&#125;-$&#123;endpoint&#125;-$&#123;peer&#125;</span><br></pre></td></tr></table></figure>
+<p>其中：</p>
+<ul>
+<li>traceIdStr：String，随机 traceID，uuid 生成规则；</li>
+<li>segmentId：String，随机 segmentId，uuid 生成规则；</li>
+<li>index：String，当前 spans 的数量；</li>
+<li>service：String，segment 的服务；</li>
+<li>instance：String，segment 的服务实例；</li>
+<li>endpoint：String，segment 的路径地址；</li>
+<li>peer：String，segment 的 host</li>
+</ul>
+<h4 id="4-追踪"><a href="#4-追踪" class="headerlink" title="4.追踪"></a>4.追踪</h4><p>可通过解码 base64，拿到 traceIdStr 并在 SkyWalking UI 的日志模块上查询链路信息，</p>
+<p>上报的 traceIdStr 为<code>MDQ3YTNhYWMtZWY0MS00M2U0LWI0ZTYtNWVkZDY1ZTIzNjM4</code>，解码后得<code>047a3aac-ef41-43e4-b4e6-5edd65e23638</code>。然后可以在RocketBot平台进行查询。</p>
+<h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><h4 id="1-uuid"><a href="#1-uuid" class="headerlink" title="1.uuid"></a>1.uuid</h4><p>依赖<code>Math.ramdon()</code>生成</p>
+<h4 id="2-service"><a href="#2-service" class="headerlink" title="2.service"></a>2.service</h4><p>ServiceTag: <code>&lt;browser&gt;</code></p>
+<h4 id="3-SPA-应用"><a href="#3-SPA-应用" class="headerlink" title="3.SPA 应用"></a>3.SPA 应用</h4><p>如果要处理 SPA，区分各路由页面的话。可以在注册的时候开启 enableSPA 设置。并通过路由监听并动态设置服务。如：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// route change</span></span><br><span class="line">ClientMonitor.setPerformance(&#123;</span><br><span class="line">  pagePath: location.hash.replace(<span class="string">"#"</span>, <span class="string">""</span>),</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h4 id="4-上报接口的异常处理"><a href="#4-上报接口的异常处理" class="headerlink" title="4.上报接口的异常处理"></a>4.上报接口的异常处理</h4><p>在请求上报接口时，当出现以下情况时，js-sdk 会认为 report 失败，但不会做出业务处理：</p>
+<ul>
+<li>XMLHttpRequest: 不满足<code>xhr.readyState === 4 &amp;&amp; xhr.status &lt; 400</code></li>
+<li>Fetch API: <code>response.status &gt;= 400 || response.status === 0</code></li>
+</ul>
+<h4 id="5-采集丢失风险"><a href="#5-采集丢失风险" class="headerlink" title="5.采集丢失风险"></a>5.采集丢失风险</h4><p>所有的上报都采用了定时和队列机制，存在页面销毁但队列未清空上报的风险。</p>
+<ul>
+<li>onbeforeunload: report Segments; queues.length: report ERRORS</li>
+<li>tasks.length: report ERRORS</li>
+</ul>
+<h3 id="业务使用分析"><a href="#业务使用分析" class="headerlink" title="业务使用分析"></a>业务使用分析</h3><h4 id="需要调整内容"><a href="#需要调整内容" class="headerlink" title="需要调整内容"></a>需要调整内容</h4><ul>
+<li><p>uuid 和 tradeID 规则：</p>
+</li>
+<li><p>异常信息字符长度：</p>
+</li>
+<li><p>考虑 Vue 异常全局捕获的业务适配</p>
+</li>
+<li><p>FMP 的兼容问题</p>
+<ul>
+<li>用到了 MutationObserver，PC 兼容性</li>
+<li>performance.getEntries，移动端兼容性</li>
+</ul>
+</li>
+<li><p>定时器时间</p>
+<ul>
+<li>pref: 6s，可能过长</li>
+<li>trade fire: 60s</li>
+<li>segments: 30s</li>
+</ul>
+</li>
+<li><p>考虑采集丢失风险:</p>
+<ul>
+<li>借助客户端能力</li>
+<li>直接上报</li>
+</ul>
+</li>
+<li><p>动态加载资源的异常收集：js/css 等</p>
+</li>
+</ul>
+<h4 id="定制化方案技术可行性"><a href="#定制化方案技术可行性" class="headerlink" title="定制化方案技术可行性"></a>定制化方案技术可行性</h4><ul>
+<li>请求发送自定义字段：默认不支持，会导致服务端警告。方案：<ul>
+<li>1.通过添加自定义 tags</li>
+<li>2.对服务端探针进行修改</li>
+<li>3.使用某一字段然后传 JSON</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="rocketbot-ui"><a href="#rocketbot-ui" class="headerlink" title="rocketbot-ui"></a>rocketbot-ui</h2><ul>
+<li>基本信息：<strong>vue+ts 项目，可视化部门由 echarts 及 d3 实现，自定义 UI。</strong></li>
+<li>该项目目前存在不少 bug，比如日志分页，需要进行改造。</li>
+</ul>
+<h3 id="自定义组件"><a href="#自定义组件" class="headerlink" title="自定义组件"></a>自定义组件</h3><p>包含图标、按钮、日期选择、下拉菜单、选择、进度条等组件；</p>
+<p>如果 APM 使用 Vue 且延续界面风格，可以直接使用。</p>
+<h3 id="使用说明"><a href="#使用说明" class="headerlink" title="使用说明"></a>使用说明</h3><ul>
+<li>日志</li>
+<li>性能信息。主要应用信息：<ul>
+<li>CPM：Cost Per Mille。PV 信息；</li>
+<li>Error Rate；</li>
+<li>Error Count</li>
+<li>Page Error Rate</li>
+<li>Performance</li>
+<li>FPT: First Paint Time or Blank Screen Time</li>
+<li>TTL: time to interact</li>
+<li>DOM Ready time</li>
+<li>Page load time</li>
+<li>Page first pack time</li>
+<li>FMP</li>
+</ul>
+</li>
+</ul>
+<h4 id="定制化方案技术可行性-1"><a href="#定制化方案技术可行性-1" class="headerlink" title="定制化方案技术可行性"></a>定制化方案技术可行性</h4><ul>
+<li>数据层：接口是 GraphQL 的形式，可按需查询；</li>
+<li>视图层：如果沿用 UI 风格，可以基于 rocketbot-ui 继续开发；如果考虑适配多平台应用的话，适配难度低；重新开发平台成本也较低。</li>
+</ul>
+<blockquote>
+<p>单从 web 侧来说，js-sdk 和 rocketbot-ui 目前还是存在一些问题的，所以在业务侧最好进行修改。</p>
+</blockquote>
+<hr>
+<h4 id="相关链接"><a href="#相关链接" class="headerlink" title="相关链接"></a>相关链接</h4><ul>
+<li><a href="https://skywalking.apache.org/" target="_blank" rel="noopener">https://skywalking.apache.org/</a></li>
+<li><a href="https://storage.googleapis.com/pub-tools-public-publication-data/pdf/36356.pdf" target="_blank" rel="noopener">《Dapper, a Large-Scale Distributed Systems Tracing Infrastructure》</a></li>
+<li>(《SkyWalking 8.2.0 中的新特性: 浏览器端监控; 使用标签查询; 指标分析语言》)[<a href="https://skywalking.apache.org/zh/2020-10-29-skywalking8-2-release/]" target="_blank" rel="noopener">https://skywalking.apache.org/zh/2020-10-29-skywalking8-2-release/]</a></li>
+<li><a href="https://skywalking.apache.org/zh/2019-03-29-introduction-of-skywalking-and-simple-practice/" target="_blank" rel="noopener">《SkyWalking 调研与初步实践》</a></li>
+<li><a href="https://opentracing.io/" target="_blank" rel="noopener">https://opentracing.io/</a></li>
+</ul>
+</div></article></div><div class="post-paginator"><div class="post-links"><div class="post-prev"><a href="/2021/07/23/notes/【笔记】《高并发系统设计40问》/" class="prev">Previous Post<span>【笔记】《百亿级并发系统设计》和《高并发系统设计 40 问》</span></a></div><div class="post-next"><a href="/2021/05/03/tools_study/【工具】界面引导库driverjs/" class="next">Next Post<span>【工具】界面引导库driverjs</span></a></div></div></div></div><div class="sidebar"><div class="social-links"><ul><li class="social-link"><a href="http://github.com/MichealWayne" target="_blank" class="link-github"><i class="icon icon-github"></i></a></li><li class="social-link"><a href="mailto:michealwayne@163.com" target="_self" class="link-mail"><i class="icon icon-mail"></i></a></li></ul></div><div class="recent-posts widget"><h3 class="widget-title"> Recent Posts</h3><div class="widget-content"><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2023/01/15/notes/【笔记】StateOfJs2022中的ES语言特性/">【笔记】State Of Js2022中的ES语言特性</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/02/notes/【笔记】《演进式架构》（三）/">【笔记】《演进式架构》学习笔记（三）</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/12/17/notes/【笔记】《演进式架构》（二）/">【笔记】《演进式架构》学习笔记（二）</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/12/10/notes/【笔记】《演进式架构》（一）/">【笔记】《演进式架构》学习笔记（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/11/19/typescript/浅谈TypeScript的图灵完备性/">浅谈TypeScript的图灵完备性</a></li></ul></div></div><div class="recent-comment widget"><h3 class="widget-title"> Author</h3><div class="widget-content"><div class="m-author"><div class="u-avatar"><img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAgAAZABkAAD/7AARRHVja3kAAQAEAAAAQgAA/+4ADkFkb2JlAGTAAAAAAf/bAIQABQMDAwQDBQQEBQcFBAUHCAYFBQYICggICAgICgwKCwsLCwoMDAwMDAwMDA8PEBAPDxYVFRUWGBgYGBgYGBgYGAEFBgYKCQoTDAwTFBEOERQYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgY/8AAEQgB7gH+AwERAAIRAQMRAf/EAIwAAQAABwEAAAAAAAAAAAAAAAABAgMEBQcIBgEBAAAAAAAAAAAAAAAAAAAAABAAAQMDAQQGBQcIBwYHAQAAAAECAxEEBQYhMUESUWGBMhMHcZGhIhSxQlJicoIIwdHxkqKyIxXwwtIzQ1Mk4XODo7MWYzREVJRVFxgRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/AOywAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABCv+wCIFldZzDWj+S6vreF30ZZmMX2qgFrcaz0rB38lbr/ALuRJP3OYC2//Q9H8yN/mDar/wCHJT90Cu3W+lHd3JQL6XU/IBcRam09J3Mjar/xmIvygXsVzbzJWGRkifUci/IBPVezgu0CIAAAAAAAAAAAAAAAAAAhzIiVVfSB5rUXmJg8Sjo43fGXaJ/dQqitRfrP3NAjoXNZfM2tzk71WNifJ4drAxKI1GJ7y1XatVXiB6UAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlVVTjwrXgBhstrfTWN5m3F4x0yVTwYf4j6pwVG1Rv3qAeWyXnHXmZjbGvRLcu3eljP7QHnch5javu1enxSW8bt8UDEby+h1Ff7QMLeZLIXtPjLmW5pu8aR0n7yqBb0Stabenj6wFEAUALt37fSAonQBFrnNdVqqi9SgZKz1VqO0p4GQnaifNdIr2+p1UAzmP82NTQJS5bDds4uczkX1so32Aelxfm1g7hKX0Utm5G8yuosrN/LvaiO/ZA9FjtT4DII34S+hkc7czmRr/wBV1HewDI8ydnSBEAAAAAAAAAAhVQLW/wAtj7CPxL25it2dMj0b6q7VA8pl/NvD2/MzHRPvJOEip4cXrX3v2QPEZvW2osvVtxOsNvxghqxiemi8zu1QMNDC+WVsUTeZ73I1jU38y8AN74HFsxmHtbBv+AxGuVOLt6r2qBfgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUp7qC3hdNcSNiibtdI9Ua1E61UDxud82MXbK6HGRuu5u74rvciRemned2IB4bNaw1HluZtzcvbA9P/LxVZHy9CtSiu++qgYOa4ghSssjWcf4ionyqBZTakwUXeuWu+x7/AMiKBav1nhWd1JXdbWIn71AKTtdY75sEq9if2gJf++rD/wBtN62gTN11jF70M6djfzgVotZ4V+9Xs+0xV/dVQLyHUOEm7l1H95VZ+8BeRyxyN5ono9nS1UVPlAm28aIvWoABRNvWAogBaLwT1IBkLHUeesURLS+niY3cxJHcn6qqrfYBnrPzW1TCrUmWC5Tir2crv+XyoBm7PzjtlWl3jpI/rRSNf+y5GKBlbXzS0lK2skstv/vYnL/0+YDJQ610pN3MlAn+8d4f76IBX/7n03/9nZ//ACI/7QEkmrdMM35O1+7Mx3yKoFpL5g6Qi71+x32Gvf8AutUDHXPmzpmLZG24md9WNGp63OQDD33nHcqipZWDG9D55Of9llP3gPP5HzC1be7Fu/h413Mt2+GifeT3/aBgZZZZZFkle6SR3ee9Vcq9qgSgOxAPW+V2C+Ozvxsjf9PYoj6ruWR2xier3gNtgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlc6m3d2AeT1P5l4vGc9vYct9epsdyu/gxr9ZyVqvUnaqAam1R5greTuflL5JXIq8lrH7zGou5qMTZ6wPKXmun7WWduiNT58q/1WgYe61Dmbhf4ly5qL8xi8nrpQDHukRy1c5V9LkAl8aP6SfrIA8WL6TfWgEzXMXcte1AHt9QEfSoEFSu8ABPHLJG7mjcrHdLVovsAyFrqjNQLRLlZG/RmTnT1rVQMxZa7Yvu3lvRfpxKv7qgZuxzWMvafDzNc5fmKvK/1KBe06fYn5wIAAFEpTgAogBNgAAA2dCeoAAAca8QFE6AAACLWPe5rWoqucqI1qbVVV4Abt0dgG4XBw2rkT4h/wDEuF+u7aqfd3AZoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALPKZfH4uzdd387YIGb3O4r0IiVqoGkvMLz0bO6WzsJFZaNVyKkTla6RvBXv+j9VANT5TW19eczVkVIuEMWxvoVd6oBh3ZOZe41E3V276dPSBRdd3KpTnVE6EonyAU3Pe7vOVfSoEoCidACidAACdssrdzl9YFSO/uG7nc3Yn5gK8eTf89n6v8AtArR5C2f86i9CgVkc1UqioqdW35AJurgAqAqvTT0AZXHarytp7qv8eH/AC5Kr7d4HpMfq3FXLUSV3w0v0ZO7+sgGYRUVKtVFT6VdnrQAAAAAAAAAAAAAAD2nlhplb3IfzS5b/pLVaQpwfNw/UTaoG1KIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHnNc6+w2ksQ69vnI+d6KlnZo5EfPIid1KI6jU+c5UogHLWufNPVOrL50l/L4Nui1itIu5Gi7qV49YHk1c5e8teO3bt6doCq9KgKgQAAAAAAAAAAAEzJHsWrFVvo2AXUOSemyROZOlN/qAu4bmGVPcXb9Fd4FWiV27ukABD8gF1YZe/sn1tpnNam9m9vqWqAegsddJsbewf8SFf6qgZ6yy2PvURbadr1+hWjvUu32AXSotfzIv5QAAAAAAAAAC9wuIustk4bC1Sr5VRXPTajGcXL1IBu/FYy0xlhDZWzeWKFvKnSq8VX0gV57mGCNZJpGxxt2ue9aNRPSoHlpfNnRzs3b4bH3S5TI3MrYmQ2KeI1tV2uWTZHRqIqr725APXAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPK+YvmNitH4nx51Sa/mRUs7NF96RU+cvQxvFePADmDUOpMzqDKzZTKTrNdSqqcUaxvzWMTZRqdAGByNuqL4zU2OVEcnWnECxAAAAAAAAAAAAAAAAAHGqbF6U2AXUGRkZ7r05m+0C/imjkbzMWqATgQ6esABFFVFqirzJxrt9YGRs9SZi1p4c6vYneZLRyL2qiqBmLXXXC6ttv0onf1V2gZGHV+Dk70qxqvzZGO+VqKBeR5vDv7t3F95yJ8qoBWbeWb+7MxfsvaoE/j2/wBNv6yfnAgtzap3pWJ95PzgUJMtio+9dxfrtX5ALWbVWBjWnxHOv0Y2Od7aAZ3TvnXpnTlhItli7i+yUq/x5ZnsgjRODWKiSup90Cwzf4jdcXrXR4+O1xsa7nRMWWX9aTmb+wB4XM6o1FmZOfK5C4vNtUbNI5zE9DK8qdiAbh/DlolY7abVdy33pua2x1U3RNX+JIiL9Jyctep3BUA3OAAAAAAAAAAAAAAAAAAAAAAAAAAAAB57XOuMZpPByZG9dzyrVlpbIqI6aXg1P6y8AOWNSajyuocxNlcnL4tzOuzfyxsTusYi7kQDHdfECDmo5qtdtauxUAxFzA+KVW/N3ov5AKYAAAAAAAAAAAAAAAAATfXiBMx72O5mrRQL+3yDXbJvdXp4AXSLVK8OkCIAB6AIUQCO0AAAVUCC0XeAAjVaU4dADZ/TqAAZ/QWjb3VWpbfFwo5sCr4t5O2i+FAneX0r83rA6yx+PtLCyhsrWNIra3Y2OGNu5rWpREAuAAAAAAAAAAAAAAAAAAAAAAAAAAAAWOazNhh8ZcZLISpDaWzFkleqV2JwTpcq7EA5V8wNcZDVuoJMjc8zLZlI7O2VapDFWqfed84Dz1V6fXtAAAKVzbpNErV7ybWqBiXNc1ytVKKgEAAAAAAAAAAAAAAAAAABGoFWC6miX3NrfortAvre9il2d13Q4C4XZ+dAAAAAAAAAAAAAmgikuLiOCFjnzSuRkUbUq57l2IjU6eIHUflN5eRaS08jJ2tdl7ukt9K3bReEbV+iwD2gAAAAAAAAAAAAAAAAAAAAAAAAAAAIVUDnbz58xnZnLLgMfLXF2D18d7Fqk1wnWm9sYGsAAAAAAtL625k8Vqe+neb0gY6q7OFN6AAAAAAAAAAAAAAAAAAABECAFeC9mj2d5nQoF9DeQSbK8ruhwFfZSvAAAAAAAAAATdt7FQDe3kT5WPsY2anzUPLdTNRcZbPTbEx3+I5q7nuTu9CdYG46IAAAAAAAAAAAAAAAAAAAAAAAAAAAAB4Hzp16mmdLuhtX0y2S5oLREWixt+fIvoTYnX6FA5kqoAAAAAACAY6/tUjXxG7l3oBaAAAAAAAAAAAAAAAAAAAAAARqBUhu5o0911W9CgXMeU/zG/qgXDby2dufy/aAqI5q7nIvoAmr29igFROkABCvb00VN3WoG3PJbyidk5YtR52FUx0bkksbV6Kizva6qSOT/LRdyceOwDflE6E2bQLbI5jFY2JZsheQWkSfPuJWRN7VeqIBYYLWmms7c3Fvh75l++1Rqzy26OfC3m3J4qN8NV6uatAM0AAAAAAAAAAAAAAAAAAAAAAAAAJJZWxRukkcjI2NVz3O2IiNSqqvUByb5layl1Tqy5yLa/BNcsNjHupAxV5Vou5z1VXAebAAAAAAAAg5qOarXJVF3oBirq1fC9OLF7rukCiAAAAAAAAAAAAAAAAAAAAAAAAAIork3KqehQJ23E7dz3esCdL26Tc/2J+YCb4+66fYgE1vlruG4ZM3ke5jkc1r2tc2rdqVRyKi9oHq5fPTzWlY1iZt8cbURrWxQW8SIibqckTaAYi/8xtfX9Uus9kJGrvZ8VK1n6rXI32AWmCwmc1NnbfF2KPuchdvRrFc5XUT5znuXcxqbVUDsHQOicZpDTkGIsWoqs/iXNxT3ppnd57vSB6AAAAAAAAAAAAAAAAAAAAAAAAAAa38/tXrh9ILjYHUvMsroNi0c2FtPEVPtbGdoHNy7d/pAAAAAAAAAAJZI2SMVjkq1eAGKngfC/lduXur0gUgAAAAAAAAAAAAAAAAAAAAAAAAAAARAgA4UAqW1tcXNxFbW8bpbiZ7Y44mJV7nu3NROIHVfkv5S2+jcSt3fMbJn7xrfiXpRWws4RM9HzncQNjAAAAAAAAAAAAAAAAAAAAAAAAAABy3506o/nuvLzw3K61x1bGDin8JffVPS9VA8UAAAAAAAAAAE2AUp4GzMc1+/wCaoGLlifE9WPSipuAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAnghmmlZDCxZZpFRkcbEVXucu5ETi4DpbyP8k2abhjz2djSTPStrDAu1LNrt6dci8V4cANt8rejq7AIgAAAAAAAAAAAAAAAAAAAAAAAADB651CmA0lkstVEfbQuWCtKLK73I02/XVAOQ3Pc5Vc5VVzlVzlXaqqu9faBAAAAAAAAAAAAQoBTubdkrFa7Yqd1QMXLE+N/K9KKntAkAAAAAAAAAAAAAAAAAAAAAAAAAAC4x2PvsjexWVjA+4u53IyGCJFV7l6k6OlQOmPJ3yOtdKIzL5pGXWoHonhtROaO0Rd7WL8+Tpf6gNq0T8gAAAAAAAAAAAAAAAAAAAAAAAAAAANR/iXzaW+nsdiGLR97cLPIif5cCblTrc9F7ANBAAAAAAAAAAAAAAVApz28czFa5F2JVF3Ki9aqoFhcY67gibPJE9LZ6q1k6tVGOcm9EVURFX5OsC2AAAAAAAAAAAAAAAAAAAAAAAAM/orQWpNW5FLPEwK5jaePeP2QQou5Xu/qptXqA6b8t/KrT+i7FEgb8VlnonxWQen8TbvSNP8NidCbVA9wzlexK8d4E4AAAAAAAAAAAAAAAAAAAAAAAAAAAObvxEZb4zX62lasx1rDCqV2c70WZy+p7U7ANbgAAAAAAAAAAABDbtru4AZzSuh9S6muVhxNo6RjVpLcv9yGP7TtydlV6gN0aO8gNOYvkuc05crftSvI5FZbsd1MrzO+8qge4zGmMDlsJJhr+0ikxr0RqQNbytaqblby0Vqp0toBzh5oeRuc0s+bI4xHZDAp76Sp700DU4Stam1Prt7aAa3Wv6E2V9YAAAAAAAAAAAAAAAAAAAAJ4YZp5mQQMfLPI7kjjY1XOcvQiJVagbg8u/wAOGTv/AA7/AFY51hZr77cfGv8AqHpw513Rt9vTQDfeGwmJw1hHYYu1jtLSLuRRNolV3qvFXL0rtAvP0gVoFTkp0AVQAAAAAAAAAAAAAAAAAAAAAAAAAAAcieYl+t/rvNXSrzNfezsY7pZG/wANn7LUAwIAAAAAAAAAAAmhimmlZDExZJZFRI2RornuVeCNTaoG4PLzyBlk8PI6r5o296PFsdR7k6JXNVafZbResDctjYWNjaR2llAy3tok5YoYmoxrU6ERNwFdarv4AP0gQciORUciKi7FRdyp1oBqjzI/Dxhc06TI6dVmMya+++2VP9NM70J/dr1p7vUBoLUuk9Racvvg8zZSWkqr7ivSrJE6WPSrXJ1pX0AYrbspu4gAAAAAAAAAAAAAAAKltbz3M7Le2jfNO/uxRNVz3ehqVr2VA2boz8OWsMu5k+ZVMLYrtVkqc905OhI0X3fvqi9QG8tFeWOj9JQp/KrVrrulJL6dfEuHL9r5idTaIB6cAAAq2+9QKwAAAAAAAAAAAAAAAAAAAAAAAAAAU55mwwySv7sbXPcvU1KqBxbcTOmnkmk78j1kX0uWqr6wJAAAAAAAAAADJ6Z0tnNRZNuPxUCzTLRXu+ZG3i57tzUTim9eAHRPl95VYHScDZeVt3l3IjZb2RK8ip82JPmp17wPYoiIBEAAAAERE3AWuUxGLytm+zyVtHd2smx0M7Ue307dy9aAao1Z+GPT1851xp68fjpnf+mnrNAvodXxE9bgNY6i8ifMnDOcv8v/AJjCm3xscqz9nh0bL/ywPFXdleWkywXcElvOnejmjcxyfdcgFKi0/LwAgAAAAAABx37Oz5dgFS3t7i4lSKCN0sq92ONqvVexNoHsdP8Akl5l5lUWLFPs4l/xr9Ut0T0tcqyL2NA2Tpn8LeOi5ZdRZN9y5NrrayakTK9CyPq5futQDamnNF6V03F4WGx0NovGVreaV32pHK57u1wGYTZ8nZ0AP0AAAACeFV50AuAAAAAAAAAAAAAAAAAAAAAAAAAAAxeq5vB0tlpq0WOyuX16OWJy/kA46r+YAAAAAAAAAAz+h9C5nVmV+DsW8kDKLc3Tk/hxN41X6XQgHS2kdHYXTGKZj8bEja0dcTOp4kz13uevyJuQDMgAAAAAAAAFVAfpAt7/ABmNyEKw39rDdQrvjnjbI31ORUA8plPJHyvyKq+TCRQvXdJaufBT7sbmt9gHmr78MGg5qutry/tXL3U8SORidixq72gYi4/ClZu22+oHsToks0f8kzQLKT8Kd+ncz8TvtWrk+SVQH/8AKWQ8RW/9wRclfcX4V3MqdPL4oF3b/hQhTbPqFzk6GWaM/emUDL2P4XNExKi3d/kLhyd5rXRRovZ4au9oHo8X5F+VtgqObiG3Eid59zLJLX7rnKz2AesxuGxGMiSLG2cFnGm5lvEyJPUxEAu6bKcE3J0egBwp07+sAAAAAAACaNV8RALkAAAAAAAAAAAAAAAAAAAAAAAAAAMHr9VTQmfVN6Y28/6DwOQgAAAAAAAAGc0RovLarzTMfZN5Ymqj7q5clWQx8VVfkTeB0/pjS+J05iIsbjYvDhjRFe93fkfxe9U3qoGTAAAAAAAAAAAAAAr/AEoAqtKcAACqgPz1AAKJSnDoAVXpAAAAAAAAAAAEY/7xvpoBdAAAAAAAAAAAAAAAAAAAAAAAAAABhtdR+JonOxpvdjbxE7YXgcfgAAAAAAAX2AwOUzmWgxeOi8W7uHI1rdtGpxe5eDE4gdR6I0bjdLYCLG2ac0mx93c0o6aVd7l/MmwDO0Tdw30AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABGP+8T1gXQAAAAAAAAAAAAAAAAAAAAAAAAAAWOdtVusJf2yJVZraaJE6edjm/lA40AAAAAAAa1VcjU2uVUajeNV4AdI+TnlymmsIl9ex0zWQaizo6lYY17sadm1wHvQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJ4kTxEAuAAAAAAAAAAAAAAAAAAAAAAAAAAAUQDjHM2HwOYvbHja3EkCp9h6tAtAAAAAA2h5DaB/m2WdqG/jR2PsHUt2OTZLcU39aRptXhzbOCgb+/ptAAAAAAAAAAAFC+v7GwtZLu9njt7WJFWSaVyMY1E4qq/wBOoDXuW/Ed5b2Ezoon3eQVuxz7SBOROusz4gKmD/ET5bZOdIZZ58dI7urexcrF+9G6RqfeVANhW1zbXMLJ7aVk0MnckjdzNcnU5NigTgAAAAAAAF3dldn5QPE6n87fL3ATOt57/wCLu2d+3sm+MqelyKkaL98DCWf4mvLqaZscsORtmr/iTQRqnqjlkd7ANgaf1Np/P2XxuGvor22RaOfE6qtXoe3Y5i/VciKBkQAAAAAAAJ4O+BcAAAAAAAAAAAAAAAAAAAAAAAAAAAA5T84cauP8yMzGie7NMl0zrS4a2Vf2nKB5IAAAAXmDw97mMva4yzajri7kbFHXr2qq9SN2qB1jpvA2WCwdpirJKW9rGjEdSjnOpV73dbl3gZEAAAAAAAAAApXd3bWdrLd3L0jt4GOllkXutY1KuVeqgHJXmj5m5XWeZe97liw8D1Wxsq+6iL896cXuA8fRKUps3UAUSlKbE3JwA2H5N+bGQ0llorG9kdLp66kayeNy1S2V60SSNF3cvFE2UA6naqOYjmqjkVEVFRaoqLuoAAAAAAABoj8QPm5fR3smksJO6BsNEytzEqo9XqlfCaqbU5U7ypt5vQoGjNgD5OgDK6X1XnNN5eLKYe4dDcRKnPVVVkrE3senFF6wOvNF6rx+qNNWeZsnIrLiNvjxpVFimRqeLGvMibWO2e3cBmQAAAAAAVbdu1VArAAAAAAAAAAAAAAAAAAAAAAAAAAAA0D+JnDeDqLG5Vqe5eWzrd6p9OB9dvpbInqA1IAAAANz/hz0c1UutUXLK77SwrSmxf4z07fd9YG512/IAAAAAAAAAAANe/iEys1j5Y3rIlVrryWG2VU+i96vcnoVrFTtA5XTYAAAP0Ade+T2WmyflnhLuVyukS2WByu3r8PI6Db6UaB60AAAAAJJ5WwwPmcvuMar17EqBxBkshc5DI3N/cOV091NLcSrWq8z1qvtAtwAEar+QDev4VMpMrM5jFcqwN+Guo0Xc1z0ex6p6URqAb0AAAAAABXgRUYirx3gVAAAAAAAAAAAAAAAAAAAAAAAAAAAAa6/EDgv5joCS7jbWbGSx3SU3+Gq+G9PU/m7AOawAACtYWVxfX1vZW7VdcXMscETV4vkVET2qB1vpzA2mDwNnibanh2kSRq6lEe5Eq9/3nbQMiAAAAAAAAAAAPEeeeAmzHlrko7dquuLXkvY2JtVyQO95E+4qgcmV3LsVFpt3oqJvpQAAAbvyovCq0TcB2P5ZYCfCaCw+NmTkuIrZHzMXe2SVVmenY56gejAAAAACV7GPY5jkq1yKjk6UXeBxRqTC3GEz99iLhFSWxnkh2pRXcq+670K3aBjgAADoD8LGCmixWWzcjVSO7kjtbdabFSCrnqnUqvT1AbqAAAAACCIqrQC8RERKJuQAAAAAAAAAAAAAAAAAAAAAAAAAAAAC2yePt8hj7iwuErb3MT4JWpv5ZGq1fYoHHWbxVxiczd4y5ok9nM+CSnFWOVK/epUC0AAbG/D/p1cjrN2RkbzQ4qLxkVd3jSe5Gi9feXsA6IqAAAAAAAAAAAAEHNa5qtciOa7Y5qpVFRdlAObPN7yPy+FyFzl8BbuucHK5ZZIYEV0lovFOXaro/rJu+dQDVKKlN6dez8taARa1zlRGorlXuom2vooBufyV8kclPkLfUepIFt7G3c2azsZ0o+Z6bWukThGi8FA6C/p+UAAAAAAADVXnh5OTalamdwjU/ncLOWa3rRLqJm1KKuxJG+3iBzhfWN7Y3ctpeQyW91C7llhlY6N7F+sjkRUAo13daUTdSoHsPLnyr1FrHIN8GKS2w7FRbnJSMXw0bxbHWiPf9VO1UA6swODxuDw9tisdGsVnaxpHGxVqqoiqqqq9K1AvgAAAAAnhbV9ejeBcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEREQDnz8R2lVstQ2+fhbS3yLPBuHImxJ4kpt+0xE9SgapAAdE+QGD+A0N8a9tJsnO+aq7/AAo/4UaL2oru0DYoAAAAAAAAAAAAACbN2zgB5/L+W+g8tOs9/hbSad3fmSJGPd9pzOVV7QKuF0FovDSpNjMRaW06bp2xNWVPQ91Xe0DN+vb+gAAAAAAAAA4U4b+0DG5rS2m82xG5fHW19y9xZ4mvcz7LlSrewDE2flN5bWkyTQ4Cz50WqeJH4iep/MgHpo4oo42xxsaxjERrGtRERqJuoibgJgAAAAAAV4m0b6QKgAAAAAAAAAAAAAAAAAAAAAAAAAAAAADzfmPpJmp9I3uLonxCs8W0cvzZ2IvJ2OqrV9IHJk0UkUj4pEVksblY9jkorXIu1q9aAQYx73ta1Kq5eVqJvVVWiAdf6exTcVgbDGtRE+Ft4oVp0sZRV7VAvgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE0beZ1OjeBc0SlAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABRAOdfxB6HXE6hbnrVlLDKO/jURaMuUSrk++nvJ2geO8vMa3I66w1oqVa+7ifInDkiXnd+yigdYJsAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK8LeVFd0gVAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABiNW6ZsdR6fusRebI7llGS0q6N6bWvTrav5gNFeT+l7/ABnm27H5CNGXeLiuZHom5eZvhI5PquR+wDoEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABNGzmdTgm8C5ogAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKAYibTuOdqJufa3kyCWr7F7kVEbJE+SN6c2zvNVnu+kC8TrAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAi1FctEAuGN5W048QJgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKIBQmiptTd0AUwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAVWtKVUCvDFypVe8BUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKIBbyRq1ap3V49AEgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAXqArQx095d4FUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFRFAoSRKi7NwFMAAAAAAAAAAAAAAAAAAAAAAAAAAAACPGlKqBUigolXeoCsAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABRkgXezZ1AU+G6igQAAAAAAAAAAAAAAAAAAAAAAAAABqK5aJvAuGR8qV3u6QJ6AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEj4kctdwFB7XN2L6wIAAAAAAAAAAAAAAAAAAAAAAF6gJ2RK7bub0gV2sa1KNSgEaAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABQAqIqbQKLoeKeoCmrXJ3koBAAAAAAAAAAAAAAAAAAATNjc7cgFVsDU37QKgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABQAqIu8Ck6Bq7loBTdFInCoEqrTeAAAAAAAAAAAAEUSu4CZsDl40AqNgam/aBUAUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoBBWtXegEiwsXdsAl+H+sBDwHgS+FL0APDk+iA8OT6IEfBk6AI+A8CPw/1gJ/BjTegE6IibgACgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/2Q=="></div><div class="u-author_tit"><p>My name is Micheal Wayne and this is my blog.<br>I am a front-end software engineer.<br>Contact: <a href="mailto:michealwayne@163.com"> <span>michealwayne@163.com</span></a></p></div></div></div></div><div class="tag-lists widget"><h3 class="widget-title"> Tags</h3><div class="widget-content"><ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/APM/">APM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BOM/">BOM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Bun/">Bun</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DOM/">DOM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTML/">HTML</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OKR/">OKR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UML/">UML</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UX/">UX</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/">Vue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WebSocket/">WebSocket</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zepto/">Zepto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/canvas/">canvas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/">css</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/es6/">es6</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eslint/">eslint</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/h5/">h5</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/">http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jQuery/">jQuery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/">js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lerna/">lerna</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lottie/">lottie</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/">nodejs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prettier/">prettier</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/">react</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/serviceWorker/">serviceWorker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sketch/">sketch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skywalking/">skywalking</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/taro/">taro</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tslint/">tslint</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/typescript/">typescript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webApi/">webApi</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpack/">webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/代码规范/">代码规范</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/前端/">前端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/动效/">动效</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图形处理/">图形处理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/安全/">安全</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/小程序/">小程序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/工具/">工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/工程/">工程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/微前端/">微前端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/思维逻辑/">思维逻辑</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/性能/">性能</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/架构/">架构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/概念/">概念</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/浏览器/">浏览器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/用户体验/">用户体验</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/笔记/">笔记</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/编码/">编码</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/网络/">网络</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/网络协议/">网络协议</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/设计模式/">设计模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/调试/">调试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/质量/">质量</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/软件工程/">软件工程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/项目管理/">项目管理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/高并发/">高并发</a></li></ul></div></div><div class="archive-lists widget"><h3 class="widget-title"> Archive</h3><div class="widget-content"><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">November 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/05/">May 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">April 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">December 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">August 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">March 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">September 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">November 2017</a><span class="archive-list-count">5</span></li></ul></div></div></div></div></div><footer><div class="copyright"><div class="container"><div class="col-6"><div class="site-info">© 2016 - 2023 <a href="http://blog.michealwayne.cn">Micheal Wayne</a></div></div><div class="col-6"><div class="site-contact"><div class="social-links"><ul><li class="social-link"><a href="http://github.com/MichealWayne" target="_blank" class="link-github"><i class="icon icon-github"></i></a></li><li class="social-link"><a href="mailto:michealwayne@163.com" target="_self" class="link-mail"><i class="icon icon-mail"></i></a></li></ul></div></div></div></div></div></footer><a class="scroll-up"><span class="icon icon-up"></span></a><script src="https://code.jquery.com/jquery-3.1.0.min.js"></script><script src="/js/posfixed.js"></script><script src="/js/utils.js"></script><script src="/js/search.js"></script></body></html>

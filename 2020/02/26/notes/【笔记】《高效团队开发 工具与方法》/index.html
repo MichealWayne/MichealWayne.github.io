@@ -1,0 +1,620 @@
+<!DOCTYPE html><html><head><meta name="generator" content="Hexo 3.9.0"><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> 【笔记】《高效团队开发 工具与方法》读书笔记 | Wayne的博客</title><meta name="description" content="【笔记】《高效团队开发 工具与方法》读书笔记 - Micheal Wayne"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/scss/casual.css"><link rel="stylesheet" href="/css/icon.css"><link rel="search" type="application/opensearchdescription+xml" href="http://blog.michealwayne.cn/atom.xml" title="Wayne的博客"></head><script>(function (w) {w.frontjsConfig={token:"81a82620fb0dca7680f2f06be134fa4f",behaviour:8,FPSThreshold:10};w.frontjsTmpData = {r:[],e:[],l:[]};w.frontjsTmpCollector = function (ev) {(ev.message ? window.frontjsTmpData.e : window.frontjsTmpData.r).push([new Date().getTime(), ev])};w.FrontJS = {addEventListener: function (t, f) {w.frontjsTmpData.l.push([t, f]);return f;},removeEventListener: function (t, f) {for (var i = 0; i < w.frontjsTmpData.l.length; i++) {t === w.frontjsTmpData.l[i][0] && f === w.frontjsTmpData.l[i][1] && w.frontjsTmpData.l.splice(i, 1);}return f;}};w.document.addEventListener("error", w.frontjsTmpCollector, true);w.addEventListener("error", w.frontjsTmpCollector, true);w.addEventListener("load", function () {var n = w.document.createElement("script");n.src = "https://frontjs-static.pgyer.com/dist/current/frontjs.web.min.js"; w.document.body.appendChild(n);}, true);})(window);</script><body><div class="header"><header class="site-header"><div class="site-nav"><span class="button-toggle"></span><div class="container"><div class="nav-item"><a href="/" target="_self" data-text="home">Home</a></div><div class="nav-item"><a href="/archives" target="_self" data-text="archive">Archive</a></div><div class="nav-item"><a href="/about" target="_self" data-text="about">About</a></div></div><form id="search-form" class="nav-item"><input type="text" id="local-search-input" name="q" results="0" placeholder="search" autocomplete="off" autocorrect="off" class="search form-control"><span onclick="resetSearch()" class="fa fa-times"> </span></form><div id="local-search-result"></div><p class="no-result">No results found</p></div></header></div><div class="main"><div class="container"><div class="content"><div class="post"><article class="post-block"><h1 class="post-title">【笔记】《高效团队开发 工具与方法》读书笔记</h1><span class="post-date">Feb 26, 2020</span><span class="post-tag"><a href="/tags/软件工程/">软件工程</a></span><img src="/images/notes/20200226/i-logo.jpg" class="bgimage"><div class="post-content"><h1 id="《高效团队开发-工具与方法》读书笔记"><a href="#《高效团队开发-工具与方法》读书笔记" class="headerlink" title="《高效团队开发 工具与方法》读书笔记"></a>《高效团队开发 工具与方法》读书笔记</h1><p>系统性得过一下知识，有些工具现在有更好的方式或替代品。</p>
+<h2 id="1-什么是团队开发"><a href="#1-什么是团队开发" class="headerlink" title="1 什么是团队开发"></a>1 什么是团队开发</h2><h3 id="一个人也能进行开发"><a href="#一个人也能进行开发" class="headerlink" title="一个人也能进行开发"></a>一个人也能进行开发</h3><p>自由软件以及共享软件的开发人员大多都是个人开发者。</p>
+<p>一个人进行软件开发的情况下，因为没有沟通成本，所以能够迅速地开发并发布。在软件规模较小的前提下，全部流程由一个人把控还是可能的。</p>
+<p>但是如果软件的规模超过一定程度，仅由一个人把控产品的所有内容就比较困难了。不难想象，这时候就需要由多人组成团队进行开发。</p>
+<p><strong>由多人开发程序的体制称为团队开发</strong>。</p>
+<h3 id="团队开发面临的问题"><a href="#团队开发面临的问题" class="headerlink" title="团队开发面临的问题"></a>团队开发面临的问题</h3><p>随着开发的进行，团队会遇到各式各样的问题：团队内部对遇到的问题没有共享、项目进度无法掌控、多人编写同一个产品的代码造成开发内容冲突等。而且由于涉及多个人，所以代码质量的统一以及产品代码的整体把控都变得越发困难。</p>
+<p>如今的软件开发已经不是一旦发布（release）就意味着开发结束这样的模式了。很多情况下都需要在运营的过程中不断地更新。因此，在这样一段较长的时间中，有必要将一个人难以完成的代码交由多个人并行修改，并且要在一定程度上保证代码品质，防止退化（degrade），同时还要不断地增加新的功能。</p>
+<h3 id="如何解决这些问题"><a href="#如何解决这些问题" class="headerlink" title="如何解决这些问题"></a>如何解决这些问题</h3><p>要解决团队开发所面临的问题，仅仅靠努力是行不通的。全世界的工程师们为了解决类似的问题而开发了各类工具和方法论，除了对其加以有效利用之外别无他法。</p>
+<p>在多个人之间共享问题，将所发生的事情以简明易懂的方式公开，以及为了防止退化发生，执行自动化测试，这些都是非常重要的。除此以外，一旦发生错误，能够立即回滚到之前的状态也极其关键。另一方面，如果不能迅速地开发新功能并发布，就会在激烈的市场竞争中败下阵来，所以还必须并行地开发多个功能。当然这些都是以保证质量为前提的。</p>
+<p>团队开发的重点：</p>
+<ul>
+<li>“谁”“到何时为止”做了“什么事情”、“怎样”才算“完成”</li>
+</ul>
+<p>等，必须对这样的信息进行管理和共享</p>
+<ul>
+<li><p>代码等各类工作成果，必须在团队内部共享</p>
+</li>
+<li><p>管理工作成果的变更，既要防止成果被破坏，又要保证各成员能够利用成果并行地作业</p>
+</li>
+<li><p>在团队中共享从项目中学到的知识</p>
+</li>
+<li><p>证明团队开发出的软件在任何时候都是可以正常运行的</p>
+</li>
+<li><p>构建任何人都可以正确开发、测试、发布的自动化工作流程</p>
+</li>
+</ul>
+<h2 id="2-团队开发中发生的问题"><a href="#2-团队开发中发生的问题" class="headerlink" title="2 团队开发中发生的问题"></a>2 团队开发中发生的问题</h2><h3 id="案例分析的前提"><a href="#案例分析的前提" class="headerlink" title="案例分析的前提"></a>案例分析的前提</h3><p>用于高效推进团队开发的各类工具和方法数量众多。工具的话有<strong>版本管理系统（Version Control System，VCS）</strong>和<strong>缺陷管理系统（Issue Tracking System、Bug Tracking System，ITS/BTS）</strong>。方法的话有<strong>持续集成（Continuous Integration，CI）</strong>以及最近比较热门的<strong>持续交付（Continuous Delivery，CD）</strong>。</p>
+<h4 id="项目的前提条件"><a href="#项目的前提条件" class="headerlink" title="项目的前提条件"></a>项目的前提条件</h4><p>所涉及的项目的前提条件如下。</p>
+<ul>
+<li><p>系统由网站＋数据库构成</p>
+</li>
+<li><p>不仅仅要进行开发，发布后还需要持续地进行版本更新和运维等</p>
+</li>
+</ul>
+<h3 id="案例分析（第一天）"><a href="#案例分析（第一天）" class="headerlink" title="案例分析（第一天）"></a>案例分析（第一天）</h3><h4 id="问题1：重要邮件太多，无法确定处理的优先顺序"><a href="#问题1：重要邮件太多，无法确定处理的优先顺序" class="headerlink" title="问题1：重要邮件太多，无法确定处理的优先顺序"></a>问题1：重要邮件太多，无法确定处理的优先顺序</h4><h4 id="问题2：没有能用于验证的环境"><a href="#问题2：没有能用于验证的环境" class="headerlink" title="问题2：没有能用于验证的环境"></a>问题2：没有能用于验证的环境</h4><h4 id="问题3：用别名目录管理分支"><a href="#问题3：用别名目录管理分支" class="headerlink" title="问题3：用别名目录管理分支"></a>问题3：用别名目录管理分支</h4><p><img src="/images/notes/20200226/p-1.png" alt="p-1.png"></p>
+<h4 id="问题4：重新制作数据库比较困难"><a href="#问题4：重新制作数据库比较困难" class="headerlink" title="问题4：重新制作数据库比较困难"></a>问题4：重新制作数据库比较困难</h4><h3 id="案例分析（第一天）中的问题点"><a href="#案例分析（第一天）中的问题点" class="headerlink" title="案例分析（第一天）中的问题点"></a>案例分析（第一天）中的问题点</h3><h4 id="邮件问题"><a href="#邮件问题" class="headerlink" title="邮件问题"></a>邮件问题</h4><ul>
+<li>数量多，导致重要的邮件被淹没</li>
+<li>无法进行状态管理</li>
+<li>直观性、检索性较弱</li>
+</ul>
+<p>邮件的可视性不佳，难以进行优先度或重要度的判断，并且无法进行状态管理，不支持显示课题列表、检索等，所以作为管理项目状况的工具来说，功能上是不足的。</p>
+<p>上述问题可以考虑通过导入缺陷管理系统来解决。</p>
+<h4 id="验证环境问题"><a href="#验证环境问题" class="headerlink" title="验证环境问题"></a>验证环境问题</h4><p>除了发布后的正式环境之外，一般还有为下一次发布做准备的，还在验证中的 staging 环境 ，甚至还有为下下次发布准备的环境。</p>
+<p>新功能开发过程中有时不得不调查正式环境中发生的一些故障。如果有一直和正式环境保持一致的 staging 环境那就最好了，但因为环境的搭建实在是件非常麻烦的事情。</p>
+<h4 id="目录管理分支问题"><a href="#目录管理分支问题" class="headerlink" title="目录管理分支问题"></a>目录管理分支问题</h4><p>使用版本管理系统是为了管理什么时候、谁、做了怎样的修改（提交记录的管理），以及能恢复到过去某个时间点的状态（分支、标签的管理）。</p>
+<h4 id="数据库问题"><a href="#数据库问题" class="headerlink" title="数据库问题"></a>数据库问题</h4><p>比如不知道在什么环境中该使用哪些 SQL，从而导致没有察觉到遗漏了某些 SQL。还有在多个人修改数据库的情况下，不知道该如何管理才能避免修改冲突。</p>
+<h3 id="案例分析（第二天）"><a href="#案例分析（第二天）" class="headerlink" title="案例分析（第二天）"></a>案例分析（第二天）</h3><h4 id="问题5：不运行系统就无法察觉问题"><a href="#问题5：不运行系统就无法察觉问题" class="headerlink" title="问题5：不运行系统就无法察觉问题"></a>问题5：不运行系统就无法察觉问题</h4><h4 id="问题6：覆盖了其他组员修正的代码"><a href="#问题6：覆盖了其他组员修正的代码" class="headerlink" title="问题6：覆盖了其他组员修正的代码"></a>问题6：覆盖了其他组员修正的代码</h4><h4 id="问题7：无法自信地进行代码重构"><a href="#问题7：无法自信地进行代码重构" class="headerlink" title="问题7：无法自信地进行代码重构"></a>问题7：无法自信地进行代码重构</h4><h4 id="问题8：不知道bug的修正日期，也不能追踪退化"><a href="#问题8：不知道bug的修正日期，也不能追踪退化" class="headerlink" title="问题8：不知道bug的修正日期，也不能追踪退化"></a>问题8：不知道bug的修正日期，也不能追踪退化</h4><h4 id="问题9：没有灵活使用分支和标签"><a href="#问题9：没有灵活使用分支和标签" class="headerlink" title="问题9：没有灵活使用分支和标签"></a>问题9：没有灵活使用分支和标签</h4><h4 id="问题10：在测试环境、正式环境上无法运行"><a href="#问题10：在测试环境、正式环境上无法运行" class="headerlink" title="问题10：在测试环境、正式环境上无法运行"></a>问题10：在测试环境、正式环境上无法运行</h4><h4 id="问题11：发布太复杂，以至于需要发布手册"><a href="#问题11：发布太复杂，以至于需要发布手册" class="headerlink" title="问题11：发布太复杂，以至于需要发布手册"></a>问题11：发布太复杂，以至于需要发布手册</h4><h3 id="案例分析（第二天）中的问题点"><a href="#案例分析（第二天）中的问题点" class="headerlink" title="案例分析（第二天）中的问题点"></a>案例分析（第二天）中的问题点</h3><h4 id="无法察觉问题"><a href="#无法察觉问题" class="headerlink" title="无法察觉问题"></a>无法察觉问题</h4><p>每次向版本管理系统提交更新时，都对程序整体是否能正常 build、已有的功能是否正常运行进行检查不就可以了吗？</p>
+<p>这样的想法称为持续集成（CI）。这是将团队成员的修改等所有项目相关的资源集中到一起进行集成，并经常、持续地确认 build 及测试是否通过的一种实践。</p>
+<h4 id="覆盖代码问题"><a href="#覆盖代码问题" class="headerlink" title="覆盖代码问题"></a>覆盖代码问题</h4><p>Subversion 和 Git 等比较新的版本管理系统的设计思想是：原则上不对文件加锁，并对多人的修改进行合并处理，有冲突时会明示并让冲突发生。</p>
+<p>另一方面，以前的 VSS（Visual Source Safe）等版本管理系统的设计思想则是对文件加锁来避免冲突的发生。</p>
+<h4 id="代码重构问题"><a href="#代码重构问题" class="headerlink" title="代码重构问题"></a>代码重构问题</h4><p>重构必须保证程序的对外输出保持不变。也就是说需要定义出该程序中什么是正确的。</p>
+<p>方法之一就是准备好规格说明等资料。这个方法的确可以证明“正确性”，但每次都要手动确认重构后程序的动作是否符合规格要求，实在太耗费时间了。</p>
+<p>为了消除这样的抵触情绪，能够自信地进行重构，测试代码的编写就显得尤为重要。</p>
+<p>如前所述，重构是“在不影响输出结果的前提下对代码内部的构造进行整理”，因此只要编写的测试代码可以保证输出结果不发生变化就可以了 。将测试代码做成只调用一个命令就能执行的形式，这样就可以简单地反复进行测试，从而在任何时间都可以迅速地对程序的正确性进行确认。只有有了这样的测试环境，才能重新着手重构工作。</p>
+<p>能够为编写测试代码提供方便的测试框架有很多。</p>
+<p>进一步导入 CI，让测试代码能够一直自动执行。对程序正确性进行测试的机会越多，越能够安心地进行重构。即使在本地环境中通过测试，和其他开发人员修改的代码合并后仍有可能测试失败。并且开发人员毕竟也是人，所以在提交之前忘记执行测试也是有可能的。</p>
+<p>相反，既不写测试代码，也不进行 CI，并且也不进行重构，这样持续维护的代码就会成为巨大的负担，直至阻碍事业的发展。这样的代码在《修改代码的艺术》中被定义为 Legacy code。</p>
+<p>不编写测试代码导致产生大量的 legacy code，因此软件的品质完全无法提高。确认“正确性”的手段只有手动和用眼睛看，在这样的情况下，“正确性”的确认就会白白浪费大量时间，执行回归测试 就更不现实了。越没时间越不写测试代码，从而产生越来越多的 legacy code，这样便陷入了恶性循环之中。</p>
+<p>这样的恶性循环持续几年后便会陷入绝境，不要说添加新功能了，连 bug 修正都忙不过来，最终只能被时代所淘汰。这样的软件产品并不在少数。</p>
+<h4 id="bug追踪问题"><a href="#bug追踪问题" class="headerlink" title="bug追踪问题"></a>bug追踪问题</h4><p>不知道 bug 是什么时候发生的、是怎样的 bug、在哪次提交中被修正，这样的事情在已经运营较长时间的系统中可能是比较常见的。</p>
+<p>如果仅用邮件或口头交流故障和 bug，没有在团队成员之间共享信息，就容易发生这样的事情。为此，首先使用缺陷管理系统将问题从发生到解决的所有过程记录下来是非常重要的。</p>
+<p>然后，通过使版本管理系统和缺陷管理系统进行交互，就能关联代码的修改记录和问题票，并记录下来。这样就可以从问题票追踪到代码的修改记录，找出 bug 是何时修正的、谁修正的、如何修正的这些信息。反过来也可以从版本管理系统上的修改记录追踪到描述问题的 bug票。如此一来，就既可以从问题票追踪代码，查看代码被做了怎样的修改，即过去的问题票的处理结果，又可以从代码的提交记录追溯问题票，查看问题的原因，使双向追踪成为了可能。</p>
+<p>并且，CI 和缺陷管理系统以及版本管理系统这三者之间的交互也是非常重要的。这样一来，某个问题是在什么时候被什么人怎样修改的，以及修改结果是否通过了测试、是否反映到了 staging 环境、是否发布到了正式环境等，整个过程就都可以进行追踪。CI 和缺陷管理系统以及版本管理系统的交互，可以毫不夸张地说是现代系统开发中的三种神器。特别是在实行敏捷开发的情况下，这些是最基础的实践项目。</p>
+<p>更进一步，如果和部署自动化工具相关联，那么到部署、发布为止就都可以进行统一的管理。近年来，一些最先进的开发现场已经在尝试自动化部署。</p>
+<h4 id="分支和标签问题"><a href="#分支和标签问题" class="headerlink" title="分支和标签问题"></a>分支和标签问题</h4><p>为没有合理使用版本管理系统的分支和标签功能而产生的问题。</p>
+<h4 id="环境运行问题"><a href="#环境运行问题" class="headerlink" title="环境运行问题"></a>环境运行问题</h4><p>一些常见的情况：</p>
+<ul>
+<li><p>由于数据库模式的差异而产生的问题</p>
+</li>
+<li><p>没有安装程序所依赖的库而产生的问题</p>
+</li>
+<li><p>httpd 或 memcached 等各种中间件由于环境不同而配置发生变化的问题</p>
+</li>
+</ul>
+<h4 id="发布复杂问题"><a href="#发布复杂问题" class="headerlink" title="发布复杂问题"></a>发布复杂问题</h4><p>多数热门的 Web 服务都以惊人的势头一边修正 bug 一边开发着新功能。例如社交编程服务，也就是 Git 的托管服务——大名鼎鼎的 GitHub在 1 天之内要进行 100 次以上的发布。</p>
+<p>怎样才能做到以这样惊人的速度一个接一个地进行发布呢？至少可以知道肯定不是用发布手册人工介入进行的。</p>
+<p>为了实现上述内容，需要解决环境依赖的问题，还需要实现自动化测试和自动化部署。换言之就是持续地维持“随时都能发布”的状态是非常重要的。</p>
+<p>这样的想法称为持续交付（CD）。CD 是有一定难度的实践，但一旦实现，团队的敏捷开发效率就会有飞跃般的提升。</p>
+<h3 id="什么是理想的项目"><a href="#什么是理想的项目" class="headerlink" title="什么是理想的项目"></a>什么是理想的项目</h3><p>前几节中我们回顾了死亡行军项目的现状以及从中看出的具体问题。解决这些问题要正确执行团队开发的流程。</p>
+<p>而正确执行开发流程则需要正确理解所使用的工具的机制，合理掌握工具的使用方法。当然不是用了工具就能解决所有的问题，其他还有团队成员的教育、思想准备等各种各样的方法论。但最重要的还是对工具的理解以及合理运用，由此也造成了软件开发的速度和质量的差异。</p>
+<p><img src="/images/notes/20200226/p-2.png" alt="p-2.png"></p>
+<h4 id="使用缺陷管理系统对课题等进行统筹管理"><a href="#使用缺陷管理系统对课题等进行统筹管理" class="headerlink" title="使用缺陷管理系统对课题等进行统筹管理"></a>使用缺陷管理系统对课题等进行统筹管理</h4><p>使用缺陷管理系统而非邮件对课题、要做的任务、发生的故障等进行统筹管理。其中，对优先度和重要度进行明确地管理，以及清楚地掌握每一个 bug 票的状态，这些是非常重要的。</p>
+<p>易于检索，能很快地找到想找的信息，能检索到过去的 bug 票以及与其相关的处理结果，这些也是很重要的。bug 票的处理结果是版本管理中的提交记录、是 CI 系统的测试结果，需要确保能够检索到现在被部署到了哪个环境中。另外，不仅仅要向开发团队的全体成员，还要向项目的所有利益相关者共享缺陷管理系统中统筹管理的信息，这点也是很重要的。</p>
+<h4 id="尽量使用版本管理系统"><a href="#尽量使用版本管理系统" class="headerlink" title="尽量使用版本管理系统"></a>尽量使用版本管理系统</h4><p>首先要正确使用版本管理系统，避免无意中将他人的修正覆盖。其次要合理地管理分支，明确正式环境中使用的是哪个分支，最近修正bug 所用的是哪个分支，新功能开发使用的是哪个分支，这点很重要。</p>
+<p>这样就可以并行推进多个开发任务。</p>
+<p>另外，通过合理地管理标签，将某个时间点发布状态的截面保存下来，这样无论多久之前的状态都能够进行回滚，这点是很重要的。还有，用版本管理系统来统筹数据库的变更管理和环境相关的配置文件的管理等也是很重要的。</p>
+<h4 id="准备可以反复验证的-CI-系统"><a href="#准备可以反复验证的-CI-系统" class="headerlink" title="准备可以反复验证的 CI 系统"></a>准备可以反复验证的 CI 系统</h4><p>准备好 CI 系统，时常将所有的资源集中到 1 处，并通过 build 确认是否可以正常合并，以及确认单元测试是否总能通过，这些都是很重要的。这样就能立即发现提交遗漏、修正错误等问题，从而提高软件质量。</p>
+<p>并且还需要恰当地编写测试代码和 build 脚本。这里的“恰当”是指无论重复执行多少次，都不会因为依赖某些状态而改变执行的结果。</p>
+<p>例如数据库状态、环境变量、中间件的配置等都适用于此。将这些内容总结在一起写成脚本，这样原本复杂的数据库构建和环境构建就能简单地进行了，执行测试的难度也会相应下降。</p>
+<h4 id="将环境的影响控制在最小限度，并随时可以发布"><a href="#将环境的影响控制在最小限度，并随时可以发布" class="headerlink" title="将环境的影响控制在最小限度，并随时可以发布"></a>将环境的影响控制在最小限度，并随时可以发布</h4><p>管理因环境不同而产生的差异的确是比较困难的，但现在有了实用的工具。如前所述，合理使用脚本和工具，对数据库的变更以及各个中间件等因环境而产生差异的内容进行版本管理。这样只要准备好可以重复执行的环境构建、发布以及动作确认的测试等，应该就可以随时发布最新的程序了。</p>
+<h4 id="保留所有记录以便日后追踪"><a href="#保留所有记录以便日后追踪" class="headerlink" title="保留所有记录以便日后追踪"></a>保留所有记录以便日后追踪</h4><p>之前已经提到了很多次，对至今为止所有的操作进行管理、记录，并做到可追踪是非常重要的。包括什么时候什么人对程序进行了怎样的修改、原来发生了怎样的问题、是否通过了测试、是否进行了发布等所有信息。</p>
+<p>并且对上述信息进行简洁、方便的管理也是很重要的。如果用纸或Excel 的工作簿，无论负责管理的人员多么努力，也无法提高开发速度。</p>
+<p>所有事情都应该实现自动化的简洁管理。</p>
+<h2 id="3-版本管理"><a href="#3-版本管理" class="headerlink" title="3 版本管理"></a>3 版本管理</h2><h3 id="版本管理系统"><a href="#版本管理系统" class="headerlink" title="版本管理系统"></a>版本管理系统</h3><p>什么是版本管理系统？</p>
+<p>版本管理系统是将什么时候、谁、对文件做了怎样的修改这样的信息以版本的形式保存并进行管理的系统。</p>
+<p>这里提到的文件当然包括代码，但不是说版本管理系统只能管理代码的版本。</p>
+<h4 id="为什么使用版本管理系统能带来便利"><a href="#为什么使用版本管理系统能带来便利" class="headerlink" title="为什么使用版本管理系统能带来便利"></a>为什么使用版本管理系统能带来便利</h4><p>使用版本管理系统的优点如下所示。</p>
+<ul>
+<li><p>能够保留修改内容这一最基本的记录</p>
+</li>
+<li><p>能够方便地查看版本之间的差异</p>
+</li>
+<li><p>能够防止错误地覆盖别人修改的代码</p>
+</li>
+<li><p>能够还原到任意时间点的状态</p>
+</li>
+<li><p>能够生成多个派生（分支和标签），保留当时项目状态的截面</p>
+</li>
+</ul>
+<p>CVS、Subversion、Git、mercurial等 OSS（Open Source Software，开源软件）的版本管理系统多采用合并模式。</p>
+<p>VSS（Visual Source Safe）和 Peroforce、PVCS这样的专有商用版本管理系统多采用锁模式。</p>
+<p>两种方法都有各自的长处和短处。近年来使用 Subversion 和Git 的开发现场较多，合并模式也逐渐成为主流。但在大约 10 年之前，锁模式的商用版本管理系统一直都占据着主流位置。</p>
+<p>锁模式的情况下，在某人编辑文件期间，文件将被锁住，所以理论上不会发生冲突。但另一方面，多人同时并行编辑同一文件原则上也变得不可能，这样就大大影响了开发速度。</p>
+<p><img src="/images/notes/20200226/p-3.png" alt="p-3.png"></p>
+<p>锁模式的情况下，文件在被编辑期间是无法签出（check out）的，所以不会发生冲突。合并模式下任何时候都可以签出文件，但随之而来的是，在你签出文件后到提交前这段时间，如果有人进行了提交，那么你就需要将这部分修改合并到本地代码后再进行提交。</p>
+<p>这时，如果文件编辑的地方重合的话，版本管理系统会检测到冲突，并显示请手动修改冲突这样的错误消息。这是合并模式中版本管理系统的正常动作，但习惯了锁模式的人会对此感到非常奇怪。</p>
+<p>因此，一些维护旧的开发环境的团队有时会根据锁模式和合并模式的这些差异，固执地认为 Subversion 和 Git 无法锁住文件，从而造成冲突频发，无法有效地管理代码。这样的现象在一些习惯了锁模式的开发现场尤为显著。</p>
+<p>实则恰恰相反，锁模式的版本管理系统由于效率较低，无法合理地进行版本管理的情况较多。锁模式的版本管理系统在文件加锁的情况下拒绝其他人员对此文件进行编辑，这样的确不会造成冲突。但实际开发中往往不允许这样“慢条斯理”，于是开发人员就会无视文件被锁住，独自在本地进行开发，等待锁解除后再手动合并并提交。</p>
+<p>各个版本管理系统可能有所差异，但多数采用锁模式的产品都没有自动检查差异并进行合并或者检测冲突等功能，即使有也非常弱，因此容易发生手动合并时不小心将他人的修改覆盖的情况。并且加锁也不能说是绝对的，也有将锁强制解除并覆盖提交的功能。</p>
+<p>通过使用分支管理功能，项目就可以在多个方向上建立分支，例如可以分别建立新功能开发分支和已发布版本的分支。</p>
+<p>各个版本管理系统在实现的细节上可能有所差异，但通常都具备对分支进行合并的功能。这个功能越是完善，就越有勇气去挑战困难的开发。近年来 Git 是在分支管理方面做得最好的。</p>
+<p>标签管理是能够对文件或者变更集任意命名（打上标签）的功能。</p>
+<p>利用这个功能可以对过去任意时间点的系统快照进行管理。</p>
+<p>可以像阿尔法版、贝塔版、发布版这样，或者像版本 0.1、0.2 这样根据每个产品的外部版本号来打上标签，一般都是在到达某节点时为项目打上标签的。不同版本管理系统的标签功能在细微的动作或规格上可能有所差异，但思考方式大致是相同的。</p>
+<h3 id="版本管理系统的发展变迁"><a href="#版本管理系统的发展变迁" class="headerlink" title="版本管理系统的发展变迁"></a>版本管理系统的发展变迁</h3><p><img src="/images/notes/20200226/p-4.png" alt="p-4.png"></p>
+<h3 id="分布式版本管理系统"><a href="#分布式版本管理系统" class="headerlink" title="分布式版本管理系统"></a>分布式版本管理系统</h3><h4 id="使用原因"><a href="#使用原因" class="headerlink" title="使用原因"></a>使用原因</h4><ul>
+<li>能将代码库完整地复制到本地</li>
+<li>运行速度快</li>
+<li>临时作业的提交易于管理</li>
+<li>分支、合并简单方便</li>
+<li>可以不受地点的限制进行协作开发</li>
+</ul>
+<p>缺点</p>
+<ul>
+<li>系统中没有真正意义上的最新版本</li>
+<li>没有真正意义上的版本号</li>
+<li>工作流程的配置过于灵活，容易产生混乱</li>
+<li>思维方式的习惯需要一定的时间</li>
+</ul>
+<h3 id="如何使用版本管理系统"><a href="#如何使用版本管理系统" class="headerlink" title="如何使用版本管理系统"></a>如何使用版本管理系统</h3><h4 id="版本管理系统管理的对象"><a href="#版本管理系统管理的对象" class="headerlink" title="版本管理系统管理的对象"></a>版本管理系统管理的对象</h4><p>能够管理的对象都应该用版本管理系统进行管理。</p>
+<p>把项目整体纳入到代码管理系统之中，这样的做法隐含着显著的优点。那就是能够实现输出文件的 build 作业自动化，并且能够反复执行。</p>
+<p>上述思考方式称为持续集成（Continuous Integration，CI）和持续交付（Continuous Delivery， CD）。</p>
+<p>为了实现 CI 和 CD 这样的实践，首要前提就是使用版本管理系统对所有必要的信息进行适当的管理。一般我们所说的应该管理的信息主要包括以下这些。</p>
+<ul>
+<li><p>代码：从版本管理系统也称为代码管理系统（Source Code Management，SCM）就可以看出，版本管理系统原本就是为了管理代码而设计的。</p>
+</li>
+<li><p>需求定义、设计资料等文档：对项目相关的文档也应该尽可能地进行版本管理。根据所属团队和项目的不同，有些文档是由销售人员或者企划人员撰写的，有些是由程序员自己写的，可谓是多种多样。文档一般反映了项目的起因，即为了解决什么问题而开展的，是为了和后继者交接工作内容所写的非常重要的资料。并且随着项目的进行，对文档进行相应的修改也是常有的事情，因此要尽量一同进行版本管理。</p>
+</li>
+<li><p>数据库模式、数据</p>
+</li>
+<li><p>中间件等的配置文件：应用程序一般都会使用到一些 Web 应用程序框架以及中间件。这些Web 应用程序的框架和中间件的配置文件也应该进行版本管理。</p>
+</li>
+<li><p>库的依赖关系定义：Java 的话有 Apache Commons系列的库，脚本语言的话有 ImageMagick 和 Mechanize等，一般开发过程中都会用到一些外部的库。这些外部库的依赖关系也应该纳入到版本管理系统中进行适当的管理。</p>
+</li>
+</ul>
+<h3 id="使用Git顺利地推进并行开发"><a href="#使用Git顺利地推进并行开发" class="headerlink" title="使用Git顺利地推进并行开发"></a>使用Git顺利地推进并行开发</h3><h4 id="分支的用法"><a href="#分支的用法" class="headerlink" title="分支的用法"></a>分支的用法</h4><p>分支（branch）是一种从主干分离出来的，作为和主开发内容不同的开发内容进行分别管理的机制。分支是几乎所有的版本管理系统都具备的标准功能。</p>
+<p>发布分支（release branch）是向正式环境进行发布时实际使用的分支。有将 master 用作发布分支的，也有从 master 建立别的分支作为发布分支的。</p>
+<h4 id="克隆和建立分支"><a href="#克隆和建立分支" class="headerlink" title="克隆和建立分支"></a>克隆和建立分支</h4><ul>
+<li><p>克隆和建立分支：首先将（所认为的）中央代码库克隆到本地机器上。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> git@github.com:CoolInc/someniceapp.git</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>接着为发布后的新功能开发建立分支。分支的名称就是 new-cool</p>
+<p>function。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git branch new-cool-function</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>分支建立之后进行 checkout 操作,这里使用 checkout命令来进行分支切换。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git checkout new-cool-function</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>这样一来就可以在 master 以外的分支上进行新功能的开发，不会对已经发布的代码产生任何影响。</p>
+<h4 id="提交和提交记录"><a href="#提交和提交记录" class="headerlink" title="提交和提交记录"></a>提交和提交记录</h4><p>假设已经修改了几处代码，现在我们用 git commit命令来试着进行提交。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git commit -m <span class="string">"实现了非常炫的功能"</span></span><br><span class="line">git commit -m <span class="string">"修改了一些小错误"</span></span><br><span class="line">git commit -m <span class="string">"想到了一些需要改进的地方，于是进行了修改"</span></span><br></pre></td></tr></table></figure>
+<p>再用 git log命令来确认一下提交记录。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">log</span> --pretty=oneline</span><br></pre></td></tr></table></figure>
+<p>还可以用 git branch命令来确认分支的改变。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git branch</span><br></pre></td></tr></table></figure>
+<p>至此，新建分支的状态如图</p>
+<p><img src="/images/notes/20200226/p-5.png" alt="p-5.png"></p>
+<h4 id="分支的切换"><a href="#分支的切换" class="headerlink" title="分支的切换"></a>分支的切换</h4><p>git checkout命令就能简单处理。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git checkout master</span><br></pre></td></tr></table></figure>
+<p>只需执行上述命令就能切换回 master 分支，即本次事例中的发布分支。如果不确定是否已经回到 master 分支，可以通过 git log命令确认下提交记录。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">log</span> --pretty=oneline</span><br></pre></td></tr></table></figure>
+<p>保险起见，我们再用 git branch命令来确认下。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git branch</span><br></pre></td></tr></table></figure>
+<p>确实已经回到了 master 分支。这里假设我们正处于试着对故障进行处理的情况。不直接修改 master，而是新建故障处理用的分支，然后再进行提交。Git 的分支建立非常快速且易于合并，因此应该灵活应用其分支功能。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git checkout -b issue345</span><br><span class="line">git branch</span><br></pre></td></tr></table></figure>
+<p>可以使用 git checkout -b XXX命令来建立分支并同时进行checkout 操作。分支的名字可以任意取，这次假设已经有了故障报告的bug 票（ticket），以票号为名字建立分支。 缺陷（ticket）管理系统（ITS/BTS）的相关内容将在后续进行讲解。</p>
+<h4 id="修正-bug-后的提交"><a href="#修正-bug-后的提交" class="headerlink" title="修正 bug 后的提交"></a>修正 bug 后的提交</h4><p> issue345 分支上对 bug 进行了修正，并进行了 3 次提交，如下所示。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git commit -m <span class="string">"邮件的bug修正"</span></span><br><span class="line">git commit -m <span class="string">"申请时的死锁问题的修正"</span></span><br><span class="line">git commit -m <span class="string">"删去没用的代码"</span></span><br></pre></td></tr></table></figure>
+<p><img src="/images/notes/20200226/p-6.png" alt="p-6.png"></p>
+<h4 id="合并到-master"><a href="#合并到-master" class="headerlink" title="合并到 master"></a>合并到 master</h4><p>修正告一段落后，让我们把修改的内容合并到 master。只需切换到master 并执行以下命令即可。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git checkout master</span><br><span class="line">git merge issue345</span><br></pre></td></tr></table></figure>
+<p>在完全不影响新功能开发的基础上，完成了对故障的处理。</p>
+<p><img src="/images/notes/20200226/p-7.png" alt="p-7.png"></p>
+<h4 id="向-master-进行-Push"><a href="#向-master-进行-Push" class="headerlink" title="向 master 进行 Push"></a>向 master 进行 Push</h4><p>接着，把本地机器上合并到 master 分支中的修正用 git push命 令 Push 到中央代码库。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git push origin master:master</span><br></pre></td></tr></table></figure>
+<p>这样 Push 就完成了。接着让 QA 部门进行验收测试，用 g i t checkout命令就能回到原来的新功能开发。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git checkout new-cool-function</span><br></pre></td></tr></table></figure>
+<p>之后，在 new-cool-function 分支上进行新功能添加的开发，开发完成后合并到 master 即可。</p>
+<h4 id="标签的使用方法"><a href="#标签的使用方法" class="headerlink" title="标签的使用方法"></a>标签的使用方法</h4><p>在刚才的例子中，你是否觉得如果能把发布时的系统快照保存下来会很方便呢？标签（tag）就是用于实现这个功能的。实现的细节上可能有所差异，但几乎所有的版本管理系统都提供了标签功能。</p>
+<h4 id="新建标签"><a href="#新建标签" class="headerlink" title="新建标签"></a>新建标签</h4><p>还是刚才的例子，首先可以为发布的时间点打上标签。下面就以“v0.1” 为标签名，执行 git tag命令。标签名在内容上要简洁易懂，一般多以版本号作为标签名。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git tag -a v0.1 -m <span class="string">"最早的发布版本"</span></span><br></pre></td></tr></table></figure>
+<p>发布之后已经过了一段时间，这样的情况下仍然可以追溯回去打上标签。首先在 master 分支上用 git log命令寻找对应的提交。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">log</span> --pretty=oneline</span><br></pre></td></tr></table></figure>
+<p>找到对应的提交之后，用 git tag命令为那个提交打上标签。这样就 OK 了。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git tag -a v0.1 27b06870957e44d5b02606af668c9a120df4b7e0</span><br></pre></td></tr></table></figure>
+<h4 id="标签的确认"><a href="#标签的确认" class="headerlink" title="标签的确认"></a>标签的确认</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git tag</span><br><span class="line"><span class="comment"># v0.1</span></span><br></pre></td></tr></table></figure>
+<p>确认了标签之后，再来确认下标签对应的内容是否正确。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ git show v0.1 </span><br><span class="line"><span class="comment">#tag v0.1</span></span><br><span class="line"><span class="comment">#Tagger: ikeike443 &lt;ikeike443@gmail.com&gt;</span></span><br><span class="line"><span class="comment">#Date: Thu May 16 15:32:59 2013 +0900</span></span><br><span class="line"><span class="comment">#commit 27b06870957e44d5b02606af668c9a120df4b7e0</span></span><br><span class="line"><span class="comment">#Author: ikeike443 &lt;ikeike443@gmail.com&gt;</span></span><br><span class="line"><span class="comment">#Date: Thu May 9 19:29:49 2013 +0900</span></span><br><span class="line"><span class="comment">#最早的发布</span></span><br></pre></td></tr></table></figure>
+<p>可以用 git show命令来确认标签的内容。从结果来看内容似乎是正确的。在本地环境上打好标签后，用 git push命令 Push 到中央代码库。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git push origin v0.1:v0.1</span><br></pre></td></tr></table></figure>
+<h4 id="标签的取得"><a href="#标签的取得" class="headerlink" title="标签的取得"></a>标签的取得</h4><p>如果要在其他环境上取得刚才建立的标签，应该怎么做呢？</p>
+<p>首先，在其他环境上用 git clone命令进行克隆。 git clone，顾名思义，就是克隆代码库的命令。代码库中包含的分支、标签都会被复制到本地环境中。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> git@github.com:CoolInc/someniceapp.git</span><br></pre></td></tr></table></figure>
+<p>克隆执行完后建立分支，并将标签 checkout 到该分支上</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git checkout -b 0.1 v0.1</span><br></pre></td></tr></table></figure>
+<p>这样就能在其他环境上取得标签了。如果不想新建分支的话，还可以用下面的方法</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git checkout v0.1</span><br></pre></td></tr></table></figure>
+<p>Git 中，标签和分支实际上分属于不同的命名空间，因此通常在使用时不需要特别指明是标签还是分支，可以省略。所以，标签和分支还是可以同名的但这样很容易造成混乱。实际使用中要避免标签和分支同名，这样混乱也会相应减少。万一出现同名的情况下，可以通过指定命名空间来明确是标签还是分支。请记住这一点。</p>
+<p><img src="/images/notes/20200226/p-8.png" alt="p-8.png"></p>
+<h4 id="Detached-HEAD"><a href="#Detached-HEAD" class="headerlink" title="*  Detached HEAD"></a>*  Detached HEAD</h4><p>不必建立分支就能实验性地修改并提交，或者放弃修改。</p>
+<p>如果最终想保留在这个状态下进行的各类实验性质的提交的话，只需重新建立分支，并切换到该分支上，就能将提交保存下来。</p>
+<p>Detached HEAD 状态虽然是很方便的功能，但在部署过程中获取标签的时候，如果还保持 Detached HEAD 状态，管理上就很难理解。</p>
+<h3 id="Git的开发流程"><a href="#Git的开发流程" class="headerlink" title="Git的开发流程"></a>Git的开发流程</h3><h4 id="Git工作流的模式"><a href="#Git工作流的模式" class="headerlink" title="Git工作流的模式"></a>Git工作流的模式</h4><ul>
+<li><p>中央集权型工作流：全体开发人员以此为唯一的 Push/Pull 对象，将环境克隆到本地机器上。</p>
+<p><img src="/images/notes/20200226/p-9.png" alt="p-9.png"></p>
+</li>
+<li><p>GitHub 型工作流：同样也设置 1 个代码库为中央代码库，但开发人员会各自从中央代码库 Fork 出自己的远程代码库，并将其克隆到本地机器上。在日常开发中将修改 Push 到 Fork 出的自己专用的远程代码库上，当修改相对稳定后，请中央代码库的管理者进行 Pull 操作。</p>
+<p><img src="/images/notes/20200226/p-10.png" alt="p-10.png"></p>
+</li>
+</ul>
+<p>其优点在于不需要等待中央代码库的维护或合并操作，各开发人员能够并行地进行作业。开发人员拥有自己独立的代码库，可以在代码库之间自由地相互 Push/Pull。这也可以说是只有分布式版本管理系统才具备的优点。</p>
+<p>在 Git 的系统上应用该流程时，因为没有任何约束，所以运用中不注意的话容易造成混乱。如果想利用这种方式，推荐使用提供以这种方式调整后的工作流的 GitHub。</p>
+<h4 id="分支策略的模式"><a href="#分支策略的模式" class="headerlink" title="分支策略的模式"></a>分支策略的模式</h4><ul>
+<li><p>git-flow：该分支策略在分布式版本管理系统的工作流中稍许引入了中央集权型版本管理系统的长处，可以说是结合了双方优点的团队开发流程。通过在团队内部统一管理建立分支的方法、合并的做法以及关闭分支的方法，来实现 git-flflow 分支策略。</p>
+<p>git-flow 提议以固定的模式在中央代码库中建立两个主分支，在各开发人员的代码库中建立 3 个辅助分支</p>
+<p><img src="/images/notes/20200226/p-11.png" alt="p-11.png"></p>
+</li>
+<li><p>Git-flow主要分支：</p>
+<ul>
+<li><p>Master：为发布而建的分支。每次发布时都打上标签</p>
+</li>
+<li><p>Develop：开发用的分支。发布之前的最新版本</p>
+</li>
+<li><p>辅助分支：原则上只存在于各开发人员的代码库中，是发挥相应的功能后就被删除的临时分支。</p>
+</li>
+<li><p>feature：从 develop 分离出来的被用于开发特定功能的分支。功能开发结束后被合并到 develop 中</p>
+</li>
+<li><p>release：从 develop 分离出来的为发布做准备的分支。在发布的准备工作期间，为了避免多余的 feature 混杂到发布中而建立的分支。发布结束后被合并到 master 和 develop 中</p>
+</li>
+<li><p>hotfix：主要是在发布后的产品发生故障时紧急建立的分支。直接从 master 分离，bug 修正后再合并到 master 并打上标签。为了避免将来遗漏这个bug 的修正，还要合并到 develop。如果此时有正在发布作业中的release 分支，还要向 release 进行合并</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>这样的分支策略条理清晰且容易理解，能够立刻投入到实际运用中。为了支持该分支策略，还提供有 Git 扩展脚本（git-flow 脚本）。通过使用脚本，运用会变得更加容易。</p>
+<p>在有一定数量的人员的开发中，按照 git-flow 分支策略这样整理、运用分支，管理也会变得简单。</p>
+<p>问题在于运用有些复杂，需要记忆的内容比较多。并且如果没有git-flow 提供的 git-flow 脚本的话，运用会比较困难。特别是在使用 GUI工具的情况下就无法沾到 git-flflow 脚本的光了，这点需要注意。</p>
+<p>github-flow</p>
+<p>针对git-flow的问题，GitHub 采用了下面这些更为简单的做法。这就是所谓的 github-flflow。 </p>
+<ul>
+<li><p>master 的内容都可以进行发布</p>
+</li>
+<li><p>添加内容时直接从 master 新建分支</p>
+</li>
+<li><p>建立的分支在本地环境上提交，并以同名的分支定期向远程代码库进行 Push</p>
+</li>
+<li><p>开发结束后向 master 发送 Pull Request</p>
+</li>
+<li><p>Pull Request 通过 review 之后合并到 master，并从 master 向正式环境发布</p>
+</li>
+</ul>
+<p>还有一点在上述项目中没有提到，那就是 github-flow 是以使用GitHub 进行开发为前提的。</p>
+<p>该方式的特点在于简单、易于理解。开发人员只需要记住以下 3 点就行了。</p>
+<ul>
+<li>master 是用于发布的，不要直接在 master 上进行修改</li>
+<li>开始作业时要先建立分支</li>
+<li>作业结束后向 master 发送 Pull Request</li>
+</ul>
+<p>为了使 Pull Request 在通过 review 之后能立即进行合并并发布，在Pull Request 发送之前需要在本地进行测试，或者保持使用 Jenkins 等 CI工具的自动化测试一直运行，这是 github-flflow 的前提。</p>
+<p>像 GitHub 这样，通过保持 master 随时都能发布来简化实际的运用，这的确是一个不错的办法。GitHub 自身一天之内要进行几十次发布。为了实现这样频度的发布，就必须准备好 CI 以及 CD 的环境。而准备这样的环境是比较困难的。</p>
+<p>折衷方案</p>
+<p>git-flow 比较倾向于发布间隔较长的大规模项目，github-flow 则适用于需要时常发布的具有速度感的项目。</p>
+<p>定制过的 github-flflow 形式。具体来说，就是像下面这样。</p>
+<ul>
+<li>以使用 GitHub 为前提</li>
+<li>采用 GitHub 形式的工作流，各自在 GitHub 上拥有 Fork 出来的远程代码库。</li>
+<li>从中央代码库的 master 分支进行发布</li>
+<li>各开发人员可以在自己的本地环境和远程代码库上随意地操作</li>
+<li>开发结束后向中央代码库的 master 发送 Pull Request</li>
+<li>Pull Request 通过 review 后合并到 master</li>
+<li>在发布准备阶段从中央代码库的 master 建立发布分支</li>
+<li>在发布分支上进行回归测试、部署测试等发布的准备工作</li>
+<li>在进行发布的准备工作的过程中，开发人员仍然可以向 master发送新功能开发的 Pull Request</li>
+<li>发布结束后合并到 master，在 master 上打上标签后删除发布分支</li>
+</ul>
+<p>大体的形式是只对中央代码库的 master 和发布分支进行严格管理，其他的都可以随意 Fork，自由使用。这种方式下的权限管理也变得相对简单，只需要对向 master 发送的 Pull Request 认真地进行代码 review 及测试，其余的事情就不用考虑了，这也是该方式的优点之一。</p>
+<p>正式环境发生故障时的处理流程是：先将发布时打上的标签checkout 到本地机器上并进行修正，修正后向中央代码库的 master 发送Pull Request，合并 Pull Request 后建立发布分支，发布结束后将发布分支合并回 master 并删除。虽然比 github-flflow 步骤稍微多了一些，但还并不是太复杂。</p>
+<h3 id="数据库模式和数据的管理"><a href="#数据库模式和数据的管理" class="headerlink" title="数据库模式和数据的管理"></a>数据库模式和数据的管理</h3><p>在多人修改数据库的情况下，容易因漏执行 SQL 或执行顺序出错等原因造成数据库的数据一致性出现问题。</p>
+<p>由于该问题的主要原因在于各个开发人员随意制作 SQL 修改数据库模式，因此应禁止开发人员修改数据库模式，并设置数据库管理员一职，由此人对所有的修改进行管理，这样是不是就能够解决问题了呢？</p>
+<p>过去采用这种方式的开发现场比较常见，但从以下这些原因可以看出这种方式是存在问题的。</p>
+<ul>
+<li>在由数据库管理员负责对所有的修改进行管理的情况下，如果数据库管理员成为瓶颈的话，整体的开发速度就会受到影响</li>
+<li>其次，如果在团队中共享数据库，那么模式的变更就会波及到整个团队，影响开发进度。模式发生变更时，首先程序的代码也无疑会发生变化，若修改共享数据库的模式，各个开发成员的代码和数据库模式就难免会发生背离。因此可以说对数据库模式也应该进行版本管理。</li>
+</ul>
+<p>版本管理的必要条件</p>
+<ul>
+<li><p>无论什么环境都能用相同的步骤来构建数据库</p>
+</li>
+<li><p>能够反复执行多次</p>
+</li>
+<li><p>文本文件</p>
+</li>
+</ul>
+<p>数据库模式的 CI 称为 CDBI（Continuous DataBase Integration）。作为数据库迁移工具，Ruby on Rails 的 Migration 是比较有名的。</p>
+<p>不同的工具在实现的细节方面有细小的差异，但基本的构思几乎都是相同的。</p>
+<ul>
+<li><p>管理 SQL 执行的顺序和需要执行哪些 SQL</p>
+</li>
+<li><p>管理模式定义编辑的冲突</p>
+</li>
+<li><p>提供回滚的机制</p>
+</li>
+<li><p>支持数据的加载</p>
+</li>
+</ul>
+<p>具体工具使用不作介绍。</p>
+<h3 id="配置文件的管理"><a href="#配置文件的管理" class="headerlink" title="配置文件的管理"></a>配置文件的管理</h3><p>由于环境不同，对依赖环境的各种配置文件也要进行版本管理。首先，程序方面的配置应该把每个环境的配置文件分开进行管理。</p>
+<p>将所有资源都置于版本管理系统之下，只使用版本管理系统中的文件，任何人都可以随时自动化地执行程序的构建到启动的所有过程，只有这样才能维持优质、快速的开发。</p>
+<h3 id="依赖关系的管理"><a href="#依赖关系的管理" class="headerlink" title="依赖关系的管理"></a>依赖关系的管理</h3><h4 id="依赖关系管理系统"><a href="#依赖关系管理系统" class="headerlink" title="依赖关系管理系统"></a>依赖关系管理系统</h4><p>现在各开发语言一般都会提供以下 3 点的组合。</p>
+<ul>
+<li><p>管理通用库的仓库</p>
+</li>
+<li><p>定义对库的依赖关系的文件</p>
+</li>
+<li><p>使用上述文件实际管理依赖关系的脚本</p>
+</li>
+</ul>
+<h4 id="JVM-语言"><a href="#JVM-语言" class="headerlink" title="JVM 语言"></a>JVM 语言</h4><p>为了管理 Java 或 Scala 等在 JVM 上运行的语言的依赖关系，有着各种各样的工具。</p>
+<ul>
+<li><p>Apache Ant（+Apache ivy） </p>
+</li>
+<li><p>Maven</p>
+</li>
+<li><p>sbt</p>
+</li>
+<li><p>Gradle</p>
+</li>
+</ul>
+<p>这些工具都参照下面 Maven 的仓库作为共通的仓库。</p>
+<ul>
+<li><p>Maven 中央仓库 </p>
+</li>
+<li><p>Sonatype（中央仓库镜像）</p>
+</li>
+</ul>
+<h4 id="脚本语言"><a href="#脚本语言" class="headerlink" title="脚本语言"></a>脚本语言</h4><p>每个脚本语言都有自己各式各样的依赖关系的管理工具。</p>
+<ul>
+<li><p>CPAN（Perl）</p>
+</li>
+<li><p>PyPl（Python）</p>
+</li>
+<li><p>RubyGems（Ruby）</p>
+</li>
+<li><p>npm（Node.js）</p>
+</li>
+</ul>
+<p>和 JVM 语言不同，脚本语言的仓库和工具是相同的。这是因为脚本语言较早地采用了包（package）管理的思考方式，并一直在进行整理。另一方面，JVM 语言因为长时间没有采用这种思考方式，所以各类工具显得有点混乱。</p>
+<h2 id="4-缺陷管理"><a href="#4-缺陷管理" class="headerlink" title="4 缺陷管理"></a>4 缺陷管理</h2><h3 id="缺陷管理系统"><a href="#缺陷管理系统" class="headerlink" title="缺陷管理系统"></a>缺陷管理系统</h3><h4 id="项目进展不顺利的原因"><a href="#项目进展不顺利的原因" class="headerlink" title="项目进展不顺利的原因"></a>项目进展不顺利的原因</h4><p>如果参加项目的多名成员同时还兼任其他工作，那么在推进项目的过程中重要的就是任务整理、进度管理和信息共享。</p>
+<ul>
+<li><p>目标错误</p>
+</li>
+<li><p>估计错误，时间过紧，人员不足</p>
+</li>
+<li><p>没有定义项目的结束</p>
+</li>
+<li><p>成员的积极性不足，进度停滞不前</p>
+</li>
+</ul>
+<p>“进展不顺利、结束不了”的项目有着以下这些共同的特征。</p>
+<ul>
+<li><p>项目无法可视化</p>
+</li>
+<li><p>没有进行任务整理、进度管理和信息共享等</p>
+</li>
+</ul>
+<h4 id="用纸、邮件、Excel-进行任务管理时的问题"><a href="#用纸、邮件、Excel-进行任务管理时的问题" class="headerlink" title="用纸、邮件、Excel 进行任务管理时的问题"></a>用纸、邮件、Excel 进行任务管理时的问题</h4><p>有一些开发现场使用的是Microsoft Project。该产品适用于项目经理从高层次的视角向利益相关者汇报项目的情况，并不太适合现场的作业管理。和 Excel 相同，在多人同时编辑时稳定性方面存在问题。除此之外，纸、邮件、Excel 等还有其他欠缺的地方，那就是信息的统一管理和检索。</p>
+<p>对于后来加入项目或团队的成员来说，过去的事情以及需求等信息统一记录在一处，并且能够进行检索是非常重要的。如果能够做到这一点的话，之后加入的成员就能够进行自学，加快追赶的速度。</p>
+<p>多数的缺陷管理系统都附带有 Wiki 的机制，该机制能够在信息共享方面起到作用。例如使用问题票对课题进行调查和交流，最后把调查获得的知识以及确定下来的需求等总结记录在 Wiki 中。这样做能够提高信息的精确度，提高项目和团队的工作效率。</p>
+<h4 id="导入缺陷管理系统的优点"><a href="#导入缺陷管理系统的优点" class="headerlink" title="导入缺陷管理系统的优点"></a>导入缺陷管理系统的优点</h4><ul>
+<li><p>具有任务管理所需的基本功能：</p>
+<ul>
+<li>“必须要做什么”这样的任务定义</li>
+<li>“谁来做”这样的职责分配</li>
+<li>“什么时候完成”这样的期限管理</li>
+<li>“现在正处于作业中还是已经完成了”这样的状态管理</li>
+</ul>
+</li>
+<li><p>直观性、检索性较强</p>
+</li>
+<li>能够对信息进行统一管理及共享</li>
+<li>能够生成各类报表</li>
+<li>能够和其他系统进行关联，具有可扩展性</li>
+</ul>
+<h4 id="什么是缺陷驱动开发"><a href="#什么是缺陷驱动开发" class="headerlink" title="什么是缺陷驱动开发"></a>什么是缺陷驱动开发</h4><p>使用缺陷管理系统，以问题票（ticket）为中心构建开发流程的方法论称为缺陷驱动开发（TiDD）。</p>
+<p>实践缺陷驱动开发的规则原则上只有一条，那就是“禁止没有问题票的提交”。提交记录和问题票必须一对一地进行管理，以此来明确代码修改的理由，这便是缺陷驱动开发的目的所在。</p>
+<h4 id="缺陷驱动开发的具体步骤"><a href="#缺陷驱动开发的具体步骤" class="headerlink" title="缺陷驱动开发的具体步骤"></a>缺陷驱动开发的具体步骤</h4><p>缺陷驱动开发是方法论，对工具的使用并不是必需的。话虽如此，手动作业的话容易发生问题票和提交之间的关联遗漏。</p>
+<p>要想彻底贯彻缺陷驱动开发，可以使用版本管理系统提供的客户端挂钩（client side hook）和服务器端挂钩（server side hook）。在上述挂钩中能够检查提交信息中是否包含问题票号，如果不包含的话则拒绝接受该提交（或 Push）。</p>
+<p>这样就可以系统性地保证问题票和提交之间的关联，原因不明的修改将无法提交到代码库，项目也就更安全了。并且之后回顾修改时也一定能找到作为修改原因的问题票，这点在管理上非常有优势。</p>
+<p>但是在管理方面的优势有所增加的同时，反过来开发的速度就可能受到影响。这方面需要权衡考虑，要根据项目的目的和状况进行平衡。</p>
+<h3 id="主要的缺陷管理系统"><a href="#主要的缺陷管理系统" class="headerlink" title="主要的缺陷管理系统"></a>主要的缺陷管理系统</h3><h4 id="OSS（Open-Source-Software）产品"><a href="#OSS（Open-Source-Software）产品" class="headerlink" title="OSS（Open Source Software）产品"></a>OSS（Open Source Software）产品</h4><ul>
+<li>Trac：是基于 Python 的缺陷管理系统。之后被后来的 Redmine 以及SaaS（Software as a Service）形式的 GitHub 和 PivotalTracker 等逐渐取代，最近已经很少看到了。但如果要说上手简单的话，Trac 至今依然是第一选择。</li>
+<li>Redmine：是比 Trac 稍晚的基于 Ruby on Rails 框架的缺陷管理系统</li>
+<li><p>Bugzilla：是基于 Perl 的缺陷管理系统。原本是 Netscape 公司内部的系统，后来被作为 OSS 公开。现在由 Mozilla 基金会继续开发，可以说是 OSS 界最具“历史和传统”性质的缺陷管理系统。</p>
+</li>
+<li><p>Mantis：是基于 PHP 的缺陷管理系统</p>
+<p>B</p>
+<p>是基于 PHP 的缺陷管理系统</p>
+</li>
+</ul>
+<h4 id="商用产品"><a href="#商用产品" class="headerlink" title="商用产品"></a>商用产品</h4><ul>
+<li>JIRA：是由 Atlassian有偿提供的基于 Java 的缺陷管理系统</li>
+<li>YouTRACK：是以 IntelliJ IDEA 等 IDE 出名的 JerBrains 所提供的基于 Java 的缺陷管理系统</li>
+<li>Pivotal Tracker：是 PivotalLab 提供的缺陷管理系统</li>
+<li>Backlog：是由日本的 nulab 提供的缺陷管理系统</li>
+<li>Github</li>
+</ul>
+<h3 id="新功能开发、修改bug时的工作流程"><a href="#新功能开发、修改bug时的工作流程" class="headerlink" title="新功能开发、修改bug时的工作流程"></a>新功能开发、修改bug时的工作流程</h3><ul>
+<li><p>建立问题票</p>
+</li>
+<li><p>指定责任人</p>
+</li>
+<li><p>开发</p>
+</li>
+<li><p>提交</p>
+</li>
+<li><p>Push 到代码库</p>
+</li>
+</ul>
+<h2 id="5-CI（Continuous-Integration）"><a href="#5-CI（Continuous-Integration）" class="headerlink" title="5 CI（Continuous Integration）"></a>5 CI（Continuous Integration）</h2><h4 id="集成（integration）"><a href="#集成（integration）" class="headerlink" title="集成（integration）"></a>集成（integration）</h4><p>将各个成员的工作成果集中到一处进行集成，直到形成可以运行的系统，各个成员的开发工作才有了意义，才能进行测试，最终才能以产品的形式向顾客提供价值。</p>
+<p>集成，具体来说就是像下面这样执行 build 和测试的流程。</p>
+<ul>
+<li>将所有的代码集中到一处</li>
+<li>设置依赖程序库等的路径</li>
+<li>必要的情况下进行编译</li>
+<li>进行数据库构建和数据加载</li>
+<li>必要的情况下对中间件进行配置和启动</li>
+<li>实施单元测试、集成测试、用户验收测试等</li>
+</ul>
+<p>原本 CI 是作为敏捷开发方法之一的极限编程（eXtreme Programming，XP）的实践项目被提出的。其实可以毫不过分地说，在以高品质、快速地提供有价值的软件为目标的敏捷开发中，CI 是最基本、最重要的实践。</p>
+<h4 id="使开发敏捷化"><a href="#使开发敏捷化" class="headerlink" title="使开发敏捷化"></a>使开发敏捷化</h4><p>瀑布式开发的开发阶段：过去的瀑布式开发是在需求定义完成后进行设计、开发，之后再依次进行单元测试、集成测试、用户验收测试，因此到开始正式提供服务的开发周期容易拖得很长</p>
+<p><img src="/images/notes/20200226/p-12.png" alt="p-12.png"></p>
+<p>开发全部完成后才开始单元测试，这就意味着如果开发周期为 3 个月，那么多名开发人员为期 3 个月所编写的代码直到单元测试阶段才第一次集中到一处进行 build。在此之后还有集成测试和用户验收测试。</p>
+<p>从图 5.1 就能看出，从需求定义确定下来，到用可以实际运行的程序进行验证，这期间的时间间隔非常大。甚至会有在项目临近结束时还需要重新返工的风险。</p>
+<p>瀑布式开发是确保各阶段的正确性之后再开始下一阶段，因此理论上在进入下一个阶段后就不应该返回上一阶段。但实际上，很多事情只有在目睹运行的系统后才会知道。正如读者所知，很多采用瀑布式开发的项目直到临近结束还在修改需求、重新编码并重新测试。</p>
+<p>敏捷开发的开发阶段:与之相对，以 Scrum 为代表的敏捷开发采取了相反的方式，即以sprint 这样较短的周期来循环实施设计开发、单元测试、集成测试、用户验收测试（图 5.2）。sprint 的周期因项目而异，通常多设定为两周到 1个月。</p>
+<p><img src="/images/notes/20200226/p-13.png" alt="p-13.png"></p>
+<p>Scrum 以 sprint 为周期提交工作成果，并以 sprint review 这样的流程对工作成果进行审查，给出反馈，并反映到下一个 sprint 的作业中。</p>
+<p>以正式提供服务为目标，重复上述过程。上述流程可以理解成将瀑布式开发中从需求定义到用户验收测试的过程浓缩到为期两周的 sprint 内进行 。这样的方式能够及早地检查出产品和需求之间的差异，调整的机会也会相应增加。</p>
+<p>CI 是敏捷开发的基础中最重要的实践。sprint 中的工作成果通常是指“可以确认满足某种需求的可运行的程序”，进一步说就是“可以判断是否能够正式投入运营的可运行程序”。</p>
+<p>要在短短两周的时间内制作出可以运行的产品，如果还要在集成上花费时间是肯定来不及的。更何况是到了 sprint 的后期才开始集成并测试，无论如何都是来不及的。因此就需要每天进行开发、集成、测试这样的循环，这就是 CI。换言之，build 和测试的自动化途径将是至关重要的。</p>
+<p><img src="/images/notes/20200226/p-14.png" alt="p-14.png"></p>
+<p>以这样的粒度快速进行反馈的循环，就能够在快速开发的同时确保产品的质量，这就是敏捷开发。而在背后支撑着敏捷开发的就是 CI 这样的实践。</p>
+<h4 id="为什么要进行-CI-这样的实践"><a href="#为什么要进行-CI-这样的实践" class="headerlink" title="为什么要进行 CI 这样的实践"></a>为什么要进行 CI 这样的实践</h4><ul>
+<li>成本效益（cost benefit）</li>
+<li>市场变化的速度</li>
+</ul>
+<h4 id="CI-的必要条件"><a href="#CI-的必要条件" class="headerlink" title="CI 的必要条件"></a>CI 的必要条件</h4><ul>
+<li><p>版本管理系统</p>
+</li>
+<li><p>build 工具</p>
+</li>
+<li><p>测试代码</p>
+</li>
+<li><p>CI 工具</p>
+</li>
+</ul>
+<p><img src="/images/notes/20200226/p-15.png" alt="p-15.png"></p>
+<p><img src="/images/notes/20200226/p-16.png" alt="p-16.png"></p>
+<h4 id="编写测试代码所需的框架"><a href="#编写测试代码所需的框架" class="headerlink" title="编写测试代码所需的框架"></a>编写测试代码所需的框架</h4><ul>
+<li><p>测试驱动开发（TDD）的框架:具有代表性的测试驱动开发框架有 Java 的 JUnit和 TestNG 等，还有为数众多的各类语言的 xUnit系列框架。</p>
+<p>这些 xUnit 系列框架的特征是：通过编写测试用例，确认测试对象类以及方法的动作的正确性。换言之，也可以理解为根据测试代码来设计类的 API。这个特征和接下来的行为驱动开发工具形成了很好的对照。</p>
+</li>
+<li><p>行为驱动开发（BDD）的框架:从测试驱动开发发展而来，近年来逐渐流行起来的便是行为驱动开发（Behavior Driven Development，BDD）。</p>
+<p>和 TDD 的不同之处在于，TDD 是针对程序的 API 编写测试，而BDD 则是接近于需求说明的编写方法。如同其名字一样，BDD 着眼于程序的行为。其方式是在需求确定后编写应用的代码，所以与 TDD 的测试优先相对，BDD 可以说是需求优先（spec fifirst）。</p>
+<p>大 多数的需求都能用接近自然语言的 DSL（Domain Specific Language）来编写，这是 BDD 的特点。使用近似于自然语言的 DSL 来描述需求，然后直接将其用于测试。BDD 是以让负责需求定义的人或客户等立场上接近于产品利益相关者的人也能够编写需求为目的而设计的，这也是其特征。与之相对，TDD 框架的机制是促进 API 的设计。</p>
+</li>
+</ul>
+<h4 id="主要的CI工具"><a href="#主要的CI工具" class="headerlink" title="主要的CI工具"></a>主要的CI工具</h4><ul>
+<li>Jenkins</li>
+<li>TravisCI</li>
+</ul>
+<h3 id="build工具的使用方法"><a href="#build工具的使用方法" class="headerlink" title="build工具的使用方法"></a>build工具的使用方法</h3><p>确保开发人员、测试人员、负责 build 的人员、负责发布的人员都能使用相同的方法进行 build，这对于 CI 的实现是非常重要的。因此开发人员也应该从一开始就使用 build 工具来构建开发环境。</p>
+<h3 id="测试代码的写法"><a href="#测试代码的写法" class="headerlink" title="测试代码的写法"></a>测试代码的写法</h3><h4 id="作为CI的对象的测试的种类"><a href="#作为CI的对象的测试的种类" class="headerlink" title="作为CI的对象的测试的种类"></a>作为CI的对象的测试的种类</h4><ul>
+<li>单元测试（Unit Test，UT）</li>
+<li>集成测试（Integration Test，IT）</li>
+<li>用户验收测试（User Acceptance Test，UAT）</li>
+<li>回归测试</li>
+</ul>
+<p>编写测试代码还涉及工程的文化层面。也就是说，缺乏测试的工程是没有编写测试文化的工程。为了改变这样的文化，实际编写测试代码并展现其效果是最好的办法。因此在修改 bug 或添加新功能时请一定要编写测试代码。</p>
+<p>单元测试基本上是利用模拟对象 (mock) 或桩程序 (stub) 进行测试的。</p>
+<p>不得不针对 UI 编写测试的情况下，可以利用 Selenium 这样的工具来实现用户验收测试的自动化。</p>
+<p>测试的自动化是越做越耗费时间和精力。将编写测试所获得的质量提升以及能够在未来消减的工数，与编写测试实际耗费的工数进行权衡，注意保持两者的平衡。</p>
+<p>尽可能地避免定期执行，以每次提交时进行 build 这样的循环来实施 CI 是很重要的，因为这样版本管理系统的提交记录和 CI 服务器的build 结果就能关联起来，工程的可追溯性能够得到提高。</p>
+<blockquote>
+<p>Git 提供了在发生提交或收到 Push 等事件时执行特定脚本这样的钩子（hook）的机制。在各个代码库下的 .git/hooks/ 目录下有示例文件，编写自己的脚本时可以进行参考。</p>
+<p>例如，在代码被 Push 到 Git 代码库时，若要执行 Jenkins 的任务，可以建立 .git/hooks/post-receive 文件，并按照下面的内容进行编辑。上述处理是以安装 Jenkins 的 Git Plugin 为前提的。</p>
+</blockquote>
+<h4 id="统计覆盖率"><a href="#统计覆盖率" class="headerlink" title="统计覆盖率"></a>统计覆盖率</h4><p>代码覆盖率是表示测试对象的应用程序代码在测试中被执行了多少的指标。统计覆盖率能够看出代码被测试的程度，或者反过来说，能够使还需要增加多少测试这样的信息可视化。</p>
+<p>但需要注意的是，代码覆盖率只是反映了测试对象的应用程序代码是否被执行，并不能反映出用作测试的测试代码是否妥当，因此并不可以盲目相信。但在认识到需要通过代码审阅（source review）等方式来确保测试代码的内容的正确性之后，代码覆盖率作为质量指标之一会变得很重要，所以请一定要试着用一下。</p>
+<ul>
+<li>覆盖率统计工具<ul>
+<li>Cobertura</li>
+<li>Jacoco</li>
+<li>Scct</li>
+<li>SimpleCov</li>
+<li>Rcov</li>
+</ul>
+</li>
+</ul>
+<p>在自动化测试和统计代码覆盖率的基础上，若能对代码实施静态分析，就可以进一步提高团队开发的质量。因此应通过 Jenkins 持续地检查代码是否符合编码规则、是否容易产生 bug 等。</p>
+<p>能够在 Jenkins 中使用的静态分析工具有以下这些。</p>
+<ul>
+<li>Checkstyle</li>
+<li>PMD</li>
+<li>Findbugs</li>
+</ul>
+<p>各个工具都有自己的特点。Checkstyle 擅长编码规则的检查等；PMD 的可定制化的程度高，对编码规则以及潜在的 bug 都能够检查；Findbugs 则以善于检查潜在的 bug 为特点。各个工具都支持规则的定制和扩展。请根据项目的具体情况选择合适的工具。</p>
+<p>通过 CI 实施静态分析的优点有很多，其中最显著的是可以减轻代码 review 时的负担这一点。代码 review 虽说是为了提高质量而需要实施的实践项目之一，但其实施的成本之高是无法忽视的。而如果能确保静态分析自动化，review 时就可以忽略对编码规则等细节的检查，从而对更为本质的内容进行 review。</p>
+<p><img src="/images/notes/20200226/p-17.png" alt="p-17.png"></p>
+<h2 id="6-部署的自动化（持续交付）"><a href="#6-部署的自动化（持续交付）" class="headerlink" title="6 部署的自动化（持续交付）"></a>6 部署的自动化（持续交付）</h2><p>所有部署相关的作业都应该实现自动化，这里所说的部署是指将开发的代码以能够使用的状态放置到服务器上这一连串行为。</p>
+<h3 id="好处"><a href="#好处" class="headerlink" title="好处"></a>好处</h3><ul>
+<li>细粒度、频繁地发布可以使风险可控</li>
+<li>能尽快地获得用户的反馈</li>
+<li>团队的规模可控</li>
+</ul>
+<h3 id="自动化"><a href="#自动化" class="headerlink" title="自动化"></a>自动化</h3><h4 id="部署自动化方面的共识"><a href="#部署自动化方面的共识" class="headerlink" title="部署自动化方面的共识"></a>部署自动化方面的共识</h4><p>支撑部署自动化的技术方面，要选用开发人员（Dev）和运维人员（Ops）都能够使用的技术。关于这一点，在充分协商的基础上，双方达成一致是非常重要的。缺少任何一方的协助，都无法顺利实现部署的自动化。因为部署是指从开发到向正式环境发布应用程序为止的一连串行为。</p>
+<p>要实现部署的自动化，需要全体团队成员就下面列举的 4 个项目达成统一认识。</p>
+<ul>
+<li><p>1 要全部采用版本管理</p>
+</li>
+<li><p>2 所有的环境都要用同样的方式来构建</p>
+</li>
+<li><p>3 要实现发布工作的自动化，并事先进行验证</p>
+</li>
+<li><p>4 要反复多次进行测试</p>
+</li>
+</ul>
+<h4 id="部署流水线"><a href="#部署流水线" class="headerlink" title="部署流水线"></a>部署流水线</h4><p>实现应用程序的 build、部署、测试、发布这一系列流程的自动化称为部署流水线（deployment pipeline）</p>
+<p><img src="/images/notes/20200226/p-18.png" alt="p-18.png"></p>
+<p>部署流水线的每个阶段都有着各种可以使用的工具。将各个阶段的工具组合起来就有可能加快部署的速度。</p>
+<p>例如，提交某个 bug 的修改，由提交引发持续集成的运行，顺利通过 build 后自动部署到测试环境，执行用户验收测试，通过测试的话向正式环境实施部署，在正式环境上实施完冒烟测试后向相关人员发送通知。到此为止的所有流程全部以自动化的形式实施。上述流程虽说是比较极端的例子，但确实是一种理想形式。</p>
+<p>任何人都能够实施部署是很重要的:实际上一般的流程是当提交积累到一定数量时建立分支，并向正式环境实施部署。这里的重点是部署流水线要能够顺畅地运转起来，在部署的各个阶段都不允许有因为对人的依赖而无法部署的情况。理想的情况是任何人都可以实施测试，也都可以实施发布。</p>
+<h4 id="服务提供工具链（provisioning-tool-chain）"><a href="#服务提供工具链（provisioning-tool-chain）" class="headerlink" title="服务提供工具链（provisioning tool chain）"></a>服务提供工具链（provisioning tool chain）</h4><ul>
+<li><p>引导（Bootstrapping）… 服务器 OS 的配置及基于虚拟机的服务器安装自动化的相关工具</p>
+</li>
+<li><p>配置（Configuration）… 服务器及中间件的配置自动化工具</p>
+</li>
+<li><p>业务流程（Orchestration）… 代码部署及发布相关的服务器操作等自动化工具</p>
+</li>
+</ul>
+<p>以上 3 个层次都无法只借助 1 个工具完成所有处理，只有集齐各个层次的工具并实现流水作业，部署流水线才能够完成。</p>
+<p><img src="/images/notes/20200226/p-19.png" alt="p-19.png"></p>
+<h3 id="引导（Bootstrapping）"><a href="#引导（Bootstrapping）" class="headerlink" title="引导（Bootstrapping）"></a>引导（Bootstrapping）</h3><h4 id="Kickstart"><a href="#Kickstart" class="headerlink" title="Kickstart"></a>Kickstart</h4><h4 id="Vagrant"><a href="#Vagrant" class="headerlink" title="Vagrant"></a>Vagrant</h4><h3 id="配置（Configuration）"><a href="#配置（Configuration）" class="headerlink" title="配置（Configuration）"></a>配置（Configuration）</h3><h4 id="Chef"><a href="#Chef" class="headerlink" title="Chef"></a>Chef</h4><h4 id="serverspec"><a href="#serverspec" class="headerlink" title="serverspec"></a>serverspec</h4><h3 id="编配（Orchestration）"><a href="#编配（Orchestration）" class="headerlink" title="编配（Orchestration）"></a>编配（Orchestration）</h3><p>这里的编配大致上可以简单地理解为发布作业的自动化。下面举一些发布作业中的反面教材，如果其中没有一条和你所在的项目相符合的话，可以直接跳过本节。</p>
+<ul>
+<li><p>手动进行发布作业</p>
+</li>
+<li><p>发布作业的内容每次都不相同</p>
+</li>
+<li><p>发布作业需要特殊的知识（其他人不知道如何发布）</p>
+</li>
+<li><p>不能反复进行任意次数的发布</p>
+</li>
+</ul>
+<p>什么是发布？发布可以理解为通过 SSH 登录到远程服务器，将代码切换到最新的分支并进行更新数据库等操作。小型项目的发布，经过几个到几十个步骤的操作可能就结束了。而一定规模的项目的发布，则需要经过数百以至于数千个步骤。</p>
+<p>手动实施上述工作不仅会耗费大量的时间，对于负责发布的工作人员的体力也是极大消耗。因此这样的情况下要反复地进行发布是不现实的。</p>
+<p>对正式环境实施的发布总是会伴随着失败的风险。将发布失败的可能性降为零是不可能的，但有方法让它接近于零。那就是推进发布作业的自动化。在测试环境以及 staging 环境上反复演习自动化的发布并进行验证，在正式环境之前发现问题，然后修改有问题的内容，再反复地对发布进行演练，这样就能降低在正式环境中发生错误的风险。</p>
+<h4 id="Capistrano"><a href="#Capistrano" class="headerlink" title="Capistrano"></a>Capistrano</h4><h4 id="Fabric"><a href="#Fabric" class="headerlink" title="Fabric"></a>Fabric</h4><h4 id="Jenkins"><a href="#Jenkins" class="headerlink" title="Jenkins"></a>Jenkins</h4><h3 id="考虑运用相关的问题"><a href="#考虑运用相关的问题" class="headerlink" title="考虑运用相关的问题"></a>考虑运用相关的问题</h3><h4 id="蓝绿部署（blue-green-deployment）"><a href="#蓝绿部署（blue-green-deployment）" class="headerlink" title="蓝绿部署（blue-green deployment）"></a>蓝绿部署（blue-green deployment）</h4><h4 id="云（cloud）时代的蓝绿部署"><a href="#云（cloud）时代的蓝绿部署" class="headerlink" title="云（cloud）时代的蓝绿部署"></a>云（cloud）时代的蓝绿部署</h4><h4 id="PaaS"><a href="#PaaS" class="headerlink" title="PaaS"></a>PaaS</h4><p>（Platform as a Service）。</p>
+<p>PaaS 是一种由运营商负责提供从网络、OS 到应用服务器等中间件的服务。因为 PaaS 能够立即提供可使用的应用程序运行环境，所以开发人员能够专心于开发工作。</p>
+<h2 id="7-回归测试"><a href="#7-回归测试" class="headerlink" title="7 回归测试"></a>7 回归测试</h2><p>回归测试是以检查退化为目的的测试。</p>
+<h4 id="测试分类的整理"><a href="#测试分类的整理" class="headerlink" title="测试分类的整理"></a>测试分类的整理</h4><p>测试可以被分为 4 个象限，这个分类方法将各种测试依据“业务层面看到的”和“技术层面看到的”，以及“以支持团队为目的进行的”和“以评价产品为目的进行的”的不同，用 2 根轴分为 4 个象限，并且在 4 个方块中给出了各类测试的主要手段。</p>
+<p><img src="/images/notes/20200226/p-20.png" alt="p-20.png"></p>
+<p>相对于第 1、第 2象限侧重于自动化方面，第3象限只能由人手动实施的测试。</p>
+<h4 id="回归测试的必要性"><a href="#回归测试的必要性" class="headerlink" title="回归测试的必要性"></a>回归测试的必要性</h4><ul>
+<li><p>退化（degrade）的发生：为了在代码变更时保证质量，既然无法预测系统的何处会发生退化，就必须实施回归测试以确认没有预想外的影响发生。</p>
+</li>
+<li><p>应该实现自动测试的原因：从修改的代码确定影响范围，再从重要程度等风险的观点出发确定测试范围后实施测试，这可能是一般的作法。但是笔者认为通过实现回归测试的自动化，每次都执行所有的测试用例，能够最有效地保证质量。</p>
+<p>若提交 1 周后才收到当时的修改引发了新的问题这样的报告，有时就需要先回想一番后才能着手。因此实现测试的自动化，频繁地实施测试还能够加快开发速度。</p>
+</li>
+</ul>
+<h4 id="回归测试自动化的目标"><a href="#回归测试自动化的目标" class="headerlink" title="回归测试自动化的目标"></a>回归测试自动化的目标</h4><p>一般来说是由开发人员实施的单元测试。可是无论单元测试的覆盖率如何提升，仅靠单元测试是无法保证产品的质量的。单元测试作为确保程序的动作和开发人员的意图相一致的测试，即使达到 100% 的覆盖率，还是有如下这些 bug 无法发现。</p>
+<ul>
+<li>在程序中的 for 或 while 这样的循环中，不进入循环体或者超过了最大循环次数等边界值相关的 bug</li>
+<li>包含预料之外的数据时的异常处理不充分而导致的 bug</li>
+<li>共享内存的操作或数据库的锁处理等，由于进程、线程间共享数据而在特殊的时间点发生的 bug</li>
+<li>使用了中间件的某个特定版本（Web 服务器、数据库服务器、邮件服务器等）而产生的 bug</li>
+<li>需求自身的问题所造成的 bug</li>
+<li>功能未完成而造成的 bug</li>
+</ul>
+<p>所以，不仅仅是单元测试，还需要从最终使用系统的用户视角出发的集成测试。不过值得庆幸的是，这种集成测试的自动化工具正在不断地被开发出来。下面讲解的作为 Web 应用程序测试框架的 Selenium 就是一款著名的测试工具。</p>
+<h3 id="Selenium"><a href="#Selenium" class="headerlink" title="Selenium"></a>Selenium</h3><h4 id="Selenium-的优点"><a href="#Selenium-的优点" class="headerlink" title="Selenium 的优点"></a>Selenium 的优点</h4><ul>
+<li>自动化测试用例制作简单</li>
+<li>支持多种浏览器及 OS</li>
+</ul>
+<h4 id="Selenium-的组件"><a href="#Selenium-的组件" class="headerlink" title="Selenium 的组件"></a>Selenium 的组件</h4><ul>
+<li>Selenium IDE</li>
+<li>Selenium Remote Control（Selenium RC）</li>
+</ul>
+<p><img src="/images/notes/20200226/p-21.png" alt="p-21.png"></p>
+<h4 id="Selenium-WebDriver"><a href="#Selenium-WebDriver" class="headerlink" title="Selenium WebDriver"></a>Selenium WebDriver</h4><h4 id="什么是好的测试用例"><a href="#什么是好的测试用例" class="headerlink" title="什么是好的测试用例"></a>什么是好的测试用例</h4><ul>
+<li><p>单独执行各个测试套件也必须能够通过测试</p>
+</li>
+<li><p>1 个测试套件的执行时间不能超过所预期的全部测试的构建时间</p>
+</li>
+</ul>
+<h4 id="Selenium-的实际应用"><a href="#Selenium-的实际应用" class="headerlink" title="Selenium 的实际应用"></a>Selenium 的实际应用</h4><ul>
+<li>测试页面是否有改动</li>
+<li>测试稳定运行</li>
+</ul>
+<h4 id="Jenkins-和-Selenium-的协作"><a href="#Jenkins-和-Selenium-的协作" class="headerlink" title="Jenkins 和 Selenium 的协作"></a>Jenkins 和 Selenium 的协作</h4></div></article></div><div class="post-paginator"><div class="post-links"><div class="post-prev"><a href="/2020/03/03/tools/【转】【工具】开发中有用的定律、理论、原则和模式/" class="prev">Previous Post<span>【转】【工具】开发中有用的定律、理论、原则和模式</span></a></div><div class="post-next"><a href="/2020/02/03/react/【笔记】《React进阶之路》/" class="next">Next Post<span>《React进阶之路》笔记</span></a></div></div></div></div><div class="sidebar"><div class="social-links"><ul><li class="social-link"><a href="http://github.com/MichealWayne" target="_blank" class="link-github"><i class="icon icon-github"></i></a></li><li class="social-link"><a href="mailto:michealwayne@163.com" target="_self" class="link-mail"><i class="icon icon-mail"></i></a></li></ul></div><div class="recent-posts widget"><h3 class="widget-title"> Recent Posts</h3><div class="widget-content"><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2023/01/15/notes/【笔记】StateOfJs2022中的ES语言特性/">【笔记】State Of Js2022中的ES语言特性</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/01/02/notes/【笔记】《演进式架构》（三）/">【笔记】《演进式架构》学习笔记（三）</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/12/17/notes/【笔记】《演进式架构》（二）/">【笔记】《演进式架构》学习笔记（二）</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/12/10/notes/【笔记】《演进式架构》（一）/">【笔记】《演进式架构》学习笔记（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/11/19/typescript/浅谈TypeScript的图灵完备性/">浅谈TypeScript的图灵完备性</a></li></ul></div></div><div class="recent-comment widget"><h3 class="widget-title"> Author</h3><div class="widget-content"><div class="m-author"><div class="u-avatar"><img src="data:image/jpeg;base64,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"></div><div class="u-author_tit"><p>My name is Micheal Wayne and this is my blog.<br>I am a front-end software engineer.<br>Contact: <a href="mailto:michealwayne@163.com"> <span>michealwayne@163.com</span></a></p></div></div></div></div><div class="tag-lists widget"><h3 class="widget-title"> Tags</h3><div class="widget-content"><ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/APM/">APM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BOM/">BOM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Bun/">Bun</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DOM/">DOM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTML/">HTML</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OKR/">OKR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UML/">UML</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UX/">UX</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/">Vue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WebSocket/">WebSocket</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zepto/">Zepto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/canvas/">canvas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/">css</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/es6/">es6</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eslint/">eslint</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/h5/">h5</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/">http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jQuery/">jQuery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/">js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lerna/">lerna</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lottie/">lottie</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/">nodejs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prettier/">prettier</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/">react</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/serviceWorker/">serviceWorker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sketch/">sketch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skywalking/">skywalking</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/taro/">taro</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tslint/">tslint</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/typescript/">typescript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webApi/">webApi</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpack/">webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/代码规范/">代码规范</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/前端/">前端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/动效/">动效</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图形处理/">图形处理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/安全/">安全</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/小程序/">小程序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/工具/">工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/工程/">工程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/微前端/">微前端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/思维逻辑/">思维逻辑</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/性能/">性能</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/架构/">架构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/概念/">概念</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/浏览器/">浏览器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/用户体验/">用户体验</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/笔记/">笔记</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/编码/">编码</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/网络/">网络</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/网络协议/">网络协议</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/设计模式/">设计模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/调试/">调试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/质量/">质量</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/软件工程/">软件工程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/项目管理/">项目管理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/高并发/">高并发</a></li></ul></div></div><div class="archive-lists widget"><h3 class="widget-title"> Archive</h3><div class="widget-content"><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">November 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/05/">May 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">April 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">December 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">August 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">March 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">September 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">November 2017</a><span class="archive-list-count">5</span></li></ul></div></div></div></div></div><footer><div class="copyright"><div class="container"><div class="col-6"><div class="site-info">© 2016 - 2023 <a href="http://blog.michealwayne.cn">Micheal Wayne</a></div></div><div class="col-6"><div class="site-contact"><div class="social-links"><ul><li class="social-link"><a href="http://github.com/MichealWayne" target="_blank" class="link-github"><i class="icon icon-github"></i></a></li><li class="social-link"><a href="mailto:michealwayne@163.com" target="_self" class="link-mail"><i class="icon icon-mail"></i></a></li></ul></div></div></div></div></div></footer><a class="scroll-up"><span class="icon icon-up"></span></a><script src="https://code.jquery.com/jquery-3.1.0.min.js"></script><script src="/js/posfixed.js"></script><script src="/js/utils.js"></script><script src="/js/search.js"></script></body></html>
