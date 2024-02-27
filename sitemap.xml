@@ -2,6 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://blog.michealwayne.cn/2024/02/25/tools/%E3%80%90%E5%B7%A5%E5%85%B7%E3%80%91prettier%E5%B8%B8%E8%A7%81%E9%85%8D%E7%BD%AE/</loc>
+    
+    <lastmod>2024-02-27T02:42:56.959Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.michealwayne.cn/2021/12/12/%E3%80%90%E7%BB%BC%E5%90%88%E3%80%91web%E6%80%A7%E8%83%BD%E5%8F%8A%E4%BC%98%E5%8C%96/</loc>
+    
+    <lastmod>2024-02-26T13:23:32.798Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://blog.michealwayne.cn/2024/02/04/notes/%E3%80%90%E7%AC%94%E8%AE%B0%E3%80%91js%E5%86%85%E7%BD%AE%E6%95%B0%E6%8D%AE%E6%B7%B1%E6%8B%B7%E8%B4%9DAPI-structuredClone/</loc>
     
     <lastmod>2024-02-13T02:29:59.069Z</lastmod>
@@ -12,13 +26,6 @@
     <loc>http://blog.michealwayne.cn/2019/08/26/notes/%E3%80%90%E7%AC%94%E8%AE%B0%E3%80%91%E6%B5%8F%E8%A7%88%E5%99%A8%E6%80%A7%E8%83%BD%E5%AF%B9%E8%B1%A1Performance/</loc>
     
     <lastmod>2024-01-25T11:26:50.159Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://blog.michealwayne.cn/2021/12/12/%E3%80%90%E7%BB%BC%E5%90%88%E3%80%91web%E6%80%A7%E8%83%BD%E5%8F%8A%E4%BC%98%E5%8C%96/</loc>
-    
-    <lastmod>2024-01-25T08:49:09.564Z</lastmod>
     
   </url>
   
@@ -1353,7 +1360,7 @@
   </url>
   
   <url>
-    <loc>http://blog.michealwayne.cn/2018/05/19/ux_way/%E3%80%8AUX%E8%AE%BE%E8%AE%A1%E4%B9%8B%E9%81%93%E3%80%8B%E2%80%945.%E4%B8%9A%E5%8A%A1%E9%9C%80%E6%B1%82/</loc>
+    <loc>http://blog.michealwayne.cn/2018/05/06/ux_way/%E3%80%8AUX%E8%AE%BE%E8%AE%A1%E4%B9%8B%E9%81%93%E3%80%8B%E2%80%943.%E7%BB%99%E5%92%A8%E8%AF%A2%E5%B8%88%E5%92%8C%E8%87%AA%E7%94%B1%E8%81%8C%E4%B8%9A%E8%80%85%E7%9A%84%E5%BB%BA%E8%AE%AE/</loc>
     
     <lastmod>2019-06-04T13:58:08.000Z</lastmod>
     
@@ -1367,7 +1374,7 @@
   </url>
   
   <url>
-    <loc>http://blog.michealwayne.cn/2018/05/06/ux_way/%E3%80%8AUX%E8%AE%BE%E8%AE%A1%E4%B9%8B%E9%81%93%E3%80%8B%E2%80%943.%E7%BB%99%E5%92%A8%E8%AF%A2%E5%B8%88%E5%92%8C%E8%87%AA%E7%94%B1%E8%81%8C%E4%B8%9A%E8%80%85%E7%9A%84%E5%BB%BA%E8%AE%AE/</loc>
+    <loc>http://blog.michealwayne.cn/2018/05/19/ux_way/%E3%80%8AUX%E8%AE%BE%E8%AE%A1%E4%B9%8B%E9%81%93%E3%80%8B%E2%80%945.%E4%B8%9A%E5%8A%A1%E9%9C%80%E6%B1%82/</loc>
     
     <lastmod>2019-06-04T13:58:08.000Z</lastmod>
     
