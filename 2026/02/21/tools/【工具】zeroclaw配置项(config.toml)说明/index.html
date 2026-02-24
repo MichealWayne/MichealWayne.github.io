@@ -1,0 +1,2076 @@
+<!DOCTYPE html><html><head><meta name="generator" content="Hexo 3.9.0"><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> 【工具】ZeroClaw配置项(config.toml)说明 | Wayne的博客</title><meta name="description" content="【工具】ZeroClaw配置项(config.toml)说明 - Micheal Wayne"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/scss/casual.css"><link rel="stylesheet" href="/css/icon.css"><link rel="search" type="application/opensearchdescription+xml" href="http://blog.michealwayne.cn/atom.xml" title="Wayne的博客"></head><script>(function (w) {w.frontjsConfig={token:"81a82620fb0dca7680f2f06be134fa4f",behaviour:8,FPSThreshold:10};w.frontjsTmpData = {r:[],e:[],l:[]};w.frontjsTmpCollector = function (ev) {(ev.message ? window.frontjsTmpData.e : window.frontjsTmpData.r).push([new Date().getTime(), ev])};w.FrontJS = {addEventListener: function (t, f) {w.frontjsTmpData.l.push([t, f]);return f;},removeEventListener: function (t, f) {for (var i = 0; i < w.frontjsTmpData.l.length; i++) {t === w.frontjsTmpData.l[i][0] && f === w.frontjsTmpData.l[i][1] && w.frontjsTmpData.l.splice(i, 1);}return f;}};w.document.addEventListener("error", w.frontjsTmpCollector, true);w.addEventListener("error", w.frontjsTmpCollector, true);w.addEventListener("load", function () {var n = w.document.createElement("script");n.src = "https://frontjs-static.pgyer.com/dist/current/frontjs.web.min.js"; w.document.body.appendChild(n);}, true);})(window);</script><body><div class="header"><header class="site-header"><div class="site-nav"><span class="button-toggle"></span><div class="container"><div class="nav-item"><a href="/" target="_self" data-text="home">主页</a></div><div class="nav-item"><a href="/archives" target="_self" data-text="archive">归档</a></div><div class="nav-item"><a href="/about" target="_self" data-text="about">关于</a></div></div><form id="search-form" class="nav-item"><input type="text" id="local-search-input" name="q" results="0" placeholder="搜索" autocomplete="off" autocorrect="off" class="search form-control"><span onclick="resetSearch()" class="fa fa-times"> </span></form><div id="local-search-result"></div><p class="no-result">No results found</p></div></header></div><div class="main"><div class="container"><div class="content"><div class="post"><article class="post-block"><h1 class="post-title">【工具】ZeroClaw配置项(config.toml)说明</h1><span class="post-date">Feb 21, 2026</span><span class="post-tag"><a href="/tags/工具/">工具</a><a href="/tags/ai/">ai</a></span><img src="/images/zeroclaw/i-logo.png" class="bgimage"><div class="post-content"><h1 id="ZeroClaw-配置项-config-toml-说明"><a href="#ZeroClaw-配置项-config-toml-说明" class="headerlink" title="ZeroClaw 配置项(config.toml)说明"></a>ZeroClaw 配置项(config.toml)说明</h1><p>因为配置项比较多，所以本文内容分为了精简的“速查版”和较完整的“完整版”。</p>
+<hr>
+<h1 id="速查版"><a href="#速查版" class="headerlink" title="速查版"></a>速查版</h1><h1 id="ZeroClaw-config-toml-配置项信息表（仅表格）"><a href="#ZeroClaw-config-toml-配置项信息表（仅表格）" class="headerlink" title="ZeroClaw config.toml 配置项信息表（仅表格）"></a>ZeroClaw <code>config.toml</code> 配置项信息表（仅表格）</h1><h2 id="A-配置加载与全局默认项"><a href="#A-配置加载与全局默认项" class="headerlink" title="A. 配置加载与全局默认项"></a>A. 配置加载与全局默认项</h2><table>
+<thead>
+<tr>
+<th>配置键 / 概念</th>
+<th>作用</th>
+<th>常见值/示例</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ZEROCLAW_WORKSPACE</code></td>
+<td>指定工作区配置入口</td>
+<td>环境变量路径</td>
+<td>配置加载优先级最高（若设置）</td>
+</tr>
+<tr>
+<td><code>~/.zeroclaw/active_workspace.toml</code></td>
+<td>当前激活工作区配置</td>
+<td>文件路径</td>
+<td>若存在，优先于默认 config</td>
+</tr>
+<tr>
+<td><code>~/.zeroclaw/config.toml</code></td>
+<td>默认配置文件</td>
+<td>文件路径</td>
+<td>常规全局配置文件</td>
+</tr>
+<tr>
+<td><code>default_provider</code></td>
+<td>默认模型提供方</td>
+<td><code>openrouter</code> / <code>openai</code> / <code>anthropic</code></td>
+<td>建议使用规范 provider ID</td>
+</tr>
+<tr>
+<td><code>default_model</code></td>
+<td>默认模型</td>
+<td>如 <code>anthropic/claude-sonnet-4-6</code></td>
+<td>与 provider 对应</td>
+</tr>
+<tr>
+<td><code>default_temperature</code></td>
+<td>默认采样温度</td>
+<td><code>0.7</code></td>
+<td>控制生成随机性</td>
+</tr>
+<tr>
+<td><code>ZEROCLAW_PROVIDER</code></td>
+<td>环境变量强制覆盖 provider</td>
+<td><code>openai</code> 等</td>
+<td>优先级高于 config</td>
+</tr>
+<tr>
+<td><code>PROVIDER</code></td>
+<td>兼容旧方式覆盖 provider</td>
+<td><code>openrouter</code> 等</td>
+<td>兼容字段，注意覆盖行为</td>
+</tr>
+</tbody>
+</table>
+<h2 id="B-observability-（可观测性-Trace）"><a href="#B-observability-（可观测性-Trace）" class="headerlink" title="B. [observability]（可观测性 / Trace）"></a>B. <code>[observability]</code>（可观测性 / Trace）</h2><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>作用</th>
+<th>常见值/示例</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>backend</code></td>
+<td>可观测后端类型</td>
+<td><code>none</code> / <code>log</code> / <code>prometheus</code> / <code>otlp</code></td>
+<td>选一种输出方式</td>
+</tr>
+<tr>
+<td><code>otel_endpoint</code></td>
+<td>OTLP 上报地址</td>
+<td><code>http://localhost:4318</code></td>
+<td>用于接 OTel collector</td>
+</tr>
+<tr>
+<td><code>otel_service_name</code></td>
+<td>服务名</td>
+<td><code>zeroclaw</code></td>
+<td>便于链路追踪区分</td>
+</tr>
+<tr>
+<td><code>runtime_trace_mode</code></td>
+<td>运行时 trace 模式</td>
+<td><code>none</code> / <code>rolling</code> / <code>full</code></td>
+<td>排障常用</td>
+</tr>
+<tr>
+<td><code>runtime_trace_path</code></td>
+<td>trace 文件路径</td>
+<td><code>.../trace.jsonl</code></td>
+<td>JSONL 输出</td>
+</tr>
+<tr>
+<td><code>runtime_trace_max_entries</code></td>
+<td>rolling 模式最大条数</td>
+<td><code>1000</code> 等</td>
+<td>控制文件体积</td>
+</tr>
+</tbody>
+</table>
+<h2 id="C-agent-（Agent-行为控制）"><a href="#C-agent-（Agent-行为控制）" class="headerlink" title="C. [agent]（Agent 行为控制）"></a>C. <code>[agent]</code>（Agent 行为控制）</h2><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>作用</th>
+<th>常见值/示例</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>compact_context</code></td>
+<td>紧凑上下文模式</td>
+<td><code>true/false</code></td>
+<td>小上下文模型更有用</td>
+</tr>
+<tr>
+<td><code>max_tool_iterations</code></td>
+<td>单轮消息最大工具迭代次数</td>
+<td><code>10</code></td>
+<td>防止无限循环</td>
+</tr>
+<tr>
+<td><code>max_history_messages</code></td>
+<td>历史消息条数上限</td>
+<td><code>50</code> 等</td>
+<td>控制上下文长度</td>
+</tr>
+<tr>
+<td><code>parallel_tools</code></td>
+<td>是否并行工具调用</td>
+<td><code>true/false</code></td>
+<td>提高速度，注意副作用</td>
+</tr>
+<tr>
+<td><code>tool_dispatcher</code></td>
+<td>工具分发策略</td>
+<td><code>auto</code></td>
+<td>通常保持默认即可</td>
+</tr>
+</tbody>
+</table>
+<h2 id="D-security-otp-（敏感操作二次验证）"><a href="#D-security-otp-（敏感操作二次验证）" class="headerlink" title="D. [security.otp]（敏感操作二次验证）"></a>D. <code>[security.otp]</code>（敏感操作二次验证）</h2><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>作用</th>
+<th>常见值/示例</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enabled</code></td>
+<td>是否开启 OTP 门禁</td>
+<td><code>true/false</code></td>
+<td>生产环境建议开启</td>
+</tr>
+<tr>
+<td><code>method</code></td>
+<td>OTP 方式</td>
+<td><code>totp</code> / <code>pairing</code> / <code>cli-prompt</code></td>
+<td><code>totp</code> 常用</td>
+</tr>
+<tr>
+<td><code>token_ttl_secs</code></td>
+<td>OTP 有效期（秒）</td>
+<td><code>60</code> 等</td>
+<td>过短影响体验</td>
+</tr>
+<tr>
+<td><code>cache_valid_secs</code></td>
+<td>缓存通过时长（秒）</td>
+<td><code>300</code> 等</td>
+<td>降低频繁验证</td>
+</tr>
+<tr>
+<td><code>gated_actions</code></td>
+<td>受保护动作列表</td>
+<td><code>[&quot;shell&quot;,&quot;file_write&quot;]</code></td>
+<td>高风险动作建议都加</td>
+</tr>
+<tr>
+<td><code>gated_domains</code></td>
+<td>受保护域名规则</td>
+<td><code>[&quot;*.bank.com&quot;]</code></td>
+<td>支持通配模式</td>
+</tr>
+<tr>
+<td><code>gated_domain_categories</code></td>
+<td>域名分类</td>
+<td><code>[&quot;banking&quot;]</code></td>
+<td>使用内置分类</td>
+</tr>
+</tbody>
+</table>
+<h2 id="E-security-estop-（紧急停止）"><a href="#E-security-estop-（紧急停止）" class="headerlink" title="E. [security.estop]（紧急停止）"></a>E. <code>[security.estop]</code>（紧急停止）</h2><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>作用</th>
+<th>常见值/示例</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enabled</code></td>
+<td>启用紧急停止机制</td>
+<td><code>true/false</code></td>
+<td>建议保留</td>
+</tr>
+<tr>
+<td><code>state_file</code></td>
+<td>状态文件路径</td>
+<td><code>.../estop.state</code></td>
+<td>持久化停机状态</td>
+</tr>
+<tr>
+<td><code>require_otp_to_resume</code></td>
+<td>恢复前是否需 OTP</td>
+<td><code>true/false</code></td>
+<td>防止误恢复</td>
+</tr>
+</tbody>
+</table>
+<h2 id="F-agents-（子-Agent-委派角色）"><a href="#F-agents-（子-Agent-委派角色）" class="headerlink" title="F. [agents.*]（子 Agent / 委派角色）"></a>F. <code>[agents.*]</code>（子 Agent / 委派角色）</h2><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>作用</th>
+<th>常见值/示例</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>provider</code></td>
+<td>子 agent 的 provider</td>
+<td><code>openrouter</code></td>
+<td>必填</td>
+</tr>
+<tr>
+<td><code>model</code></td>
+<td>子 agent 的模型</td>
+<td><code>...</code></td>
+<td>必填</td>
+</tr>
+<tr>
+<td><code>system_prompt</code></td>
+<td>子 agent 系统提示词</td>
+<td>文本</td>
+<td>定义角色职责</td>
+</tr>
+<tr>
+<td><code>api_key</code></td>
+<td>子 agent 专用密钥</td>
+<td>字符串</td>
+<td>可覆盖全局</td>
+</tr>
+<tr>
+<td><code>temperature</code></td>
+<td>子 agent 温度</td>
+<td><code>0.2</code> / <code>0.7</code></td>
+<td>按任务调整</td>
+</tr>
+<tr>
+<td><code>max_depth</code></td>
+<td>委派/递归深度</td>
+<td><code>1</code> / <code>2</code></td>
+<td>防止过深调用</td>
+</tr>
+<tr>
+<td><code>agentic</code></td>
+<td>是否启用代理式多步</td>
+<td><code>true/false</code></td>
+<td><code>true</code> 时应配工具</td>
+</tr>
+<tr>
+<td><code>allowed_tools</code></td>
+<td>工具白名单</td>
+<td><code>[&quot;http_request&quot;]</code></td>
+<td>推荐最小权限</td>
+</tr>
+<tr>
+<td><code>max_iterations</code></td>
+<td>子 agent 迭代上限</td>
+<td><code>5</code></td>
+<td>防止跑飞</td>
+</tr>
+</tbody>
+</table>
+<h2 id="G-runtime-（运行时行为）"><a href="#G-runtime-（运行时行为）" class="headerlink" title="G. [runtime]（运行时行为）"></a>G. <code>[runtime]</code>（运行时行为）</h2><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>作用</th>
+<th>常见值/示例</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>reasoning_enabled</code></td>
+<td>显式推理/思考开关</td>
+<td><code>true/false</code></td>
+<td>对支持的 provider 生效</td>
+</tr>
+</tbody>
+</table>
+<h2 id="H-skills-（技能系统）"><a href="#H-skills-（技能系统）" class="headerlink" title="H. [skills]（技能系统）"></a>H. <code>[skills]</code>（技能系统）</h2><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>作用</th>
+<th>常见值/示例</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>open_skills_enabled</code></td>
+<td>是否启用社区 open-skills</td>
+<td><code>true/false</code></td>
+<td>安全默认通常为 <code>false</code></td>
+</tr>
+<tr>
+<td><code>open_skills_dir</code></td>
+<td>技能目录路径</td>
+<td><code>~/.zeroclaw/skills</code></td>
+<td>可自定义</td>
+</tr>
+<tr>
+<td><code>prompt_injection_mode</code></td>
+<td>技能注入模式</td>
+<td><code>full</code> / <code>compact</code></td>
+<td><code>compact</code> 更省上下文</td>
+</tr>
+<tr>
+<td><code>ZEROCLAW_OPEN_SKILLS_ENABLED</code></td>
+<td>环境变量覆盖</td>
+<td><code>true/false</code></td>
+<td>覆盖 TOML</td>
+</tr>
+<tr>
+<td><code>ZEROCLAW_OPEN_SKILLS_DIR</code></td>
+<td>环境变量技能目录</td>
+<td>路径</td>
+<td>覆盖 TOML</td>
+</tr>
+<tr>
+<td><code>ZEROCLAW_SKILLS_PROMPT_MODE</code></td>
+<td>环境变量注入模式</td>
+<td><code>compact</code></td>
+<td>覆盖 TOML</td>
+</tr>
+</tbody>
+</table>
+<h2 id="I-composio-（OAuth-工具接入）"><a href="#I-composio-（OAuth-工具接入）" class="headerlink" title="I. [composio]（OAuth 工具接入）"></a>I. <code>[composio]</code>（OAuth 工具接入）</h2><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>作用</th>
+<th>常见值/示例</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enabled</code></td>
+<td>是否启用 Composio</td>
+<td><code>true/false</code></td>
+<td>未启用则不注册工具</td>
+</tr>
+<tr>
+<td><code>api_key</code></td>
+<td>Composio API Key</td>
+<td><code>...</code></td>
+<td>启用时通常必填</td>
+</tr>
+<tr>
+<td><code>entity_id</code></td>
+<td>Composio 实体 ID</td>
+<td><code>...</code></td>
+<td>用于账户绑定</td>
+</tr>
+</tbody>
+</table>
+<h2 id="J-cost-（成本控制）"><a href="#J-cost-（成本控制）" class="headerlink" title="J. [cost]（成本控制）"></a>J. <code>[cost]</code>（成本控制）</h2><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>作用</th>
+<th>常见值/示例</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enabled</code></td>
+<td>启用预算控制</td>
+<td><code>true/false</code></td>
+<td>团队环境建议开启</td>
+</tr>
+<tr>
+<td><code>daily_limit_usd</code></td>
+<td>日预算上限（USD）</td>
+<td><code>5.0</code></td>
+<td>达上限会拦截</td>
+</tr>
+<tr>
+<td><code>monthly_limit_usd</code></td>
+<td>月预算上限（USD）</td>
+<td><code>100.0</code></td>
+<td>控制总成本</td>
+</tr>
+<tr>
+<td><code>warn_at_percent</code></td>
+<td>告警阈值（百分比）</td>
+<td><code>80</code></td>
+<td>提前预警</td>
+</tr>
+<tr>
+<td><code>allow_override</code></td>
+<td>是否允许手工 override</td>
+<td><code>true/false</code></td>
+<td>可结合审批策略</td>
+</tr>
+</tbody>
+</table>
+<h2 id="K-identity-（身份文档格式）"><a href="#K-identity-（身份文档格式）" class="headerlink" title="K. [identity]（身份文档格式）"></a>K. <code>[identity]</code>（身份文档格式）</h2><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>作用</th>
+<th>常见值/示例</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>format</code></td>
+<td>identity 格式</td>
+<td><code>openclaw</code> / <code>aieos</code></td>
+<td>默认一般为 <code>openclaw</code></td>
+</tr>
+<tr>
+<td><code>aieos_path</code></td>
+<td>AIEOS 文档路径</td>
+<td><code>./AIEOS.md</code></td>
+<td>与 inline 二选一</td>
+</tr>
+<tr>
+<td><code>aieos_inline</code></td>
+<td>内联 AIEOS 文本</td>
+<td>多行字符串</td>
+<td>与 path 二选一</td>
+</tr>
+</tbody>
+</table>
+<h2 id="L-multimodal-（多模态输入）"><a href="#L-multimodal-（多模态输入）" class="headerlink" title="L. [multimodal]（多模态输入）"></a>L. <code>[multimodal]</code>（多模态输入）</h2><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>作用</th>
+<th>常见值/示例</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>max_images</code></td>
+<td>单次最大图片数</td>
+<td><code>4</code></td>
+<td>控制资源占用</td>
+</tr>
+<tr>
+<td><code>max_image_size_mb</code></td>
+<td>单图大小限制（MB）</td>
+<td><code>10</code></td>
+<td>防止超大文件</td>
+</tr>
+<tr>
+<td><code>allow_remote_fetch</code></td>
+<td>是否允许远程 URL 拉图</td>
+<td><code>true/false</code></td>
+<td>安全环境谨慎开启</td>
+</tr>
+</tbody>
+</table>
+<h2 id="M-browser-（浏览器工具）"><a href="#M-browser-（浏览器工具）" class="headerlink" title="M. [browser]（浏览器工具）"></a>M. <code>[browser]</code>（浏览器工具）</h2><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>作用</th>
+<th>常见值/示例</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enabled</code></td>
+<td>启用浏览器工具</td>
+<td><code>true/false</code></td>
+<td>关闭可减少风险面</td>
+</tr>
+<tr>
+<td><code>allowed_domains</code></td>
+<td>浏览器访问白名单</td>
+<td><code>[&quot;example.com&quot;]</code></td>
+<td>建议显式配置</td>
+</tr>
+<tr>
+<td><code>session_name</code></td>
+<td>会话名</td>
+<td><code>&quot;default&quot;</code></td>
+<td>区分浏览器会话</td>
+</tr>
+<tr>
+<td><code>backend</code></td>
+<td>浏览器后端</td>
+<td><code>auto</code> / <code>rust_native</code> / <code>computer_use</code></td>
+<td>按环境选择</td>
+</tr>
+<tr>
+<td><code>native_headless</code></td>
+<td>原生浏览器无头模式</td>
+<td><code>true/false</code></td>
+<td>CI 常用</td>
+</tr>
+<tr>
+<td><code>native_webdriver_url</code></td>
+<td>自定义 webdriver 地址</td>
+<td>URL</td>
+<td>远程驱动场景</td>
+</tr>
+<tr>
+<td><code>native_chrome_path</code></td>
+<td>Chrome 可执行路径</td>
+<td>路径</td>
+<td>自定义安装位置时用</td>
+</tr>
+</tbody>
+</table>
+<h3 id="browser-computer-use-子表"><a href="#browser-computer-use-子表" class="headerlink" title="[browser.computer_use] 子表"></a><code>[browser.computer_use]</code> 子表</h3><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>作用</th>
+<th>常见值/示例</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>endpoint</code></td>
+<td>computer-use sidecar 地址</td>
+<td><code>http://127.0.0.1:...</code></td>
+<td>默认建议 loopback</td>
+</tr>
+<tr>
+<td><code>api_key</code></td>
+<td>sidecar 密钥</td>
+<td><code>...</code></td>
+<td>按需配置</td>
+</tr>
+<tr>
+<td><code>timeout_ms</code></td>
+<td>请求超时（毫秒）</td>
+<td><code>30000</code></td>
+<td>避免卡死</td>
+</tr>
+<tr>
+<td><code>allow_remote_endpoint</code></td>
+<td>允许远程 sidecar</td>
+<td><code>true/false</code></td>
+<td>安全默认建议 <code>false</code></td>
+</tr>
+<tr>
+<td><code>window_allowlist</code></td>
+<td>允许操作窗口列表</td>
+<td><code>[&quot;Chrome&quot;]</code></td>
+<td>降低误操作</td>
+</tr>
+<tr>
+<td><code>max_coordinate_x</code></td>
+<td>最大 X 坐标</td>
+<td><code>1920</code></td>
+<td>限制点击范围</td>
+</tr>
+<tr>
+<td><code>max_coordinate_y</code></td>
+<td>最大 Y 坐标</td>
+<td><code>1080</code></td>
+<td>限制点击范围</td>
+</tr>
+</tbody>
+</table>
+<h2 id="N-http-request-（HTTP-请求工具）"><a href="#N-http-request-（HTTP-请求工具）" class="headerlink" title="N. [http_request]（HTTP 请求工具）"></a>N. <code>[http_request]</code>（HTTP 请求工具）</h2><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>作用</th>
+<th>常见值/示例</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enabled</code></td>
+<td>启用 HTTP 请求工具</td>
+<td><code>true/false</code></td>
+<td>默认可关闭</td>
+</tr>
+<tr>
+<td><code>allowed_domains</code></td>
+<td>请求域名白名单</td>
+<td><code>[&quot;api.openai.com&quot;]</code></td>
+<td>空列表通常等于拒绝</td>
+</tr>
+<tr>
+<td><code>max_response_size</code></td>
+<td>最大响应体大小</td>
+<td><code>1048576</code></td>
+<td>防止大响应占满内存</td>
+</tr>
+<tr>
+<td><code>timeout_secs</code></td>
+<td>请求超时（秒）</td>
+<td><code>30</code></td>
+<td>建议设置</td>
+</tr>
+</tbody>
+</table>
+<h2 id="O-gateway-（网关）"><a href="#O-gateway-（网关）" class="headerlink" title="O. [gateway]（网关）"></a>O. <code>[gateway]</code>（网关）</h2><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>作用</th>
+<th>常见值/示例</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>host</code></td>
+<td>网关监听地址</td>
+<td><code>127.0.0.1</code></td>
+<td>安全默认建议本地</td>
+</tr>
+<tr>
+<td><code>port</code></td>
+<td>网关端口</td>
+<td><code>42617</code></td>
+<td>可调整</td>
+</tr>
+<tr>
+<td><code>require_pairing</code></td>
+<td>是否要求配对</td>
+<td><code>true/false</code></td>
+<td>建议开启</td>
+</tr>
+<tr>
+<td><code>allow_public_bind</code></td>
+<td>允许公网监听</td>
+<td><code>true/false</code></td>
+<td>生产谨慎开启</td>
+</tr>
+</tbody>
+</table>
+<h2 id="P-autonomy-（自治级别与执行护栏）"><a href="#P-autonomy-（自治级别与执行护栏）" class="headerlink" title="P. [autonomy]（自治级别与执行护栏）"></a>P. <code>[autonomy]</code>（自治级别与执行护栏）</h2><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>作用</th>
+<th>常见值/示例</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>level</code></td>
+<td>自治等级</td>
+<td><code>read_only</code> / <code>supervised</code> / <code>full</code></td>
+<td>推荐先用 <code>supervised</code></td>
+</tr>
+<tr>
+<td><code>workspace_only</code></td>
+<td>限制仅工作区内操作</td>
+<td><code>true/false</code></td>
+<td>建议 <code>true</code></td>
+</tr>
+<tr>
+<td><code>allowed_commands</code></td>
+<td>shell 命令白名单</td>
+<td><code>[&quot;git&quot;,&quot;npm&quot;,&quot;node&quot;]</code></td>
+<td>强烈建议配置</td>
+</tr>
+<tr>
+<td><code>forbidden_paths</code></td>
+<td>禁止路径列表</td>
+<td><code>[&quot;/etc&quot;,&quot;~/.ssh&quot;]</code></td>
+<td>保护系统敏感目录</td>
+</tr>
+<tr>
+<td><code>allowed_roots</code></td>
+<td>允许根路径列表</td>
+<td><code>[&quot;/Users/me/work&quot;]</code></td>
+<td>工作区外授权访问</td>
+</tr>
+<tr>
+<td><code>max_actions_per_hour</code></td>
+<td>每小时动作数上限</td>
+<td><code>100</code></td>
+<td>防失控</td>
+</tr>
+<tr>
+<td><code>max_cost_per_day_cents</code></td>
+<td>每日成本上限（分）</td>
+<td><code>500</code></td>
+<td>可与预算策略配合</td>
+</tr>
+<tr>
+<td><code>require_approval_for_medium_risk</code></td>
+<td>中风险是否审批</td>
+<td><code>true/false</code></td>
+<td><code>supervised</code> 常用</td>
+</tr>
+<tr>
+<td><code>block_high_risk_commands</code></td>
+<td>阻断高风险命令</td>
+<td><code>true/false</code></td>
+<td>建议开启</td>
+</tr>
+<tr>
+<td><code>auto_approve</code></td>
+<td>自动批准规则</td>
+<td>列表</td>
+<td>仅低风险场景使用</td>
+</tr>
+<tr>
+<td><code>always_ask</code></td>
+<td>总是询问的动作</td>
+<td><code>[&quot;shell&quot;]</code></td>
+<td>对 shell 常用</td>
+</tr>
+</tbody>
+</table>
+<h2 id="Q-memory-（记忆系统）"><a href="#Q-memory-（记忆系统）" class="headerlink" title="Q. [memory]（记忆系统）"></a>Q. <code>[memory]</code>（记忆系统）</h2><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>作用</th>
+<th>常见值/示例</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>backend</code></td>
+<td>记忆后端</td>
+<td><code>sqlite</code> / <code>lucid</code> / <code>markdown</code> / <code>none</code></td>
+<td><code>sqlite</code> 通常最稳</td>
+</tr>
+<tr>
+<td><code>auto_save</code></td>
+<td>自动保存记忆</td>
+<td><code>true/false</code></td>
+<td>注意隐私与噪音</td>
+</tr>
+<tr>
+<td><code>embedding_provider</code></td>
+<td>向量 provider</td>
+<td><code>openai</code> / <code>none</code></td>
+<td>不用向量可设 <code>none</code></td>
+</tr>
+<tr>
+<td><code>embedding_model</code></td>
+<td>向量模型</td>
+<td><code>text-embedding-...</code></td>
+<td>与 provider 对应</td>
+</tr>
+<tr>
+<td><code>embedding_dimensions</code></td>
+<td>向量维度</td>
+<td><code>1536</code> 等</td>
+<td>需与模型匹配</td>
+</tr>
+<tr>
+<td><code>vector_weight</code></td>
+<td>向量检索权重</td>
+<td><code>0.7</code></td>
+<td>混合检索参数</td>
+</tr>
+<tr>
+<td><code>keyword_weight</code></td>
+<td>关键词检索权重</td>
+<td><code>0.3</code></td>
+<td>混合检索参数</td>
+</tr>
+</tbody>
+</table>
+<h2 id="R-model-routes-（模型路由表）"><a href="#R-model-routes-（模型路由表）" class="headerlink" title="R. [[model_routes]]（模型路由表）"></a>R. <code>[[model_routes]]</code>（模型路由表）</h2><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>作用</th>
+<th>常见值/示例</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>hint</code></td>
+<td>路由名/提示名</td>
+<td><code>code</code> / <code>reasoning</code> / <code>chat</code></td>
+<td>上层统一引用</td>
+</tr>
+<tr>
+<td><code>provider</code></td>
+<td>提供方</td>
+<td><code>openrouter</code></td>
+<td>与 model 配套</td>
+</tr>
+<tr>
+<td><code>model</code></td>
+<td>具体模型</td>
+<td><code>anthropic/...</code></td>
+<td>可替换升级</td>
+</tr>
+<tr>
+<td><code>api_key</code></td>
+<td>路由专用 key</td>
+<td><code>...</code></td>
+<td>可选</td>
+</tr>
+</tbody>
+</table>
+<h2 id="S-embedding-routes-（向量路由表）"><a href="#S-embedding-routes-（向量路由表）" class="headerlink" title="S. [[embedding_routes]]（向量路由表）"></a>S. <code>[[embedding_routes]]</code>（向量路由表）</h2><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>作用</th>
+<th>常见值/示例</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>hint</code></td>
+<td>路由名</td>
+<td><code>semantic</code></td>
+<td>上层引用</td>
+</tr>
+<tr>
+<td><code>provider</code></td>
+<td>向量 provider</td>
+<td><code>openai</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>model</code></td>
+<td>向量模型</td>
+<td><code>text-embedding-3-small</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>dimensions</code></td>
+<td>维度</td>
+<td><code>1536</code></td>
+<td>与模型匹配</td>
+</tr>
+<tr>
+<td><code>api_key</code></td>
+<td>专用 key</td>
+<td><code>...</code></td>
+<td>可选</td>
+</tr>
+</tbody>
+</table>
+<h2 id="T-query-classification-（自动路由分类）"><a href="#T-query-classification-（自动路由分类）" class="headerlink" title="T. [query_classification]（自动路由分类）"></a>T. <code>[query_classification]</code>（自动路由分类）</h2><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>作用</th>
+<th>常见值/示例</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enabled</code></td>
+<td>启用自动分类</td>
+<td><code>true/false</code></td>
+<td>与 <code>model_routes</code> 联动</td>
+</tr>
+<tr>
+<td><code>rules</code></td>
+<td>规则列表</td>
+<td>数组</td>
+<td>每条规则一组匹配条件</td>
+</tr>
+</tbody>
+</table>
+<h3 id="rules-子字段"><a href="#rules-子字段" class="headerlink" title="rules[] 子字段"></a><code>rules[]</code> 子字段</h3><table>
+<thead>
+<tr>
+<th>子字段</th>
+<th>作用</th>
+<th>示例</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>hint</code></td>
+<td>命中后路由到哪个 hint</td>
+<td><code>code</code></td>
+<td>对应 <code>[[model_routes]]</code></td>
+</tr>
+<tr>
+<td><code>keywords</code></td>
+<td>不区分大小写关键词</td>
+<td><code>[&quot;bug&quot;,&quot;fix&quot;]</code></td>
+<td>文本子串匹配</td>
+</tr>
+<tr>
+<td><code>patterns</code></td>
+<td>区分大小写模式/字面量</td>
+<td><code>[&quot;\</code>``ts”] `</td>
+<td>常用于代码判定</td>
+</tr>
+<tr>
+<td><code>min_length</code></td>
+<td>最小文本长度</td>
+<td><code>20</code></td>
+<td>过滤过短消息</td>
+</tr>
+<tr>
+<td><code>max_length</code></td>
+<td>最大文本长度</td>
+<td><code>5000</code></td>
+<td>限制分类范围</td>
+</tr>
+<tr>
+<td><code>priority</code></td>
+<td>优先级</td>
+<td><code>100</code></td>
+<td>数值越高通常越先匹配</td>
+</tr>
+</tbody>
+</table>
+<h2 id="U-channels-config-（渠道配置总入口）"><a href="#U-channels-config-（渠道配置总入口）" class="headerlink" title="U. [channels_config]（渠道配置总入口）"></a>U. <code>[channels_config]</code>（渠道配置总入口）</h2><table>
+<thead>
+<tr>
+<th>配置项 / 子表</th>
+<th>作用</th>
+<th>常见值/示例</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>[channels_config]</code></td>
+<td>所有渠道配置总入口</td>
+<td>顶层表</td>
+<td>渠道配置统一放这里</td>
+</tr>
+<tr>
+<td><code>message_timeout_secs</code></td>
+<td>单条消息处理超时基线（秒）</td>
+<td><code>300</code></td>
+<td>官方默认 300；小于 30 会被钳制到 30</td>
+</tr>
+<tr>
+<td><code>cli</code></td>
+<td>启用 CLI 渠道</td>
+<td><code>true/false</code></td>
+<td>本地调试最简单</td>
+</tr>
+<tr>
+<td><code>[channels_config.telegram]</code></td>
+<td>Telegram Bot 渠道</td>
+<td>子表</td>
+<td>常见字段：<code>bot_token</code>, <code>allowed_users</code></td>
+</tr>
+<tr>
+<td><code>[channels_config.discord]</code></td>
+<td>Discord 渠道</td>
+<td>子表</td>
+<td>常见字段：<code>bot_token</code>, <code>allowed_users</code>, <code>channel_id</code></td>
+</tr>
+<tr>
+<td><code>[channels_config.slack]</code></td>
+<td>Slack 渠道</td>
+<td>子表</td>
+<td>常见字段：<code>bot_token</code>, <code>app_token</code>, <code>allowed_users</code></td>
+</tr>
+<tr>
+<td><code>[channels_config.matrix]</code></td>
+<td>Matrix 渠道</td>
+<td>子表</td>
+<td>常见字段：<code>homeserver</code>, <code>access_token</code>, <code>room_id</code></td>
+</tr>
+<tr>
+<td><code>[channels_config.whatsapp]</code></td>
+<td>WhatsApp 渠道</td>
+<td>子表</td>
+<td>常见字段：<code>access_token</code>, <code>allowed_numbers</code></td>
+</tr>
+<tr>
+<td><code>[channels_config.nostr]</code></td>
+<td>Nostr 渠道</td>
+<td>子表</td>
+<td>常见字段：<code>private_key</code>, <code>relays</code>, <code>allowed_pubkeys</code></td>
+</tr>
+<tr>
+<td><code>[channels_config.nextcloud_talk]</code></td>
+<td>Nextcloud Talk 渠道</td>
+<td>子表</td>
+<td>常见字段：<code>base_url</code>, <code>app_token</code>, <code>webhook_secret</code></td>
+</tr>
+<tr>
+<td><code>[channels_config.linq]</code></td>
+<td>Linq 渠道（iMessage/RCS/SMS）</td>
+<td>子表</td>
+<td>常见字段：<code>api_token</code>, <code>from_phone</code>, <code>signing_secret</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="渠道-Allowlist-语义"><a href="#渠道-Allowlist-语义" class="headerlink" title="渠道 Allowlist 语义"></a>渠道 Allowlist 语义</h3><table>
+<thead>
+<tr>
+<th>配置值</th>
+<th>含义</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>[]</code></td>
+<td>拒绝所有</td>
+<td>常见“机器人不回消息”原因</td>
+</tr>
+<tr>
+<td><code>[&quot;*&quot;]</code></td>
+<td>允许所有</td>
+<td>仅建议临时测试</td>
+</tr>
+<tr>
+<td><code>[&quot;user1&quot;,&quot;user2&quot;]</code></td>
+<td>仅允许指定发送者</td>
+<td>生产建议使用</td>
+</tr>
+</tbody>
+</table>
+<h3 id="常见-Allowlist-字段名（因渠道不同）"><a href="#常见-Allowlist-字段名（因渠道不同）" class="headerlink" title="常见 Allowlist 字段名（因渠道不同）"></a>常见 Allowlist 字段名（因渠道不同）</h3><table>
+<thead>
+<tr>
+<th>字段名</th>
+<th>适用场景（示意）</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>allowed_users</code></td>
+<td>Telegram / Discord / Slack 等</td>
+<td>常见用户白名单</td>
+</tr>
+<tr>
+<td><code>allowed_numbers</code></td>
+<td>WhatsApp 等</td>
+<td>电话号码白名单</td>
+</tr>
+<tr>
+<td><code>allowed_senders</code></td>
+<td>部分渠道实现</td>
+<td>发送者白名单</td>
+</tr>
+</tbody>
+</table>
+<h3 id="渠道子表字段补全（官网-channels-reference-md）"><a href="#渠道子表字段补全（官网-channels-reference-md）" class="headerlink" title="渠道子表字段补全（官网 channels-reference.md）"></a>渠道子表字段补全（官网 <code>channels-reference.md</code>）</h3><table>
+<thead>
+<tr>
+<th>子表</th>
+<th>字段补全（除前文已提到字段外）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>[channels_config.telegram]</code></td>
+<td><code>stream_mode</code>, <code>draft_update_interval_ms</code>, <code>mention_only</code>, <code>interrupt_on_new_message</code></td>
+</tr>
+<tr>
+<td><code>[channels_config.discord]</code></td>
+<td><code>guild_id</code>, <code>listen_to_bots</code>, <code>mention_only</code></td>
+</tr>
+<tr>
+<td><code>[channels_config.slack]</code></td>
+<td><code>channel_id</code>（可指定单频道或 <code>&quot;*&quot;</code>）</td>
+</tr>
+<tr>
+<td><code>[channels_config.mattermost]</code></td>
+<td><code>url</code>, <code>bot_token</code>, <code>channel_id</code>, <code>allowed_users</code></td>
+</tr>
+<tr>
+<td><code>[channels_config.matrix]</code></td>
+<td><code>user_id</code>, <code>device_id</code>, <code>allowed_users</code></td>
+</tr>
+<tr>
+<td><code>[channels_config.signal]</code></td>
+<td><code>http_url</code>, <code>account</code>, <code>group_id</code>, <code>allowed_from</code>, <code>ignore_attachments</code>, <code>ignore_stories</code></td>
+</tr>
+<tr>
+<td><code>[channels_config.webhook]</code></td>
+<td><code>port</code>, <code>secret</code></td>
+</tr>
+<tr>
+<td><code>[channels_config.email]</code></td>
+<td><code>imap_host</code>, <code>imap_port</code>, <code>imap_folder</code>, <code>smtp_host</code>, <code>smtp_port</code>, <code>smtp_tls</code>, <code>username</code>, <code>password</code>, <code>from_address</code>, <code>poll_interval_secs</code>, <code>allowed_senders</code></td>
+</tr>
+<tr>
+<td><code>[channels_config.irc]</code></td>
+<td><code>server</code>, <code>port</code>, <code>nickname</code>, <code>username</code>, <code>channels</code>, <code>allowed_users</code>, <code>server_password</code>, <code>nickserv_password</code>, <code>sasl_password</code>, <code>verify_tls</code></td>
+</tr>
+<tr>
+<td><code>[channels_config.lark]</code></td>
+<td><code>app_id</code>, <code>app_secret</code>, <code>encrypt_key</code>, <code>verification_token</code>, <code>allowed_users</code>, <code>receive_mode</code>, <code>port</code></td>
+</tr>
+<tr>
+<td><code>[channels_config.feishu]</code></td>
+<td><code>app_id</code>, <code>app_secret</code>, <code>encrypt_key</code>, <code>verification_token</code>, <code>allowed_users</code>, <code>receive_mode</code>, <code>port</code></td>
+</tr>
+<tr>
+<td><code>[channels_config.dingtalk]</code></td>
+<td><code>client_id</code>, <code>client_secret</code>, <code>allowed_users</code></td>
+</tr>
+<tr>
+<td><code>[channels_config.qq]</code></td>
+<td><code>app_id</code>, <code>app_secret</code>, <code>allowed_users</code></td>
+</tr>
+<tr>
+<td><code>[channels_config.imessage]</code></td>
+<td><code>allowed_contacts</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="V-Provider（常见项速查）"><a href="#V-Provider（常见项速查）" class="headerlink" title="V. Provider（常见项速查）"></a>V. Provider（常见项速查）</h2><table>
+<thead>
+<tr>
+<th>Provider（常见）</th>
+<th>常见环境变量</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>openai</code></td>
+<td><code>OPENAI_API_KEY</code></td>
+<td>官方 OpenAI</td>
+</tr>
+<tr>
+<td><code>anthropic</code></td>
+<td><code>ANTHROPIC_API_KEY</code> / <code>ANTHROPIC_OAUTH_TOKEN</code></td>
+<td>Claude 常用</td>
+</tr>
+<tr>
+<td><code>gemini</code></td>
+<td><code>GEMINI_API_KEY</code> / <code>GOOGLE_API_KEY</code></td>
+<td>Google 系</td>
+</tr>
+<tr>
+<td><code>openrouter</code></td>
+<td><code>OPENROUTER_API_KEY</code></td>
+<td>聚合路由常用</td>
+</tr>
+<tr>
+<td><code>ollama</code></td>
+<td><code>OLLAMA_API_KEY</code>（可选）</td>
+<td>本地模型常用</td>
+</tr>
+<tr>
+<td><code>bedrock</code></td>
+<td><code>AWS_ACCESS_KEY_ID</code> + <code>AWS_SECRET_ACCESS_KEY</code></td>
+<td>AWS 托管模型</td>
+</tr>
+<tr>
+<td><code>azure_openai</code></td>
+<td><code>AZURE_OPENAI_*</code></td>
+<td>具体键名按实现版本为准</td>
+</tr>
+</tbody>
+</table>
+<h2 id="W-hardware-（硬件向导配置）"><a href="#W-hardware-（硬件向导配置）" class="headerlink" title="W. [hardware]（硬件向导配置）"></a>W. <code>[hardware]</code>（硬件向导配置）</h2><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>作用</th>
+<th>常见值/示例</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enabled</code></td>
+<td>启用硬件访问</td>
+<td><code>true/false</code></td>
+<td>默认 <code>false</code></td>
+</tr>
+<tr>
+<td><code>transport</code></td>
+<td>传输方式</td>
+<td><code>none/native/serial/probe</code></td>
+<td>默认 <code>none</code></td>
+</tr>
+<tr>
+<td><code>serial_port</code></td>
+<td>串口路径</td>
+<td><code>/dev/ttyACM0</code></td>
+<td><code>serial</code> 模式常用</td>
+</tr>
+<tr>
+<td><code>baud_rate</code></td>
+<td>串口波特率</td>
+<td><code>115200</code></td>
+<td>默认 <code>115200</code></td>
+</tr>
+<tr>
+<td><code>probe_target</code></td>
+<td>调试探针目标芯片</td>
+<td><code>STM32F401RE</code></td>
+<td><code>probe</code> 模式常用</td>
+</tr>
+<tr>
+<td><code>workspace_datasheets</code></td>
+<td>启用工作区 datasheet RAG</td>
+<td><code>true/false</code></td>
+<td>用于原理图/资料检索</td>
+</tr>
+</tbody>
+</table>
+<h2 id="X-peripherals-（外设板卡配置）"><a href="#X-peripherals-（外设板卡配置）" class="headerlink" title="X. [peripherals]（外设板卡配置）"></a>X. <code>[peripherals]</code>（外设板卡配置）</h2><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>作用</th>
+<th>常见值/示例</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enabled</code></td>
+<td>启用外设能力</td>
+<td><code>true/false</code></td>
+<td>默认 <code>false</code></td>
+</tr>
+<tr>
+<td><code>boards</code></td>
+<td>板卡列表</td>
+<td>数组</td>
+<td>每项一块板卡配置</td>
+</tr>
+<tr>
+<td><code>datasheet_dir</code></td>
+<td>板卡文档目录</td>
+<td><code>docs/datasheets</code></td>
+<td>支持 <code>.md/.txt</code> RAG</td>
+</tr>
+</tbody>
+</table>
+<h3 id="peripherals-boards-子字段"><a href="#peripherals-boards-子字段" class="headerlink" title="[[peripherals.boards]] 子字段"></a><code>[[peripherals.boards]]</code> 子字段</h3><table>
+<thead>
+<tr>
+<th>子字段</th>
+<th>作用</th>
+<th>常见值/示例</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>board</code></td>
+<td>板卡类型</td>
+<td><code>nucleo-f401re</code> / <code>rpi-gpio</code> / <code>esp32</code></td>
+<td>必填</td>
+</tr>
+<tr>
+<td><code>transport</code></td>
+<td>连接方式</td>
+<td><code>serial/native/websocket</code></td>
+<td>默认 <code>serial</code></td>
+</tr>
+<tr>
+<td><code>path</code></td>
+<td>串口/连接路径</td>
+<td><code>/dev/ttyUSB0</code></td>
+<td><code>serial</code> 常用</td>
+</tr>
+<tr>
+<td><code>baud</code></td>
+<td>串口波特率</td>
+<td><code>115200</code></td>
+<td>默认 <code>115200</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h1 id="完整版"><a href="#完整版" class="headerlink" title="完整版"></a>完整版</h1><h2 id="1）config-toml-在哪里、怎么被加载"><a href="#1）config-toml-在哪里、怎么被加载" class="headerlink" title="1）config.toml 在哪里、怎么被加载"></a>1）<code>config.toml</code> 在哪里、怎么被加载</h2><p>ZeroClaw 的官方配置参考写的是：配置解析优先级是：</p>
+<ol>
+<li><code>ZEROCLAW_WORKSPACE</code>（如果设置）</li>
+<li><code>~/.zeroclaw/active_workspace.toml</code>（如果存在）</li>
+<li>默认 <code>~/.zeroclaw/config.toml</code></li>
+</ol>
+<p>并且启动时会在 <code>INFO</code> 日志里打印已加载的配置路径（<code>Config loaded</code>）。官方还提供 <code>zeroclaw config schema</code> 命令导出完整 JSON Schema（适合做校验/补全）。</p>
+<p><strong>出处：</strong></p>
+<ul>
+<li><code>docs/config-reference.md</code>（官方配置参考）<br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md</a></li>
+</ul>
+<h2 id="2）核心顶层键（最常用）"><a href="#2）核心顶层键（最常用）" class="headerlink" title="2）核心顶层键（最常用）"></a>2）核心顶层键（最常用）</h2><p>官方 <code>config-reference.md</code> 先给了最核心的 3 个顶层键：</p>
+<ul>
+<li><code>default_provider</code>：默认 provider（默认 <code>openrouter</code>）</li>
+<li><code>default_model</code>：默认模型（默认 <code>anthropic/claude-sonnet-4-6</code>）</li>
+<li><code>default_temperature</code>：默认温度（默认 <code>0.7</code>）</li>
+</ul>
+<p><strong>字段说明：</strong></p>
+<ul>
+<li><code>default_provider</code>：未被环境变量覆盖时的基础 provider 选择入口。</li>
+<li><code>default_model</code>：默认模型标识；会由当前 provider 路由解析并发起请求。</li>
+<li><code>default_temperature</code>：默认采样温度；值越低通常越稳定、越高通常越发散。</li>
+</ul>
+<p>这些是最基础的“模型路由默认值”。</p>
+<p><strong>出处：</strong></p>
+<ul>
+<li><code>docs/config-reference.md</code><br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md</a></li>
+</ul>
+<h2 id="3）配置项详解（按分组）"><a href="#3）配置项详解（按分组）" class="headerlink" title="3）配置项详解（按分组）"></a>3）配置项详解（按分组）</h2><h3 id="3-1-observability-（可观测性-追踪）"><a href="#3-1-observability-（可观测性-追踪）" class="headerlink" title="3.1 [observability]（可观测性/追踪）"></a>3.1 <code>[observability]</code>（可观测性/追踪）</h3><p><strong>用途</strong>：日志、OTel/OTLP、运行时 trace 调试。</p>
+<p><strong>字段说明（含默认值）：</strong></p>
+<ul>
+<li><code>backend</code>：观测后端。默认 <code>none</code>，可选 <code>none/noop/log/prometheus/otel/opentelemetry/otlp</code>（后三者映射同一 OTel 后端）。</li>
+<li><code>otel_endpoint</code>：OTLP HTTP 地址，默认 <code>http://localhost:4318</code>，仅 OTel 后端生效。</li>
+<li><code>otel_service_name</code>：上报服务名，默认 <code>zeroclaw</code>。</li>
+<li><code>runtime_trace_mode</code>：运行时 trace 模式，默认 <code>none</code>；可选 <code>none/rolling/full</code>。</li>
+<li><code>runtime_trace_path</code>：trace 文件路径，默认 <code>state/runtime-trace.jsonl</code>（相对 workspace 解析）。</li>
+<li><code>runtime_trace_max_entries</code>：<code>rolling</code> 模式保留条数，默认 <code>200</code>。</li>
+</ul>
+<p><strong>实务建议：</strong></p>
+<ul>
+<li><code>runtime_trace_mode</code> 很适合排查 tool call / 参数格式问题。</li>
+<li>trace 可能包含模型输出文本，共享环境谨慎开启。</li>
+</ul>
+<p><strong>出处：</strong></p>
+<ul>
+<li><code>docs/config-reference.md</code><br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md</a></li>
+</ul>
+<h3 id="3-2-Provider-环境变量覆盖（优先级）"><a href="#3-2-Provider-环境变量覆盖（优先级）" class="headerlink" title="3.2 Provider 环境变量覆盖（优先级）"></a>3.2 Provider 环境变量覆盖（优先级）</h3><p>官方给了 provider 选择的覆盖优先级：</p>
+<ol>
+<li><code>ZEROCLAW_PROVIDER</code>（强制覆盖）</li>
+<li><code>PROVIDER</code>（兼容旧方式，只有配置未显式设置时才生效）</li>
+<li><code>config.toml</code> 里的 <code>default_provider</code></li>
+</ol>
+<p><strong>变量说明：</strong></p>
+<ul>
+<li><code>ZEROCLAW_PROVIDER</code>：显式运行时覆盖位；非空时总是优先于配置文件。</li>
+<li><code>PROVIDER</code>：兼容变量；只在 <code>default_provider</code> 未设置或仍是默认 <code>openrouter</code> 时参与覆盖。</li>
+<li><code>default_provider</code>：配置文件内的常驻默认值，适合作为长期环境基线。</li>
+</ul>
+<p><strong>注意：</strong></p>
+<ul>
+<li>容器环境里如果注入了 <code>PROVIDER</code>，可能影响你预期的 provider 路由。</li>
+<li>官方文档说明了新行为：显式自定义 provider 不会被默认 <code>PROVIDER</code> 误覆盖。</li>
+</ul>
+<p><strong>出处：</strong></p>
+<ul>
+<li><code>docs/config-reference.md</code><br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md</a></li>
+</ul>
+<h3 id="3-3-agent-（Agent-行为控制）"><a href="#3-3-agent-（Agent-行为控制）" class="headerlink" title="3.3 [agent]（Agent 行为控制）"></a>3.3 <code>[agent]</code>（Agent 行为控制）</h3><p><strong>用途</strong>：控制 agent 的上下文长度、工具循环次数、并行工具等。</p>
+<p><strong>字段说明（含默认值）：</strong></p>
+<ul>
+<li><code>compact_context</code>：默认 <code>false</code>。开启后使用紧凑上下文策略（<code>bootstrap_max_chars=6000</code>、<code>rag_chunk_limit=2</code>）。</li>
+<li><code>max_tool_iterations</code>：默认 <code>10</code>。单条消息工具循环上限（设为 <code>0</code> 会回退到 <code>10</code>）。</li>
+<li><code>max_history_messages</code>：默认 <code>50</code>。会话历史消息保留上限。</li>
+<li><code>parallel_tools</code>：默认 <code>false</code>。是否启用 <code>Agent::turn()</code> API 的并行工具调用。</li>
+<li><code>tool_dispatcher</code>：默认 <code>auto</code>。工具分发策略入口。</li>
+</ul>
+<p><strong>注意点：</strong></p>
+<ul>
+<li><code>max_tool_iterations = 0</code> 会回退到默认值 <code>10</code></li>
+<li><code>parallel_tools</code> 更偏 API 层行为，不一定覆盖所有运行时路径</li>
+</ul>
+<p><strong>出处：</strong></p>
+<ul>
+<li><code>docs/config-reference.md</code><br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md</a></li>
+</ul>
+<h3 id="3-4-security-otp-（OTP-安全门禁）"><a href="#3-4-security-otp-（OTP-安全门禁）" class="headerlink" title="3.4 [security.otp]（OTP 安全门禁）"></a>3.4 <code>[security.otp]</code>（OTP 安全门禁）</h3><p><strong>用途</strong>：对敏感操作加二次验证（如 shell、写文件、浏览器打开等）。</p>
+<p><strong>字段说明（含默认值）：</strong></p>
+<ul>
+<li><code>enabled</code>：是否启用 OTP 门禁，默认 <code>false</code>。</li>
+<li><code>method</code>：OTP 方式，默认 <code>totp</code>，可选 <code>totp/pairing/cli-prompt</code>。</li>
+<li><code>token_ttl_secs</code>：TOTP 时间窗口秒数，默认 <code>30</code>。</li>
+<li><code>cache_valid_secs</code>：OTP 校验缓存窗口秒数，默认 <code>300</code>。</li>
+<li><code>gated_actions</code>：需 OTP 的动作列表，默认 <code>[&quot;shell&quot;,&quot;file_write&quot;,&quot;browser_open&quot;,&quot;browser&quot;,&quot;memory_forget&quot;]</code>。</li>
+<li><code>gated_domains</code>：需 OTP 的域名规则（支持 <code>*</code>），默认 <code>[]</code>。</li>
+<li><code>gated_domain_categories</code>：需 OTP 的预置域名分类，默认 <code>[]</code>，支持 <code>banking/medical/government/identity_providers</code>。</li>
+</ul>
+<p><strong>注意点：</strong></p>
+<ul>
+<li>域名 glob 非法、分类名未知会在启动时报错（fail fast）</li>
+<li>开启后如未配置 secret，会自动生成 enrollment URI</li>
+</ul>
+<p><strong>出处：</strong></p>
+<ul>
+<li><code>docs/config-reference.md</code><br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md</a></li>
+</ul>
+<h3 id="3-5-security-estop-（紧急停止开关）"><a href="#3-5-security-estop-（紧急停止开关）" class="headerlink" title="3.5 [security.estop]（紧急停止开关）"></a>3.5 <code>[security.estop]</code>（紧急停止开关）</h3><p><strong>用途</strong>：紧急停机/阻断高风险动作。</p>
+<p><strong>字段说明（含默认值）：</strong></p>
+<ul>
+<li><code>enabled</code>：是否启用 E-Stop 状态机，默认 <code>false</code>。</li>
+<li><code>state_file</code>：E-Stop 状态持久化路径，默认 <code>~/.zeroclaw/estop-state.json</code>。</li>
+<li><code>require_otp_to_resume</code>：恢复前是否要求 OTP，默认 <code>true</code>。</li>
+</ul>
+<p><strong>注意点：</strong></p>
+<ul>
+<li>状态会持久化、原子写入</li>
+<li>状态文件损坏时采用更保守策略（fail-closed）</li>
+</ul>
+<p><strong>出处：</strong></p>
+<ul>
+<li><code>docs/config-reference.md</code><br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md</a></li>
+</ul>
+<h3 id="3-6-agents-（子-Agent-委派-Agent）"><a href="#3-6-agents-（子-Agent-委派-Agent）" class="headerlink" title="3.6 [agents.*]（子 Agent / 委派 Agent）"></a>3.6 <code>[agents.*]</code>（子 Agent / 委派 Agent）</h3><p><strong>用途</strong>：配置多个角色子 agent（例如 <code>researcher</code> / <code>coder</code>）。</p>
+<p><strong>示例结构：</strong></p>
+<ul>
+<li><code>[agents.researcher]</code></li>
+<li><code>[agents.coder]</code></li>
+</ul>
+<p><strong>字段说明（含默认值/必填）：</strong></p>
+<ul>
+<li><code>provider</code>：子 agent 的 provider（必填）。</li>
+<li><code>model</code>：子 agent 的模型 ID（必填）。</li>
+<li><code>system_prompt</code>：子 agent 专用 system prompt（可选）。</li>
+<li><code>api_key</code>：子 agent 专用 API key 覆盖（可选）。</li>
+<li><code>temperature</code>：子 agent 温度覆盖（可选）。</li>
+<li><code>max_depth</code>：委派递归深度，默认 <code>3</code>。</li>
+<li><code>agentic</code>：是否开启子 agent 多轮工具循环，默认 <code>false</code>。</li>
+<li><code>allowed_tools</code>：子 agent 工具白名单，默认 <code>[]</code>（<code>agentic=true</code> 时应配置）。</li>
+<li><code>max_iterations</code>：子 agent 工具迭代上限，默认 <code>10</code>。</li>
+</ul>
+<p><strong>注意点：</strong></p>
+<ul>
+<li><code>agentic = true</code> 时应配置可用工具</li>
+<li><code>delegate</code> 不会被允许放进子 agent allowlist（避免递归委派）</li>
+</ul>
+<p><strong>出处：</strong></p>
+<ul>
+<li><code>docs/config-reference.md</code><br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md</a></li>
+</ul>
+<h3 id="3-7-runtime-（运行时行为）"><a href="#3-7-runtime-（运行时行为）" class="headerlink" title="3.7 [runtime]（运行时行为）"></a>3.7 <code>[runtime]</code>（运行时行为）</h3><p><strong>用途</strong>：控制运行时行为（目前文档重点字段是推理/思考开关）。</p>
+<p><strong>字段说明（含默认值）：</strong></p>
+<ul>
+<li><code>reasoning_enabled</code>：全局推理覆盖开关。默认未设置（<code>unset</code>），仅对支持显式推理参数的 provider 生效。</li>
+</ul>
+<p><strong>行为（对支持的 provider 生效，如文档提到 ollama）：</strong></p>
+<ul>
+<li><code>false</code> → 发送 <code>think: false</code></li>
+<li><code>true</code> → 发送 <code>think: true</code></li>
+<li>不设置 → 使用 provider 默认行为</li>
+</ul>
+<p><strong>出处：</strong></p>
+<ul>
+<li><code>docs/config-reference.md</code><br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md</a></li>
+</ul>
+<h3 id="3-8-skills-（技能系统）"><a href="#3-8-skills-（技能系统）" class="headerlink" title="3.8 [skills]（技能系统）"></a>3.8 <code>[skills]</code>（技能系统）</h3><p><strong>用途</strong>：控制社区 <code>open-skills</code> 仓库和提示注入方式。</p>
+<p><strong>字段说明（含默认值）：</strong></p>
+<ul>
+<li><code>open_skills_enabled</code>：是否启用社区 open-skills，默认 <code>false</code>。</li>
+<li><code>open_skills_dir</code>：open-skills 本地目录；启用但未设置时默认 <code>$HOME/open-skills</code>。</li>
+<li><code>prompt_injection_mode</code>：技能注入模式，默认 <code>full</code>，可选 <code>full/compact</code>。</li>
+</ul>
+<p><strong>环境变量覆盖：</strong></p>
+<ul>
+<li><code>ZEROCLAW_OPEN_SKILLS_ENABLED</code></li>
+<li><code>ZEROCLAW_OPEN_SKILLS_DIR</code></li>
+<li><code>ZEROCLAW_SKILLS_PROMPT_MODE</code></li>
+</ul>
+<p><strong>注意点：</strong></p>
+<ul>
+<li>默认不会 clone/sync 社区技能（安全优先）</li>
+<li><code>compact</code> 模式适合上下文较小模型</li>
+<li>技能加载/安装会做静态安全审计（文档有说明）</li>
+</ul>
+<p><strong>出处：</strong></p>
+<ul>
+<li><code>docs/config-reference.md</code><br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md</a></li>
+</ul>
+<h3 id="3-9-composio-（OAuth-工具集成）"><a href="#3-9-composio-（OAuth-工具集成）" class="headerlink" title="3.9 [composio]（OAuth 工具集成）"></a>3.9 <code>[composio]</code>（OAuth 工具集成）</h3><p><strong>用途</strong>：接入 Composio 托管 OAuth 工具。</p>
+<p><strong>字段说明（含默认值）：</strong></p>
+<ul>
+<li><code>enabled</code>：是否启用 Composio，默认 <code>false</code>（兼容旧键 <code>enable=true</code>）。</li>
+<li><code>api_key</code>：Composio API key（未配置时工具不会注册）。</li>
+<li><code>entity_id</code>：默认实体标识，默认 <code>default</code>。</li>
+</ul>
+<p><strong>注意点：</strong></p>
+<ul>
+<li>兼容旧字段 <code>enable = true</code></li>
+<li><code>enabled=false</code> 或没 <code>api_key</code> 时，工具不会注册</li>
+</ul>
+<p><strong>出处：</strong></p>
+<ul>
+<li><code>docs/config-reference.md</code><br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md</a></li>
+</ul>
+<h3 id="3-10-cost-（成本控制）"><a href="#3-10-cost-（成本控制）" class="headerlink" title="3.10 [cost]（成本控制）"></a>3.10 <code>[cost]</code>（成本控制）</h3><p><strong>用途</strong>：预算/成本告警与硬限制。</p>
+<p><strong>字段说明（含默认值）：</strong></p>
+<ul>
+<li><code>enabled</code>：是否启用成本控制，默认 <code>false</code>。</li>
+<li><code>daily_limit_usd</code>：日预算上限，默认 <code>10.00</code>。</li>
+<li><code>monthly_limit_usd</code>：月预算上限，默认 <code>100.00</code>。</li>
+<li><code>warn_at_percent</code>：预算告警阈值，默认 <code>80</code>。</li>
+<li><code>allow_override</code>：超预算是否允许 <code>--override</code> 放行，默认 <code>false</code>。</li>
+</ul>
+<p><strong>行为：</strong></p>
+<ul>
+<li>达到告警阈值只提醒</li>
+<li>达到硬限制则拒绝请求（除非允许 <code>--override</code>）</li>
+</ul>
+<p><strong>出处：</strong></p>
+<ul>
+<li><code>docs/config-reference.md</code><br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md</a></li>
+</ul>
+<h3 id="3-11-identity-（身份文档格式）"><a href="#3-11-identity-（身份文档格式）" class="headerlink" title="3.11 [identity]（身份文档格式）"></a>3.11 <code>[identity]</code>（身份文档格式）</h3><p><strong>用途</strong>：指定 identity 格式（兼容 OpenClaw/AIEOS）。</p>
+<p><strong>字段说明（含默认值）：</strong></p>
+<ul>
+<li><code>format</code>：身份文档格式，默认 <code>openclaw</code>，可设为 <code>aieos</code>。</li>
+<li><code>aieos_path</code>：AIEOS JSON 路径（相对 workspace 解析）。</li>
+<li><code>aieos_inline</code>：内联 AIEOS JSON（通常与 <code>aieos_path</code> 二选一；同时设置时 <code>aieos_path</code> 优先）。</li>
+</ul>
+<p><strong>注意点：</strong></p>
+<ul>
+<li><code>aieos_path</code> 和 <code>aieos_inline</code> 不建议同时设</li>
+<li>同时设置时 <code>aieos_path</code> 优先</li>
+</ul>
+<p><strong>出处：</strong></p>
+<ul>
+<li><code>docs/config-reference.md</code><br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md</a></li>
+</ul>
+<h3 id="3-12-multimodal-（多模态输入）"><a href="#3-12-multimodal-（多模态输入）" class="headerlink" title="3.12 [multimodal]（多模态输入）"></a>3.12 <code>[multimodal]</code>（多模态输入）</h3><p><strong>用途</strong>：控制图片输入限制（通过 <code>[IMAGE:...]</code> marker）。</p>
+<p><strong>字段说明（含默认值）：</strong></p>
+<ul>
+<li><code>max_images</code>：单请求图片 marker 上限，默认 <code>4</code>。</li>
+<li><code>max_image_size_mb</code>：单图大小上限，默认 <code>5</code> MB。</li>
+<li><code>allow_remote_fetch</code>：是否允许远程 URL 拉图，默认 <code>false</code>。</li>
+</ul>
+<p><strong>官方说明：</strong></p>
+<ul>
+<li>支持本地文件、Data URI</li>
+<li>远程 URL 只有 <code>allow_remote_fetch = true</code> 才允许</li>
+<li>provider 不支持 vision 时会返回结构化能力错误</li>
+</ul>
+<p><strong>出处：</strong></p>
+<ul>
+<li><code>docs/config-reference.md</code><br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md</a></li>
+</ul>
+<h3 id="3-13-browser-browser-computer-use-（浏览器-桌面操作）"><a href="#3-13-browser-browser-computer-use-（浏览器-桌面操作）" class="headerlink" title="3.13 [browser] + [browser.computer_use]（浏览器/桌面操作）"></a>3.13 <code>[browser]</code> + <code>[browser.computer_use]</code>（浏览器/桌面操作）</h3><p><strong>用途</strong>：<code>browser_open</code> 工具、浏览器后端选择、computer-use sidecar。</p>
+<h4 id="browser-字段说明（含默认值）"><a href="#browser-字段说明（含默认值）" class="headerlink" title="[browser] 字段说明（含默认值）"></a><code>[browser]</code> 字段说明（含默认值）</h4><ul>
+<li><code>enabled</code>：是否启用 <code>browser_open</code>，默认 <code>false</code>。</li>
+<li><code>allowed_domains</code>：浏览器访问白名单，默认 <code>[]</code>（空即拒绝）。</li>
+<li><code>session_name</code>：浏览器会话名（可选）。</li>
+<li><code>backend</code>：浏览器后端，默认 <code>agent_browser</code>，可选 <code>agent_browser/rust_native/computer_use/auto</code>。</li>
+<li><code>native_headless</code>：<code>rust_native</code> 无头模式，默认 <code>true</code>。</li>
+<li><code>native_webdriver_url</code>：<code>rust_native</code> WebDriver 地址，默认 <code>http://127.0.0.1:9515</code>。</li>
+<li><code>native_chrome_path</code>：Chrome/Chromium 可执行路径（可选）。</li>
+</ul>
+<h4 id="browser-computer-use-字段说明（含默认值）"><a href="#browser-computer-use-字段说明（含默认值）" class="headerlink" title="[browser.computer_use] 字段说明（含默认值）"></a><code>[browser.computer_use]</code> 字段说明（含默认值）</h4><ul>
+<li><code>endpoint</code>：computer-use sidecar 地址，默认 <code>http://127.0.0.1:8787/v1/actions</code>。</li>
+<li><code>api_key</code>：sidecar 鉴权 token（可选）。</li>
+<li><code>timeout_ms</code>：单动作超时，默认 <code>15000</code>。</li>
+<li><code>allow_remote_endpoint</code>：是否允许远程 sidecar，默认 <code>false</code>。</li>
+<li><code>window_allowlist</code>：窗口白名单，默认 <code>[]</code>。</li>
+<li><code>max_coordinate_x</code>：X 坐标上限（可选）。</li>
+<li><code>max_coordinate_y</code>：Y 坐标上限（可选）。</li>
+</ul>
+<p><strong>重要安全点：</strong></p>
+<ul>
+<li><code>allow_remote_endpoint = false</code>（默认）会拒绝非 loopback 端点，防止误暴露公网</li>
+</ul>
+<p><strong>出处：</strong></p>
+<ul>
+<li><code>docs/config-reference.md</code><br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md</a></li>
+</ul>
+<h3 id="3-14-http-request-（HTTP-请求工具）"><a href="#3-14-http-request-（HTTP-请求工具）" class="headerlink" title="3.14 [http_request]（HTTP 请求工具）"></a>3.14 <code>[http_request]</code>（HTTP 请求工具）</h3><p><strong>用途</strong>：给 agent 提供 API 请求能力（<code>http_request</code> 工具）。</p>
+<p><strong>字段说明（含默认值）：</strong></p>
+<ul>
+<li><code>enabled</code>：是否启用 <code>http_request</code>，默认 <code>false</code>。</li>
+<li><code>allowed_domains</code>：HTTP 域名白名单，默认 <code>[]</code>（空即拒绝）。</li>
+<li><code>max_response_size</code>：响应体上限（字节），默认 <code>1000000</code>。</li>
+<li><code>timeout_secs</code>：请求超时秒数，默认 <code>30</code>。</li>
+</ul>
+<p><strong>关键安全语义：</strong></p>
+<ul>
+<li>默认拒绝所有（<code>allowed_domains</code> 为空即拒绝）</li>
+<li><code>&quot;*&quot;</code> 可放开公网域名，但本地/私网目标仍会被拦截（官方文档说明）</li>
+</ul>
+<p><strong>出处：</strong></p>
+<ul>
+<li><code>docs/config-reference.md</code><br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md</a></li>
+</ul>
+<h3 id="3-15-gateway-（网关）"><a href="#3-15-gateway-（网关）" class="headerlink" title="3.15 [gateway]（网关）"></a>3.15 <code>[gateway]</code>（网关）</h3><p><strong>用途</strong>：控制网关监听地址与配对策略。</p>
+<p><strong>字段说明（含默认值）：</strong></p>
+<ul>
+<li><code>host</code>：网关监听地址，默认 <code>127.0.0.1</code>。</li>
+<li><code>port</code>：网关端口，默认 <code>42617</code>。</li>
+<li><code>require_pairing</code>：是否要求配对后再 bearer 鉴权，默认 <code>true</code>。</li>
+<li><code>allow_public_bind</code>：是否允许公网绑定，默认 <code>false</code>。</li>
+</ul>
+<p>这组配置对团队部署/远程访问场景很关键。</p>
+<p><strong>出处：</strong></p>
+<ul>
+<li><code>docs/config-reference.md</code><br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md</a></li>
+</ul>
+<h3 id="3-16-autonomy-（自治级别与系统操作护栏）"><a href="#3-16-autonomy-（自治级别与系统操作护栏）" class="headerlink" title="3.16 [autonomy]（自治级别与系统操作护栏）"></a>3.16 <code>[autonomy]</code>（自治级别与系统操作护栏）</h3><p><strong>用途</strong>：决定 agent 的执行权限和风险控制。</p>
+<p><strong>字段说明（含默认值）：</strong></p>
+<ul>
+<li><code>level</code>：自治级别，默认 <code>supervised</code>，可选 <code>read_only/supervised/full</code>。</li>
+<li><code>workspace_only</code>：是否限制在工作区内，默认 <code>true</code>。</li>
+<li><code>allowed_commands</code>：命令白名单（shell 执行必需项）。</li>
+<li><code>forbidden_paths</code>：拒绝路径列表（默认含系统敏感路径与常见敏感目录）。</li>
+<li><code>allowed_roots</code>：工作区外允许访问根路径，默认 <code>[]</code>。</li>
+<li><code>max_actions_per_hour</code>：每小时动作预算，默认 <code>20</code>。</li>
+<li><code>max_cost_per_day_cents</code>：每日成本预算（美分），默认 <code>500</code>。</li>
+<li><code>require_approval_for_medium_risk</code>：中风险审批开关，默认 <code>true</code>。</li>
+<li><code>block_high_risk_commands</code>：高风险命令硬阻断，默认 <code>true</code>。</li>
+<li><code>auto_approve</code>：自动审批列表，默认 <code>[]</code>。</li>
+<li><code>always_ask</code>：强制询问列表，默认 <code>[]</code>。</li>
+</ul>
+<p><strong>官方说明重点：</strong></p>
+<ul>
+<li><code>full</code> 会跳过中风险 shell 审批（但仍有护栏）</li>
+<li>即使 <code>workspace_only = false</code>，工作区外访问仍需要 <code>allowed_roots</code></li>
+<li>shell 运算符解析带引号感知（降低误判/注入风险）</li>
+</ul>
+<p><strong>出处：</strong></p>
+<ul>
+<li><code>docs/config-reference.md</code><br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md</a></li>
+</ul>
+<h3 id="3-17-memory-（记忆系统）"><a href="#3-17-memory-（记忆系统）" class="headerlink" title="3.17 [memory]（记忆系统）"></a>3.17 <code>[memory]</code>（记忆系统）</h3><p><strong>用途</strong>：记忆后端与向量/关键词混合检索设置。</p>
+<p><strong>字段说明（含默认值）：</strong></p>
+<ul>
+<li><code>backend</code>：记忆后端，默认 <code>sqlite</code>，可选 <code>sqlite/lucid/markdown/none</code>。</li>
+<li><code>auto_save</code>：是否自动保存用户输入，默认 <code>true</code>。</li>
+<li><code>embedding_provider</code>：向量 provider，默认 <code>none</code>，可设 <code>openai</code> 或 <code>custom:&lt;url&gt;</code>。</li>
+<li><code>embedding_model</code>：向量模型，默认 <code>text-embedding-3-small</code>（也支持 <code>hint:&lt;name&gt;</code>）。</li>
+<li><code>embedding_dimensions</code>：向量维度，默认 <code>1536</code>。</li>
+<li><code>vector_weight</code>：向量分权重，默认 <code>0.7</code>。</li>
+<li><code>keyword_weight</code>：关键词分权重，默认 <code>0.3</code>。</li>
+</ul>
+<p><strong>官方提示：</strong></p>
+<ul>
+<li>部分旧版 assistant 自动总结字段会被忽略（避免误把模型输出当事实）</li>
+</ul>
+<p><strong>出处：</strong></p>
+<ul>
+<li><code>docs/config-reference.md</code><br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md</a></li>
+</ul>
+<h3 id="3-18-model-routes-embedding-routes-（路由表）"><a href="#3-18-model-routes-embedding-routes-（路由表）" class="headerlink" title="3.18 [[model_routes]] / [[embedding_routes]]（路由表）"></a>3.18 <code>[[model_routes]]</code> / <code>[[embedding_routes]]</code>（路由表）</h3><p><strong>用途</strong>：用 <code>hint</code> 做稳定路由名，把真实模型版本解耦。</p>
+<h4 id="model-routes-字段说明（含默认值-必填）"><a href="#model-routes-字段说明（含默认值-必填）" class="headerlink" title="[[model_routes]] 字段说明（含默认值/必填）"></a><code>[[model_routes]]</code> 字段说明（含默认值/必填）</h4><ul>
+<li><code>hint</code>：路由提示名（必填）。</li>
+<li><code>provider</code>：目标 provider（必填）。</li>
+<li><code>model</code>：目标模型 ID（必填）。</li>
+<li><code>api_key</code>：路由级 API key 覆盖（可选，默认未设置）。</li>
+</ul>
+<h4 id="embedding-routes-字段说明（含默认值-必填）"><a href="#embedding-routes-字段说明（含默认值-必填）" class="headerlink" title="[[embedding_routes]] 字段说明（含默认值/必填）"></a><code>[[embedding_routes]]</code> 字段说明（含默认值/必填）</h4><ul>
+<li><code>hint</code>：向量路由提示名（必填）。</li>
+<li><code>provider</code>：向量 provider（必填，<code>none/openai/custom:&lt;url&gt;</code>）。</li>
+<li><code>model</code>：向量模型 ID（必填）。</li>
+<li><code>dimensions</code>：路由级向量维度覆盖（可选，默认未设置）。</li>
+<li><code>api_key</code>：路由级 API key 覆盖（可选，默认未设置）。</li>
+</ul>
+<p><strong>实践意义：</strong></p>
+<ul>
+<li>让上层只依赖 hint（例如 <code>code</code> / <code>reasoning</code> / <code>semantic</code>）</li>
+<li>升级模型时只改路由，不改业务逻辑</li>
+</ul>
+<p><strong>出处：</strong></p>
+<ul>
+<li><code>docs/config-reference.md</code><br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md</a></li>
+</ul>
+<h3 id="3-19-query-classification-（自动路由分类）"><a href="#3-19-query-classification-（自动路由分类）" class="headerlink" title="3.19 [query_classification]（自动路由分类）"></a>3.19 <code>[query_classification]</code>（自动路由分类）</h3><p><strong>用途</strong>：根据消息内容自动匹配 <code>[[model_routes]]</code> 的 <code>hint</code>。</p>
+<p><strong>字段说明（含默认值）：</strong></p>
+<ul>
+<li><code>enabled</code>：是否启用自动分类，默认 <code>false</code>。</li>
+<li><code>rules</code>：分类规则数组，默认 <code>[]</code>。</li>
+</ul>
+<p><strong><code>rules[]</code> 字段说明（含默认值）：</strong></p>
+<ul>
+<li><code>hint</code>：命中后路由到的 hint（必填，需已在 <code>[[model_routes]]</code> 定义）。</li>
+<li><code>keywords</code>：大小写不敏感子串列表，默认 <code>[]</code>。</li>
+<li><code>patterns</code>：大小写敏感字面量列表，默认 <code>[]</code>。</li>
+<li><code>min_length</code>：消息长度下限（可选）。</li>
+<li><code>max_length</code>：消息长度上限（可选）。</li>
+<li><code>priority</code>：规则优先级，默认 <code>0</code>（高值先匹配）。</li>
+</ul>
+<p>这组配置很适合做不同任务类型（如 coding / research / chat）的自动分流。</p>
+<p><strong>出处：</strong></p>
+<ul>
+<li><code>docs/config-reference.md</code><br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md</a></li>
+</ul>
+<h3 id="3-20-channels-config-（渠道总配置，官方补充）"><a href="#3-20-channels-config-（渠道总配置，官方补充）" class="headerlink" title="3.20 [channels_config]（渠道总配置，官方补充）"></a>3.20 <code>[channels_config]</code>（渠道总配置，官方补充）</h3><p><strong>用途</strong>：控制渠道运行时超时、热更新行为，以及按渠道子表启用具体接入。</p>
+<p><strong>字段说明（含默认值）：</strong></p>
+<ul>
+<li><code>message_timeout_secs</code>：消息处理基础超时（秒），默认 <code>300</code>。实际预算按工具循环缩放，且小于 <code>30</code> 时会被钳制到 <code>30</code>。</li>
+</ul>
+<p><strong>官方行为要点：</strong></p>
+<ul>
+<li>渠道消息总超时预算会按工具循环深度缩放：<code>message_timeout_secs * scale</code>，<code>scale = min(max_tool_iterations, 4)</code>，最小为 <code>1</code>。</li>
+<li>小于 <code>30</code> 秒的值会被钳制到 <code>30</code>，避免过于频繁的超时抖动。</li>
+<li><code>zeroclaw channel start</code> 运行期间，以下字段在下一条消息可热生效：<code>default_provider</code>、<code>default_model</code>、<code>default_temperature</code>、<code>api_key</code>、<code>api_url</code>、<code>reliability.*</code>。</li>
+<li>Telegram 的中断行为由 <code>channels_config.telegram.interrupt_on_new_message</code> 控制（默认 <code>false</code>）。</li>
+</ul>
+<p><strong>常见子表（<code>docs/channels-reference.md</code>）：</strong></p>
+<ul>
+<li><code>[channels_config.telegram]</code></li>
+<li><code>[channels_config.discord]</code></li>
+<li><code>[channels_config.slack]</code></li>
+<li><code>[channels_config.matrix]</code></li>
+<li><code>[channels_config.whatsapp]</code></li>
+<li><code>[channels_config.nostr]</code></li>
+<li><code>[channels_config.nextcloud_talk]</code></li>
+<li><code>[channels_config.linq]</code></li>
+</ul>
+<p><strong>出处：</strong></p>
+<ul>
+<li><code>docs/config-reference.md</code><br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md</a></li>
+<li><code>docs/channels-reference.md</code><br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/channels-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/channels-reference.md</a></li>
+</ul>
+<h3 id="3-21-channels-config-nostr"><a href="#3-21-channels-config-nostr" class="headerlink" title="3.21 [channels_config.nostr]"></a>3.21 <code>[channels_config.nostr]</code></h3><p><strong>用途</strong>：Nostr 私信通道（支持 NIP-04 / NIP-17）。</p>
+<p><strong>字段说明（含默认值/必填）：</strong></p>
+<ul>
+<li><code>private_key</code>：Nostr 私钥（必填，支持 hex 或 <code>nsec1...</code>）。</li>
+<li><code>relays</code>：中继列表（可选）；未设置时默认 <code>relay.damus.io</code>、<code>nos.lol</code>、<code>relay.primal.net</code>、<code>relay.snort.social</code>。</li>
+<li><code>allowed_pubkeys</code>：入站公钥白名单，默认 <code>[]</code>（拒绝全部），<code>&quot;*&quot;</code> 允许全部。</li>
+</ul>
+<p><strong>注意点：</strong></p>
+<ul>
+<li><code>private_key</code> 属于高价值密钥，生产环境建议保持 <code>secrets.encrypt = true</code>（官方默认）。</li>
+</ul>
+<p><strong>出处：</strong></p>
+<ul>
+<li><code>docs/config-reference.md</code><br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md</a></li>
+<li><code>docs/channels-reference.md</code><br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/channels-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/channels-reference.md</a></li>
+</ul>
+<h3 id="3-22-channels-config-whatsapp"><a href="#3-22-channels-config-whatsapp" class="headerlink" title="3.22 [channels_config.whatsapp]"></a>3.22 <code>[channels_config.whatsapp]</code></h3><p><strong>用途</strong>：WhatsApp 双后端配置（Cloud API / WhatsApp Web）。</p>
+<p><strong>字段说明（含默认值/必填）：</strong></p>
+<ul>
+<li><code>access_token</code>：Cloud API 模式必填，Meta 调用令牌。</li>
+<li><code>phone_number_id</code>：Cloud API 模式必填，发送使用的号码 ID。</li>
+<li><code>verify_token</code>：Cloud API 模式必填，Webhook 验证 token。</li>
+<li><code>app_secret</code>：Cloud API 可选，配置后启用签名校验。</li>
+<li><code>allowed_numbers</code>：入站号码白名单，建议配置（<code>[]</code> 拒绝全部，<code>&quot;*&quot;</code> 允许全部）。</li>
+<li><code>session_path</code>：WhatsApp Web 模式必填，本地会话库路径。</li>
+<li><code>pair_phone</code>：WhatsApp Web 可选，pair-code 配对手机号。</li>
+<li><code>pair_code</code>：WhatsApp Web 可选，自定义配对码。</li>
+</ul>
+<p><strong>注意点：</strong></p>
+<ul>
+<li>两组字段同时存在时，官方说明是 Cloud API 优先（兼容历史行为）。</li>
+</ul>
+<p><strong>出处：</strong></p>
+<ul>
+<li><code>docs/config-reference.md</code><br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md</a></li>
+<li><code>docs/channels-reference.md</code><br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/channels-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/channels-reference.md</a></li>
+</ul>
+<h3 id="3-23-channels-config-linq"><a href="#3-23-channels-config-linq" class="headerlink" title="3.23 [channels_config.linq]"></a>3.23 <code>[channels_config.linq]</code></h3><p><strong>用途</strong>：Linq Partner V3 通道（iMessage/RCS/SMS）。</p>
+<p><strong>字段说明（含默认值/必填）：</strong></p>
+<ul>
+<li><code>api_token</code>：必填，Linq Partner API token。</li>
+<li><code>from_phone</code>：必填，发送号码（E.164）。</li>
+<li><code>signing_secret</code>：可选，Webhook HMAC-SHA256 验签密钥（可被 <code>ZEROCLAW_LINQ_SIGNING_SECRET</code> 覆盖）。</li>
+<li><code>allowed_senders</code>：入站号码白名单（建议配置，<code>[]</code> 拒绝全部，<code>&quot;*&quot;</code> 允许全部）。</li>
+</ul>
+<p><strong>注意点：</strong></p>
+<ul>
+<li><code>ZEROCLAW_LINQ_SIGNING_SECRET</code> 会覆盖配置中的 <code>signing_secret</code>。</li>
+</ul>
+<p><strong>出处：</strong></p>
+<ul>
+<li><code>docs/config-reference.md</code><br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md</a></li>
+<li><code>docs/channels-reference.md</code><br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/channels-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/channels-reference.md</a></li>
+</ul>
+<h3 id="3-24-channels-config-nextcloud-talk"><a href="#3-24-channels-config-nextcloud-talk" class="headerlink" title="3.24 [channels_config.nextcloud_talk]"></a>3.24 <code>[channels_config.nextcloud_talk]</code></h3><p><strong>用途</strong>：Nextcloud Talk 原生机器人通道（Webhook 入站 + OCS 出站）。</p>
+<p><strong>字段说明（含默认值/必填）：</strong></p>
+<ul>
+<li><code>base_url</code>：必填，Nextcloud 根地址。</li>
+<li><code>app_token</code>：必填，Talk bot OCS API token。</li>
+<li><code>webhook_secret</code>：可选，Webhook 验签密钥（可被 <code>ZEROCLAW_NEXTCLOUD_TALK_WEBHOOK_SECRET</code> 覆盖）。</li>
+<li><code>allowed_users</code>：actor 白名单（建议配置，<code>[]</code> 拒绝全部，<code>&quot;*&quot;</code> 允许全部）。</li>
+</ul>
+<p><strong>注意点：</strong></p>
+<ul>
+<li><code>ZEROCLAW_NEXTCLOUD_TALK_WEBHOOK_SECRET</code> 会覆盖 <code>webhook_secret</code>。</li>
+</ul>
+<p><strong>出处：</strong></p>
+<ul>
+<li><code>docs/config-reference.md</code><br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md</a></li>
+<li><code>docs/channels-reference.md</code><br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/channels-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/channels-reference.md</a></li>
+</ul>
+<h3 id="3-25-hardware-（硬件向导）"><a href="#3-25-hardware-（硬件向导）" class="headerlink" title="3.25 [hardware]（硬件向导）"></a>3.25 <code>[hardware]</code>（硬件向导）</h3><p><strong>用途</strong>：控制物理硬件访问模式（串口/探针等）。</p>
+<p><strong>字段说明（含默认值）：</strong></p>
+<ul>
+<li><code>enabled</code>：是否启用硬件访问，默认 <code>false</code>。</li>
+<li><code>transport</code>：传输模式，默认 <code>none</code>，可选 <code>none/native/serial/probe</code>。</li>
+<li><code>serial_port</code>：串口路径（<code>serial</code> 模式使用）。</li>
+<li><code>baud_rate</code>：串口波特率，默认 <code>115200</code>。</li>
+<li><code>probe_target</code>：探针目标芯片（<code>probe</code> 模式使用）。</li>
+<li><code>workspace_datasheets</code>：是否开启工作区 datasheet RAG，默认 <code>false</code>。</li>
+</ul>
+<p><strong>出处：</strong></p>
+<ul>
+<li><code>docs/config-reference.md</code><br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md</a></li>
+</ul>
+<h3 id="3-26-peripherals-（外设板卡）"><a href="#3-26-peripherals-（外设板卡）" class="headerlink" title="3.26 [peripherals]（外设板卡）"></a>3.26 <code>[peripherals]</code>（外设板卡）</h3><p><strong>用途</strong>：把板卡配置成 agent 可调用工具。</p>
+<p><strong>字段说明（含默认值）：</strong></p>
+<ul>
+<li><code>enabled</code>：是否启用外设能力，默认 <code>false</code>。</li>
+<li><code>boards</code>：板卡配置数组，默认 <code>[]</code>。</li>
+<li><code>datasheet_dir</code>：板卡资料目录（相对 workspace，支持 <code>.md/.txt</code> 检索）。</li>
+</ul>
+<p><strong><code>[[peripherals.boards]]</code> 字段说明（含默认值/必填）：</strong></p>
+<ul>
+<li><code>board</code>：板卡类型（必填，如 <code>nucleo-f401re/rpi-gpio/esp32</code>）。</li>
+<li><code>transport</code>：通信方式，默认 <code>serial</code>，可选 <code>serial/native/websocket</code>。</li>
+<li><code>path</code>：连接路径（<code>serial</code> 常用）。</li>
+<li><code>baud</code>：串口波特率，默认 <code>115200</code>。</li>
+</ul>
+<p><strong>出处：</strong></p>
+<ul>
+<li><code>docs/config-reference.md</code><br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md</a></li>
+</ul>
+<h2 id="4）-channels-config-（渠道配置）怎么写"><a href="#4）-channels-config-（渠道配置）怎么写" class="headerlink" title="4）[channels_config]（渠道配置）怎么写"></a>4）<code>[channels_config]</code>（渠道配置）怎么写</h2><p>官方 <code>channels-reference.md</code> 明确写了：<strong>所有渠道配置都放在 <code>channels_config</code> 下</strong>。</p>
+<p>最小示例：</p>
+<figure class="highlight toml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[channels_config]</span></span><br><span class="line"><span class="attr">cli</span> = <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+<p>启用具体渠道时，用子表，例如：</p>
+<ul>
+<li><code>[channels_config.telegram]</code></li>
+<li><code>[channels_config.discord]</code></li>
+<li><code>[channels_config.slack]</code></li>
+<li><code>[channels_config.matrix]</code></li>
+<li><code>[channels_config.whatsapp]</code></li>
+</ul>
+<p>文档里给了各渠道的示例字段（如 <code>bot_token</code>、<code>allowed_users</code>、<code>channel_id</code>、<code>room_id</code>、<code>access_token</code> 等）。</p>
+<h3 id="4-1-各渠道字段补全（对照-channels-reference-md）"><a href="#4-1-各渠道字段补全（对照-channels-reference-md）" class="headerlink" title="4.1 各渠道字段补全（对照 channels-reference.md）"></a>4.1 各渠道字段补全（对照 <code>channels-reference.md</code>）</h3><blockquote>
+<p>这一节补的是官网渠道参考里已有、但前文未完整展开的子字段。</p>
+</blockquote>
+<h4 id="Telegram-channels-config-telegram"><a href="#Telegram-channels-config-telegram" class="headerlink" title="Telegram ([channels_config.telegram])"></a>Telegram (<code>[channels_config.telegram]</code>)</h4><ul>
+<li><code>bot_token</code>（必填）</li>
+<li><code>allowed_users</code>（建议配置）</li>
+<li><code>stream_mode</code>（可选：<code>off/partial</code>）</li>
+<li><code>draft_update_interval_ms</code>（可选）</li>
+<li><code>mention_only</code>（可选）</li>
+<li><code>interrupt_on_new_message</code>（可选，默认 <code>false</code>）</li>
+</ul>
+<h4 id="Discord-channels-config-discord"><a href="#Discord-channels-config-discord" class="headerlink" title="Discord ([channels_config.discord])"></a>Discord (<code>[channels_config.discord]</code>)</h4><ul>
+<li><code>bot_token</code>（必填）</li>
+<li><code>guild_id</code>（可选）</li>
+<li><code>allowed_users</code>（建议配置）</li>
+<li><code>listen_to_bots</code>（可选）</li>
+<li><code>mention_only</code>（可选）</li>
+</ul>
+<h4 id="Slack-channels-config-slack"><a href="#Slack-channels-config-slack" class="headerlink" title="Slack ([channels_config.slack])"></a>Slack (<code>[channels_config.slack]</code>)</h4><ul>
+<li><code>bot_token</code>（必填）</li>
+<li><code>app_token</code>（可选）</li>
+<li><code>channel_id</code>（可选，<code>&quot;*&quot;</code> 或省略表示监听可访问频道）</li>
+<li><code>allowed_users</code>（建议配置）</li>
+</ul>
+<h4 id="Mattermost-channels-config-mattermost"><a href="#Mattermost-channels-config-mattermost" class="headerlink" title="Mattermost ([channels_config.mattermost])"></a>Mattermost (<code>[channels_config.mattermost]</code>)</h4><ul>
+<li><code>url</code>（必填）</li>
+<li><code>bot_token</code>（必填）</li>
+<li><code>channel_id</code>（监听必填）</li>
+<li><code>allowed_users</code>（建议配置）</li>
+</ul>
+<h4 id="Matrix-channels-config-matrix"><a href="#Matrix-channels-config-matrix" class="headerlink" title="Matrix ([channels_config.matrix])"></a>Matrix (<code>[channels_config.matrix]</code>)</h4><ul>
+<li><code>homeserver</code>（必填）</li>
+<li><code>access_token</code>（必填）</li>
+<li><code>user_id</code>（可选，E2EE 推荐配置）</li>
+<li><code>device_id</code>（可选，E2EE 推荐配置）</li>
+<li><code>room_id</code>（必填，支持 room id 或 alias）</li>
+<li><code>allowed_users</code>（建议配置）</li>
+</ul>
+<h4 id="Signal-channels-config-signal"><a href="#Signal-channels-config-signal" class="headerlink" title="Signal ([channels_config.signal])"></a>Signal (<code>[channels_config.signal]</code>)</h4><ul>
+<li><code>http_url</code>（必填）</li>
+<li><code>account</code>（必填）</li>
+<li><code>group_id</code>（可选）</li>
+<li><code>allowed_from</code>（建议配置）</li>
+<li><code>ignore_attachments</code>（可选）</li>
+<li><code>ignore_stories</code>（可选）</li>
+</ul>
+<h4 id="Webhook-channels-config-webhook"><a href="#Webhook-channels-config-webhook" class="headerlink" title="Webhook ([channels_config.webhook])"></a>Webhook (<code>[channels_config.webhook]</code>)</h4><ul>
+<li><code>port</code>（必填）</li>
+<li><code>secret</code>（可选）</li>
+</ul>
+<h4 id="Email-channels-config-email"><a href="#Email-channels-config-email" class="headerlink" title="Email ([channels_config.email])"></a>Email (<code>[channels_config.email]</code>)</h4><ul>
+<li><code>imap_host</code>（必填）</li>
+<li><code>imap_port</code>（必填）</li>
+<li><code>imap_folder</code>（可选）</li>
+<li><code>smtp_host</code>（必填）</li>
+<li><code>smtp_port</code>（必填）</li>
+<li><code>smtp_tls</code>（可选）</li>
+<li><code>username</code>（必填）</li>
+<li><code>password</code>（必填）</li>
+<li><code>from_address</code>（必填）</li>
+<li><code>poll_interval_secs</code>（可选）</li>
+<li><code>allowed_senders</code>（建议配置）</li>
+</ul>
+<h4 id="IRC-channels-config-irc"><a href="#IRC-channels-config-irc" class="headerlink" title="IRC ([channels_config.irc])"></a>IRC (<code>[channels_config.irc]</code>)</h4><ul>
+<li><code>server</code>（必填）</li>
+<li><code>port</code>（必填）</li>
+<li><code>nickname</code>（必填）</li>
+<li><code>username</code>（可选）</li>
+<li><code>channels</code>（必填）</li>
+<li><code>allowed_users</code>（建议配置）</li>
+<li><code>server_password</code>（可选）</li>
+<li><code>nickserv_password</code>（可选）</li>
+<li><code>sasl_password</code>（可选）</li>
+<li><code>verify_tls</code>（可选）</li>
+</ul>
+<h4 id="Lark-channels-config-lark"><a href="#Lark-channels-config-lark" class="headerlink" title="Lark ([channels_config.lark])"></a>Lark (<code>[channels_config.lark]</code>)</h4><ul>
+<li><code>app_id</code>（必填）</li>
+<li><code>app_secret</code>（必填）</li>
+<li><code>encrypt_key</code>（可选）</li>
+<li><code>verification_token</code>（可选）</li>
+<li><code>allowed_users</code>（建议配置）</li>
+<li><code>receive_mode</code>（可选：<code>websocket/webhook</code>）</li>
+<li><code>port</code>（<code>webhook</code> 模式必填）</li>
+</ul>
+<h4 id="Feishu-channels-config-feishu"><a href="#Feishu-channels-config-feishu" class="headerlink" title="Feishu ([channels_config.feishu])"></a>Feishu (<code>[channels_config.feishu]</code>)</h4><ul>
+<li><code>app_id</code>（必填）</li>
+<li><code>app_secret</code>（必填）</li>
+<li><code>encrypt_key</code>（可选）</li>
+<li><code>verification_token</code>（可选）</li>
+<li><code>allowed_users</code>（建议配置）</li>
+<li><code>receive_mode</code>（可选：<code>websocket/webhook</code>）</li>
+<li><code>port</code>（<code>webhook</code> 模式必填）</li>
+</ul>
+<h4 id="DingTalk-channels-config-dingtalk"><a href="#DingTalk-channels-config-dingtalk" class="headerlink" title="DingTalk ([channels_config.dingtalk])"></a>DingTalk (<code>[channels_config.dingtalk]</code>)</h4><ul>
+<li><code>client_id</code>（必填）</li>
+<li><code>client_secret</code>（必填）</li>
+<li><code>allowed_users</code>（建议配置）</li>
+</ul>
+<h4 id="QQ-channels-config-qq"><a href="#QQ-channels-config-qq" class="headerlink" title="QQ ([channels_config.qq])"></a>QQ (<code>[channels_config.qq]</code>)</h4><ul>
+<li><code>app_id</code>（必填）</li>
+<li><code>app_secret</code>（必填）</li>
+<li><code>allowed_users</code>（建议配置）</li>
+</ul>
+<h4 id="iMessage-channels-config-imessage"><a href="#iMessage-channels-config-imessage" class="headerlink" title="iMessage ([channels_config.imessage])"></a>iMessage (<code>[channels_config.imessage]</code>)</h4><ul>
+<li><code>allowed_contacts</code>（建议配置）</li>
+</ul>
+<h3 id="Allowlist-语义（官方说明）"><a href="#Allowlist-语义（官方说明）" class="headerlink" title="Allowlist 语义（官方说明）"></a>Allowlist 语义（官方说明）</h3><ul>
+<li>空数组：拒绝所有</li>
+<li><code>&quot;*&quot;</code>：允许所有（仅建议临时测试）</li>
+<li>显式列表：只允许指定发送者</li>
+</ul>
+<p>不同渠道字段名可能不同（如 <code>allowed_users</code> / <code>allowed_numbers</code> / <code>allowed_senders</code>）。</p>
+<p><strong>出处：</strong></p>
+<ul>
+<li><code>docs/channels-reference.md</code>（官方渠道配置参考）<br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/channels-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/channels-reference.md</a></li>
+</ul>
+<h2 id="5）Provider-相关配置（default-provider-环境变量-自定义-provider）"><a href="#5）Provider-相关配置（default-provider-环境变量-自定义-provider）" class="headerlink" title="5）Provider 相关配置（default_provider / 环境变量 / 自定义 provider）"></a>5）Provider 相关配置（<code>default_provider</code> / 环境变量 / 自定义 provider）</h2><p>官方 <code>providers-reference.md</code> 是 provider 的权威对照表，包含：</p>
+<ul>
+<li>Canonical ID（规范 provider 名）</li>
+<li>Alias（别名）</li>
+<li>是否本地 provider</li>
+<li>对应环境变量（如 <code>OPENAI_API_KEY</code>、<code>ANTHROPIC_API_KEY</code> 等）</li>
+</ul>
+<p>例如：</p>
+<ul>
+<li><code>openai</code> → <code>OPENAI_API_KEY</code></li>
+<li><code>anthropic</code> → <code>ANTHROPIC_OAUTH_TOKEN</code> / <code>ANTHROPIC_API_KEY</code></li>
+<li><code>gemini</code> → <code>GEMINI_API_KEY</code> / <code>GOOGLE_API_KEY</code></li>
+<li><code>ollama</code> → <code>OLLAMA_API_KEY</code>（可选）</li>
+<li><code>bedrock</code> → <code>AWS_ACCESS_KEY_ID</code> + <code>AWS_SECRET_ACCESS_KEY</code></li>
+</ul>
+<p>如果你在 <code>config.toml</code> 写 <code>default_provider</code>，建议按这里的规范 provider ID 来写，避免 alias/兼容名混用导致行为不一致。</p>
+<p><strong>出处：</strong></p>
+<ul>
+<li><code>docs/providers-reference.md</code>（官方 provider 参考）<br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/providers-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/providers-reference.md</a></li>
+</ul>
+<h2 id="6）一个“最小可用-安全一点”的配置思路（示例）"><a href="#6）一个“最小可用-安全一点”的配置思路（示例）" class="headerlink" title="6）一个“最小可用 + 安全一点”的配置思路（示例）"></a>6）一个“最小可用 + 安全一点”的配置思路（示例）</h2><blockquote>
+<p>下面这个示例不是官方原样，而是基于官方字段整理的实践模板。</p>
+</blockquote>
+<figure class="highlight toml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">default_provider</span> = <span class="string">"openrouter"</span></span><br><span class="line"><span class="attr">default_model</span> = <span class="string">"anthropic/claude-sonnet-4-6"</span></span><br><span class="line"><span class="attr">default_temperature</span> = <span class="number">0.7</span></span><br><span class="line"></span><br><span class="line"><span class="section">[gateway]</span></span><br><span class="line"><span class="attr">host</span> = <span class="string">"127.0.0.1"</span></span><br><span class="line"><span class="attr">port</span> = <span class="number">42617</span></span><br><span class="line"><span class="attr">require_pairing</span> = <span class="literal">true</span></span><br><span class="line"><span class="attr">allow_public_bind</span> = <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="section">[autonomy]</span></span><br><span class="line"><span class="attr">level</span> = <span class="string">"supervised"</span></span><br><span class="line"><span class="attr">workspace_only</span> = <span class="literal">true</span></span><br><span class="line"><span class="attr">allowed_commands</span> = [<span class="string">"git"</span>, <span class="string">"npm"</span>, <span class="string">"pnpm"</span>, <span class="string">"node"</span>]</span><br><span class="line"><span class="attr">always_ask</span> = [<span class="string">"shell"</span>]</span><br><span class="line"></span><br><span class="line"><span class="section">[http_request]</span></span><br><span class="line"><span class="attr">enabled</span> = <span class="literal">true</span></span><br><span class="line"><span class="attr">allowed_domains</span> = [<span class="string">"api.openai.com"</span>, <span class="string">"openrouter.ai"</span>]</span><br><span class="line"><span class="attr">timeout_secs</span> = <span class="number">30</span></span><br><span class="line"></span><br><span class="line"><span class="section">[memory]</span></span><br><span class="line"><span class="attr">backend</span> = <span class="string">"sqlite"</span></span><br><span class="line"><span class="attr">auto_save</span> = <span class="literal">true</span></span><br><span class="line"><span class="attr">embedding_provider</span> = <span class="string">"none"</span></span><br><span class="line"></span><br><span class="line"><span class="section">[skills]</span></span><br><span class="line"><span class="attr">open_skills_enabled</span> = <span class="literal">false</span></span><br><span class="line"><span class="attr">prompt_injection_mode</span> = <span class="string">"compact"</span></span><br><span class="line"></span><br><span class="line"><span class="section">[channels_config]</span></span><br><span class="line"><span class="attr">cli</span> = <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+<h2 id="7）你要特别注意的几个“坑”"><a href="#7）你要特别注意的几个“坑”" class="headerlink" title="7）你要特别注意的几个“坑”"></a>7）你要特别注意的几个“坑”</h2><h3 id="7-1-配置文件路径可能不是你以为的那个"><a href="#7-1-配置文件路径可能不是你以为的那个" class="headerlink" title="7.1 配置文件路径可能不是你以为的那个"></a>7.1 配置文件路径可能不是你以为的那个</h3><p>因为有 <code>ZEROCLAW_WORKSPACE</code> 和 <code>active_workspace.toml</code> 参与解析，改了 <code>~/.zeroclaw/config.toml</code> 但没生效是常见问题。</p>
+<p><strong>出处：</strong></p>
+<ul>
+<li><code>docs/config-reference.md</code><br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md</a></li>
+<li>相关 issue（排查有帮助）：#845<br><a href="https://github.com/zeroclaw-labs/zeroclaw/issues/845" target="_blank" rel="noopener">https://github.com/zeroclaw-labs/zeroclaw/issues/845</a></li>
+</ul>
+<h3 id="7-2-allowed-domains-默认是拒绝"><a href="#7-2-allowed-domains-默认是拒绝" class="headerlink" title="7.2 allowed_domains 默认是拒绝"></a>7.2 <code>allowed_domains</code> 默认是拒绝</h3><p><code>http_request</code> / <code>browser</code> 等功能如果没配置 allowlist，看起来像“功能坏了”，其实是安全默认行为。</p>
+<p><strong>出处：</strong></p>
+<ul>
+<li><code>docs/config-reference.md</code><br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md</a></li>
+</ul>
+<h3 id="7-3-渠道-allowlist-空列表-拒绝所有"><a href="#7-3-渠道-allowlist-空列表-拒绝所有" class="headerlink" title="7.3 渠道 allowlist 空列表 = 拒绝所有"></a>7.3 渠道 allowlist 空列表 = 拒绝所有</h3><p>很多“机器人不回消息”的问题都在这里。官方渠道文档明确写了这个语义。</p>
+<p><strong>出处：</strong></p>
+<ul>
+<li><code>docs/channels-reference.md</code><br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/channels-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/channels-reference.md</a></li>
+</ul>
+<h3 id="7-4-完整字段列表以-schema-为准"><a href="#7-4-完整字段列表以-schema-为准" class="headerlink" title="7.4 完整字段列表以 schema 为准"></a>7.4 完整字段列表以 schema 为准</h3><p>官方 <code>config-reference.md</code> 是高信号参考（常用配置），并不一定穷尽所有字段。做严谨校验/自动补全建议使用：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">zeroclaw config schema</span><br></pre></td></tr></table></figure>
+<p>出处：<a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md" target="_blank" rel="noopener">docs/config-reference.md</a></p>
+<h2 id="8）常见问题（官方-FAQ-排障补充）"><a href="#8）常见问题（官方-FAQ-排障补充）" class="headerlink" title="8）常见问题（官方 FAQ / 排障补充）"></a>8）常见问题（官方 FAQ / 排障补充）</h2><h3 id="8-1-Matrix-配置看起来都对，但机器人不回复"><a href="#8-1-Matrix-配置看起来都对，但机器人不回复" class="headerlink" title="8.1 Matrix 配置看起来都对，但机器人不回复"></a>8.1 Matrix 配置看起来都对，但机器人不回复</h3><p>官方 <code>channels-reference.md</code> 给的排查顺序（按优先级）：</p>
+<ol>
+<li><code>allowed_users</code> 没放行发送者（或为空数组）</li>
+<li><code>room_id</code> / room alias 指错，机器人不在目标房间</li>
+<li>token 属于另一个 Matrix 账号</li>
+<li><code>whoami</code> 没返回 <code>device_id</code>，且配置里也没给 <code>device_id</code></li>
+<li>E2EE 房间密钥未共享给机器人设备</li>
+<li>改完配置后未重启 <code>zeroclaw daemon</code></li>
+</ol>
+<h3 id="8-2-channel-已连接但不响应，最小排查流程"><a href="#8-2-channel-已连接但不响应，最小排查流程" class="headerlink" title="8.2 channel 已连接但不响应，最小排查流程"></a>8.2 channel 已连接但不响应，最小排查流程</h3><p>官方建议先跑健康检查，再回到配置核对：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">zeroclaw doctor</span><br><span class="line">zeroclaw channel doctor</span><br></pre></td></tr></table></figure>
+<p>然后依次确认：</p>
+<ul>
+<li>发送者是否命中对应 allowlist 字段（<code>allowed_users</code> / <code>allowed_numbers</code> / <code>allowed_senders</code> 等）</li>
+<li>机器人账号是否在目标群/频道且有权限</li>
+<li>凭据是否有效且未过期</li>
+<li>传输模式是否匹配部署方式（轮询/WS 不需要公网回调，webhook 需要公网可达 HTTPS）</li>
+<li>改配置后是否已重启 daemon</li>
+</ul>
+<h3 id="8-3-为什么某个渠道“被跳过”而不是报错"><a href="#8-3-为什么某个渠道“被跳过”而不是报错" class="headerlink" title="8.3 为什么某个渠道“被跳过”而不是报错"></a>8.3 为什么某个渠道“被跳过”而不是报错</h3><p>如果配置了 <code>[channels_config.matrix]</code>、<code>[channels_config.lark]</code> 或 <code>[channels_config.feishu]</code>，但构建时没启用对应 feature，<code>channel list/doctor/start</code> 会报告该渠道被有意跳过。</p>
+<p>这不是配置字段错误，而是二进制能力不包含该渠道。</p>
+<h3 id="8-4-为什么经常超时（Request-timed-out-while-waiting-for-the-model）"><a href="#8-4-为什么经常超时（Request-timed-out-while-waiting-for-the-model）" class="headerlink" title="8.4 为什么经常超时（Request timed out while waiting for the model）"></a>8.4 为什么经常超时（<code>Request timed out while waiting for the model</code>）</h3><p>官方 <code>config-reference.md</code> 的超时语义：</p>
+<ul>
+<li><code>[channels_config].message_timeout_secs</code> 默认 <code>300</code></li>
+<li>实际预算会乘工具循环缩放（最高 4 倍）</li>
+<li>小于 <code>30</code> 的配置会被钳制为 <code>30</code></li>
+</ul>
+<p>如果你用云模型，通常可以把这个值降到 <code>60</code> 或更低；本地慢模型（如 Ollama）则建议保持更高值。</p>
+<h3 id="8-5-Telegram-新消息是否会打断当前生成"><a href="#8-5-Telegram-新消息是否会打断当前生成" class="headerlink" title="8.5 Telegram 新消息是否会打断当前生成"></a>8.5 Telegram 新消息是否会打断当前生成</h3><p>由 <code>channels_config.telegram.interrupt_on_new_message</code> 控制（默认 <code>false</code>）。</p>
+<p>开启后，只有“同一发送者 + 同一聊天”的新消息会中断当前请求，并在保留被中断上下文后重启生成。</p>
+<h3 id="8-6-为什么-webhook-渠道一直收不到入站"><a href="#8-6-为什么-webhook-渠道一直收不到入站" class="headerlink" title="8.6 为什么 webhook 渠道一直收不到入站"></a>8.6 为什么 webhook 渠道一直收不到入站</h3><p>常见原因是把“接收模式”理解反了：</p>
+<ul>
+<li>轮询/WS 类型渠道（Telegram/Discord/Matrix 等）通常不要求公网回调端口</li>
+<li>webhook 类型渠道（WhatsApp Cloud、Nextcloud Talk、Linq 等）需要公网可达 HTTPS 回调</li>
+</ul>
+<p>先确认渠道类型，再检查端口/反向代理/证书。</p>
+<h3 id="8-7-排查时推荐先临时放宽-allowlist"><a href="#8-7-排查时推荐先临时放宽-allowlist" class="headerlink" title="8.7 排查时推荐先临时放宽 allowlist"></a>8.7 排查时推荐先临时放宽 allowlist</h3><p>官方建议先用 <code>[&quot;*&quot;]</code> 做连通性验证，确认能收发后再收紧为显式 ID 列表，避免把“权限拒绝”误判成“通道故障”。</p>
+<p><strong>出处：</strong></p>
+<ul>
+<li><code>docs/channels-reference.md</code><br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/channels-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/channels-reference.md</a></li>
+<li><code>docs/config-reference.md</code><br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md</a></li>
+<li><code>docs/operations-runbook.md</code><br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/operations-runbook.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/operations-runbook.md</a></li>
+<li><code>docs/troubleshooting.md</code><br><a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/troubleshooting.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/troubleshooting.md</a></li>
+</ul>
+<hr>
+<h4 id="相关链接"><a href="#相关链接" class="headerlink" title="相关链接"></a>相关链接</h4><p>官方文档</p>
+<ul>
+<li>配置参考（核心配置项）：<a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/config-reference.md</a></li>
+<li>渠道配置参考： <a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/channels-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/channels-reference.md</a></li>
+<li>Provider 参考：<a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/providers-reference.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/docs/providers-reference.md</a></li>
+</ul>
+<p>相关补充</p>
+<ul>
+<li>配置路径加载优先级相关 issue（排查常见“配置不生效”问题）：<a href="https://github.com/zeroclaw-labs/zeroclaw/issues/845" target="_blank" rel="noopener">https://github.com/zeroclaw-labs/zeroclaw/issues/845</a></li>
+<li>Docker 模板配置线索（容器场景示例）：<a href="https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/dev/config.template.toml" target="_blank" rel="noopener">https://raw.githubusercontent.com/zeroclaw-labs/zeroclaw/main/dev/config.template.toml</a></li>
+</ul>
+</div></article></div><div class="post-paginator"><div class="post-links"><div class="post-prev"><a href="/2026/02/23/notes/【笔记】location.href和location.assign进行页面URL跳转/" class="prev">上一篇<span>【笔记】location.href 和 location.assign 进行页面 URL 跳转</span></a></div><div class="post-next"><a href="/2026/01/18/ai/Skills 技术深度解析：AI Agent 能力扩展的新范式/" class="next">下一篇<span>Skills 技术深度解析：AI Agent 能力扩展的新范式</span></a></div></div></div></div><div class="sidebar"><div class="social-links"><ul><li class="social-link"><a href="http://github.com/MichealWayne" target="_blank" class="link-github"><i class="icon icon-github"></i></a></li><li class="social-link"><a href="mailto:michealwayne@163.com" target="_self" class="link-mail"><i class="icon icon-mail"></i></a></li></ul></div><div class="recent-posts widget"><h3 class="widget-title"> 近期文章</h3><div class="widget-content"><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2026/02/23/notes/【笔记】location.href和location.assign进行页面URL跳转/">【笔记】location.href 和 location.assign 进行页面 URL 跳转</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/02/21/tools/【工具】zeroclaw配置项(config.toml)说明/">【工具】ZeroClaw配置项(config.toml)说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/01/18/ai/Skills 技术深度解析：AI Agent 能力扩展的新范式/">Skills 技术深度解析：AI Agent 能力扩展的新范式</a></li><li class="post-list-item"><a class="post-list-link" href="/2025/12/06/notes/PNA:LNA策略-记一次iframe中CORS报错的问题排查经历/">【笔记】浏览器PNA/LNA策略——记一次iframe中CORS报错的问题排查经历</a></li><li class="post-list-item"><a class="post-list-link" href="/2025/12/01/tools/【工具】spec驱动开发解析/">【工具】spec驱动开发解析</a></li></ul></div></div><div class="recent-comment widget"><h3 class="widget-title"> Author</h3><div class="widget-content"><div class="m-author"><div class="u-avatar"><img src="data:image/jpeg;base64,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"></div><div class="u-author_tit"><p>My name is Micheal Wayne and this is my blog.<br>I am a front-end software engineer.<br>Contact: <a href="mailto:michealwayne@163.com"> <span>michealwayne@163.com</span></a></p></div></div></div></div><div class="tag-lists widget"><h3 class="widget-title"> 标签</h3><div class="widget-content"><ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/AI/">AI</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/APM/">APM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BOM/">BOM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Bun/">Bun</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DOM/">DOM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GEO/">GEO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTML/">HTML</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IDE/">IDE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OKR/">OKR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SEO/">SEO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UML/">UML</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UX/">UX</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WebApi/">WebApi</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WebSocket/">WebSocket</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zepto/">Zepto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ai/">ai</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/canvas/">canvas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/">css</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/es/">es</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/es6/">es6</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eslint/">eslint</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gpt/">gpt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/html5/">html5</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/">http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jQuery/">jQuery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/">js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lerna/">lerna</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lottie/">lottie</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/">nodejs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prettier/">prettier</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prompt/">prompt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pwa/">pwa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/">react</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sketch/">sketch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skywalking/">skywalking</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/taro/">taro</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tslint/">tslint</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/typescript/">typescript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue/">vue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webApi/">webApi</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpack/">webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/代码规范/">代码规范</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/前端/">前端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/动效/">动效</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图形/">图形</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/安全/">安全</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/小程序/">小程序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/工具/">工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/工程/">工程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/微前端/">微前端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/思维逻辑/">思维逻辑</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/性能/">性能</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/插件/">插件</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/日常工作/">日常工作</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/架构/">架构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/概念/">概念</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/正则/">正则</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/浏览器/">浏览器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/用户体验/">用户体验</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/笔记/">笔记</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/编码/">编码</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/网络协议/">网络协议</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/规范/">规范</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/设计模式/">设计模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/调试/">调试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/质量/">质量</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/跨端/">跨端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/软件/">软件</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/软件工程/">软件工程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/项目管理/">项目管理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/高并发/">高并发</a></li></ul></div></div><div class="archive-lists widget"><h3 class="widget-title"> 归档</h3><div class="widget-content"><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/02/">February 2026</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/01/">January 2026</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/12/">December 2025</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/11/">November 2025</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/10/">October 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/09/">September 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/08/">August 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/06/">June 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/05/">May 2025</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/04/">April 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/03/">March 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">February 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/01/">January 2025</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/12/">December 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/11/">November 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/09/">September 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/08/">August 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/07/">July 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/06/">June 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/05/">May 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/04/">April 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/03/">March 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/01/">January 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/12/">December 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/11/">November 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/10/">October 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">September 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/07/">July 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">June 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">May 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">April 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">November 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/05/">May 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">April 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">December 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">August 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">March 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">September 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">November 2017</a><span class="archive-list-count">5</span></li></ul></div></div></div></div></div><footer><div class="copyright"><div class="container"><div class="col-6"><div class="site-info">© 2016 - 2026 <a href="http://blog.michealwayne.cn">Micheal Wayne</a></div></div><div class="col-6"><div class="site-contact"><div class="social-links"><ul><li class="social-link"><a href="http://github.com/MichealWayne" target="_blank" class="link-github"><i class="icon icon-github"></i></a></li><li class="social-link"><a href="mailto:michealwayne@163.com" target="_self" class="link-mail"><i class="icon icon-mail"></i></a></li></ul></div></div></div></div></div></footer><a class="scroll-up"><span class="icon icon-up"></span></a><script src="https://code.jquery.com/jquery-3.1.0.min.js"></script><script src="/js/posfixed.js"></script><script src="/js/utils.js"></script><script src="/js/search.js"></script></body></html>
