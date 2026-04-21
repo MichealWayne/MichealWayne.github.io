@@ -1,0 +1,500 @@
+<!DOCTYPE html><html><head><meta name="generator" content="Hexo 3.9.0"><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> 面向 AI / Agent 友好的 CLI 开发建议 | Wayne的博客</title><meta name="description" content="面向 AI / Agent 友好的 CLI 开发建议 - Micheal Wayne"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/scss/casual.css"><link rel="stylesheet" href="/css/icon.css"><link rel="search" type="application/opensearchdescription+xml" href="http://blog.michealwayne.cn/atom.xml" title="Wayne的博客"></head><script>(function (w) {w.frontjsConfig={token:"81a82620fb0dca7680f2f06be134fa4f",behaviour:8,FPSThreshold:10};w.frontjsTmpData = {r:[],e:[],l:[]};w.frontjsTmpCollector = function (ev) {(ev.message ? window.frontjsTmpData.e : window.frontjsTmpData.r).push([new Date().getTime(), ev])};w.FrontJS = {addEventListener: function (t, f) {w.frontjsTmpData.l.push([t, f]);return f;},removeEventListener: function (t, f) {for (var i = 0; i < w.frontjsTmpData.l.length; i++) {t === w.frontjsTmpData.l[i][0] && f === w.frontjsTmpData.l[i][1] && w.frontjsTmpData.l.splice(i, 1);}return f;}};w.document.addEventListener("error", w.frontjsTmpCollector, true);w.addEventListener("error", w.frontjsTmpCollector, true);w.addEventListener("load", function () {var n = w.document.createElement("script");n.src = "https://frontjs-static.pgyer.com/dist/current/frontjs.web.min.js"; w.document.body.appendChild(n);}, true);})(window);</script><body><div class="header"><header class="site-header"><div class="site-nav"><span class="button-toggle"></span><div class="container"><div class="nav-item"><a href="/" target="_self" data-text="home">Home</a></div><div class="nav-item"><a href="/archives" target="_self" data-text="archive">Archive</a></div><div class="nav-item"><a href="/about" target="_self" data-text="about">About</a></div></div><form id="search-form" class="nav-item"><input type="text" id="local-search-input" name="q" results="0" placeholder="search" autocomplete="off" autocorrect="off" class="search form-control"><span onclick="resetSearch()" class="fa fa-times"> </span></form><div id="local-search-result"></div><p class="no-result">No results found</p></div></header></div><div class="main"><div class="container"><div class="content"><div class="post"><article class="post-block"><h1 class="post-title">面向 AI / Agent 友好的 CLI 开发建议</h1><span class="post-date">Apr 18, 2026</span><span class="post-tag"><a href="/tags/笔记/">笔记</a><a href="/tags/ai/">ai</a></span><img src="/images/ai-cli/i-logo.png" class="bgimage"><div class="post-content"><h1 id="面向-AI-Agent-友好的-CLI-开发建议"><a href="#面向-AI-Agent-友好的-CLI-开发建议" class="headerlink" title="面向 AI / Agent 友好的 CLI 开发建议"></a>面向 AI / Agent 友好的 CLI 开发建议</h1><p>过去 CLI 主要是给”人”用的：人会读帮助文档、会脑补上下文、会容忍一点输出格式不稳定、甚至会在报错时自己猜下一步。<br>但进入 AI / Agent 时代后，CLI 的一个新用户出现了：<strong>大模型驱动的自动化执行体</strong>。</p>
+<p>它和人类用户最大的不同在于：</p>
+<ul>
+<li>它不是”看起来能用”就行，而是要<strong>可稳定解析</strong></li>
+<li>它不是”偶尔报错再看一下”，而是要<strong>可预测地恢复</strong></li>
+<li>它不是只会点一个命令，而是会把 CLI 当成<strong>工具链节点</strong>接到更大工作流里</li>
+<li>它不是读完 README 再上手，而是倾向于通过 <code>--help</code>、<code>--json</code>、退出码、子命令结构来<strong>即时建立心智模型</strong></li>
+<li>它的<strong>上下文窗口是稀缺资源</strong>：每一次冗余输出都在烧 token</li>
+</ul>
+<p>所以，今天一个优秀的 CLI，已经不只是”developer-friendly”，还应该是 <strong>agent-friendly</strong>。</p>
+<hr>
+<h2 id="一、核心判断：AI-时代，CLI-正在从”终端入口”变成”系统接口”"><a href="#一、核心判断：AI-时代，CLI-正在从”终端入口”变成”系统接口”" class="headerlink" title="一、核心判断：AI 时代，CLI 正在从”终端入口”变成”系统接口”"></a>一、核心判断：AI 时代，CLI 正在从”终端入口”变成”系统接口”</h2><p>越来越多 Agent 系统并不是直接调用 SDK 或 MCP，而是优先复用 shell 中已经存在的 CLI 工具。原因很直接：</p>
+<ul>
+<li>CLI 天然具备命令组合能力，可以通过 pipe、重定向、shell script 进入复杂工作流。</li>
+<li>CLI 通常已经有 <code>--help</code>、参数体系、退出码等约定，Agent 无需额外接入专有协议就能调用。</li>
+<li>针对简单任务，直接 CLI 往往比引入完整 tool schema 更省上下文成本。</li>
+</ul>
+<p>这意味着一个很重要的设计转向：</p>
+<blockquote>
+<p><strong>不要再把 CLI 仅仅视作”人类操作界面”，而要把它当成”面向 Agent 的文本 API”。</strong></p>
+</blockquote>
+<h3 id="CLI-与-MCP：不是二选一"><a href="#CLI-与-MCP：不是二选一" class="headerlink" title="CLI 与 MCP：不是二选一"></a>CLI 与 MCP：不是二选一</h3><p>一个常见误区是：”有了 MCP，CLI 就过时了。”实际上两者的定位不同：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>CLI</th>
+<th>MCP Server</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>接入成本</td>
+<td>Agent 原生会用 shell</td>
+<td>需要 host 支持 MCP</td>
+</tr>
+<tr>
+<td>上下文成本</td>
+<td>低（文本即协议）</td>
+<td>通常更高（tool schema 常驻）</td>
+</tr>
+<tr>
+<td>类型安全</td>
+<td>弱（靠 JSON 输出约束）</td>
+<td>强（schema 驱动）</td>
+</tr>
+<tr>
+<td>人类可用性</td>
+<td>高</td>
+<td>低（几乎只给 Agent 用）</td>
+</tr>
+<tr>
+<td>发布与分发</td>
+<td>成熟（brew/apt/单二进制）</td>
+<td>仍在演进</td>
+</tr>
+</tbody>
+</table>
+<p><strong>合理的产品策略通常是：先做好 agent-friendly CLI，再在此基础上薄薄包一层 MCP。</strong> CLI 是 source of truth，MCP 只是”更贵但更结构化”的壳。反过来做通常会付出额外的维护代价。</p>
+<hr>
+<h2 id="二、第一原则：stdout-是机器通道，stderr-是人类通道"><a href="#二、第一原则：stdout-是机器通道，stderr-是人类通道" class="headerlink" title="二、第一原则：stdout 是机器通道，stderr 是人类通道"></a>二、第一原则：<code>stdout</code> 是机器通道，<code>stderr</code> 是人类通道</h2><p>这是最值得被写进规范的一条。</p>
+<p>对 Agent 来说，最理想的契约不是”输出尽量清晰”，而是：</p>
+<ul>
+<li><code>stdout</code>：只放机器可消费的数据</li>
+<li><code>stderr</code>：只放提示、日志、警告、进度、解释性文本</li>
+<li>退出码：表达最终状态</li>
+</ul>
+<p><strong>❌ 反例</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ mycli resource get</span><br><span class="line">Loading config...</span><br><span class="line">Fetching resource...</span><br><span class="line">&#123;<span class="string">"id"</span>: 1, <span class="string">"name"</span>: <span class="string">"demo"</span>&#125;</span><br><span class="line">Done.</span><br></pre></td></tr></table></figure>
+<p>Agent 必须写正则去剥离首尾噪音，且任何一次日志格式微调都会让解析失败。</p>
+<p><strong>✅ 正例</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ mycli resource get --json</span><br><span class="line">&#123;<span class="string">"ok"</span>: <span class="literal">true</span>, <span class="string">"data"</span>: &#123;<span class="string">"id"</span>: 1, <span class="string">"name"</span>: <span class="string">"demo"</span>&#125;&#125;</span><br><span class="line"></span><br><span class="line">$ mycli resource get --json 2&gt;/dev/null</span><br><span class="line">&#123;<span class="string">"ok"</span>: <span class="literal">true</span>, <span class="string">"data"</span>: &#123;<span class="string">"id"</span>: 1, <span class="string">"name"</span>: <span class="string">"demo"</span>&#125;&#125;</span><br></pre></td></tr></table></figure>
+<p>即使 stderr 里有日志，<code>stdout &gt; data.json</code> 也能保证是纯 JSON。</p>
+<h3 id="工程纪律"><a href="#工程纪律" class="headerlink" title="工程纪律"></a>工程纪律</h3><ul>
+<li><strong>没有例外</strong>：进度、spinner、”Press any key”、彩色提示全部走 stderr。</li>
+<li><strong>TTY 检测</strong>：<code>isatty(stdout)</code> 为 false 时，默认关闭彩色与动画（NO_COLOR 公约见第九节）。</li>
+<li><strong><code>--quiet</code></strong> 是要求 <em>stderr</em> 静默，不是关闭 stdout 数据。</li>
+<li><strong><code>--verbose</code></strong> 只增加 stderr 信息量，绝不污染 stdout。</li>
+</ul>
+<hr>
+<h2 id="三、默认提供-json，而且把-JSON-当正式接口来维护"><a href="#三、默认提供-json，而且把-JSON-当正式接口来维护" class="headerlink" title="三、默认提供 --json，而且把 JSON 当正式接口来维护"></a>三、默认提供 <code>--json</code>，而且把 JSON 当正式接口来维护</h2><p>不是”能输出 JSON”就够了，而是要像对待 HTTP API 那样对待它：稳定、完整、版本化、可演进。</p>
+<h3 id="3-1-所有会返回结果的命令都支持-json"><a href="#3-1-所有会返回结果的命令都支持-json" class="headerlink" title="3.1 所有会返回结果的命令都支持 --json"></a>3.1 所有会返回结果的命令都支持 <code>--json</code></h3><p>不仅是 <code>list</code>，<code>get</code> / <code>create</code> / <code>update</code> / <code>delete</code> / <code>status</code> / <code>validate</code> / <code>diff</code> / <code>logs</code> 全部都该支持。</p>
+<h3 id="3-2-结构稳定，不要把-JSON-当日志快照"><a href="#3-2-结构稳定，不要把-JSON-当日志快照" class="headerlink" title="3.2 结构稳定，不要把 JSON 当日志快照"></a>3.2 结构稳定，不要把 JSON 当日志快照</h3><p><strong>❌ 反例</strong></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123; <span class="attr">"message"</span>: <span class="string">"User created successfully"</span> &#125;</span><br></pre></td></tr></table></figure>
+<p>Agent 得继续猜：ID 呢？状态呢？真的成功了吗？</p>
+<p><strong>✅ 正例</strong></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"ok"</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">"data"</span>: &#123; <span class="attr">"id"</span>: <span class="string">"u_123"</span>, <span class="attr">"name"</span>: <span class="string">"alice"</span> &#125;,</span><br><span class="line">  <span class="attr">"meta"</span>: &#123; <span class="attr">"operation"</span>: <span class="string">"user.create"</span>, <span class="attr">"schema_version"</span>: <span class="string">"1.2"</span> &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="3-3-空值也返回结构，不要语义漂移"><a href="#3-3-空值也返回结构，不要语义漂移" class="headerlink" title="3.3 空值也返回结构，不要语义漂移"></a>3.3 空值也返回结构，不要语义漂移</h3><p><strong>❌ 反例</strong>：一会儿 <code>[]</code>、一会儿 <code>{}</code>、一会儿 <code>&quot;No results&quot;</code>。</p>
+<p><strong>✅ 正例</strong></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123; <span class="attr">"ok"</span>: <span class="literal">true</span>, <span class="attr">"data"</span>: [], <span class="attr">"meta"</span>: &#123; <span class="attr">"count"</span>: <span class="number">0</span> &#125; &#125;</span><br></pre></td></tr></table></figure>
+<h3 id="3-4-错误也返回结构化-JSON"><a href="#3-4-错误也返回结构化-JSON" class="headerlink" title="3.4 错误也返回结构化 JSON"></a>3.4 错误也返回结构化 JSON</h3><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"ok"</span>: <span class="literal">false</span>,</span><br><span class="line">  <span class="attr">"error"</span>: &#123;</span><br><span class="line">    <span class="attr">"code"</span>: <span class="string">"AUTH_REQUIRED"</span>,</span><br><span class="line">    <span class="attr">"message"</span>: <span class="string">"Missing API token"</span>,</span><br><span class="line">    <span class="attr">"hint"</span>: <span class="string">"Set MYCLI_TOKEN environment variable"</span>,</span><br><span class="line">    <span class="attr">"retryable"</span>: <span class="literal">false</span>,</span><br><span class="line">    <span class="attr">"doc_url"</span>: <span class="string">"https://docs.mycli.dev/errors/AUTH_REQUIRED"</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Agent 可以基于 <code>code</code> 精确分支，比读自然语言可靠得多。</p>
+<h3 id="3-5-Schema-版本化是必修课"><a href="#3-5-Schema-版本化是必修课" class="headerlink" title="3.5 Schema 版本化是必修课"></a>3.5 Schema 版本化是必修课</h3><p>一旦 <code>--json</code> 成为接口，任何字段重命名都是破坏性变更。</p>
+<ul>
+<li>在 <code>meta.schema_version</code> 中声明版本。</li>
+<li>破坏性变更走 <code>--json-version=v2</code>，旧版继续兼容至少一个大版本。</li>
+<li>新增字段永远是兼容的；<strong>删除或重命名字段永远是破坏性的</strong>。</li>
+</ul>
+<h3 id="3-6-时间、数字、枚举一律机器友好"><a href="#3-6-时间、数字、枚举一律机器友好" class="headerlink" title="3.6 时间、数字、枚举一律机器友好"></a>3.6 时间、数字、枚举一律机器友好</h3><ul>
+<li>时间：<strong>ISO-8601 UTC</strong>（<code>2026-04-21T09:30:00Z</code>），不要 “2 days ago”、”yesterday”。</li>
+<li>数字：裸数字，不带千分位、货币符号、locale 分隔符。</li>
+<li>枚举：小写下划线 + 闭集合（<code>active</code>/<code>failed</code>/<code>pending</code>），在 <code>--help</code> 或 <code>mycli status --list-values</code> 可枚举。</li>
+</ul>
+<hr>
+<h2 id="四、【新增】流式输出：长任务用-NDJSON，别让-Agent-干等"><a href="#四、【新增】流式输出：长任务用-NDJSON，别让-Agent-干等" class="headerlink" title="四、【新增】流式输出：长任务用 NDJSON，别让 Agent 干等"></a>四、【新增】流式输出：长任务用 NDJSON，别让 Agent 干等</h2><p>“stdout 纯 JSON” 的原则遇到长任务（构建、部署、训练、日志拉取）会不够用——一次性吐一个 JSON 意味着过程中 Agent 什么都看不到。</p>
+<p>更好的做法是 <strong>NDJSON（Newline-Delimited JSON）</strong>：stdout 每行是一个独立 JSON 事件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ mycli release deploy --env prod --json</span><br><span class="line">&#123;<span class="string">"type"</span>:<span class="string">"plan"</span>,<span class="string">"steps"</span>:3,<span class="string">"ts"</span>:<span class="string">"2026-04-21T09:30:00Z"</span>&#125;</span><br><span class="line">&#123;<span class="string">"type"</span>:<span class="string">"progress"</span>,<span class="string">"step"</span>:1,<span class="string">"name"</span>:<span class="string">"build"</span>,<span class="string">"status"</span>:<span class="string">"running"</span>&#125;</span><br><span class="line">&#123;<span class="string">"type"</span>:<span class="string">"progress"</span>,<span class="string">"step"</span>:1,<span class="string">"name"</span>:<span class="string">"build"</span>,<span class="string">"status"</span>:<span class="string">"ok"</span>,<span class="string">"duration_ms"</span>:12400&#125;</span><br><span class="line">&#123;<span class="string">"type"</span>:<span class="string">"progress"</span>,<span class="string">"step"</span>:2,<span class="string">"name"</span>:<span class="string">"upload"</span>,<span class="string">"status"</span>:<span class="string">"running"</span>&#125;</span><br><span class="line">&#123;<span class="string">"type"</span>:<span class="string">"progress"</span>,<span class="string">"step"</span>:2,<span class="string">"name"</span>:<span class="string">"upload"</span>,<span class="string">"status"</span>:<span class="string">"ok"</span>,<span class="string">"duration_ms"</span>:3200&#125;</span><br><span class="line">&#123;<span class="string">"type"</span>:<span class="string">"result"</span>,<span class="string">"ok"</span>:<span class="literal">true</span>,<span class="string">"release_id"</span>:<span class="string">"rel_789"</span>&#125;</span><br></pre></td></tr></table></figure>
+<p>好处：</p>
+<ul>
+<li>Agent 可以一边读一边做决策（例如看到某一步失败立即取消后续）。</li>
+<li>人类也能跟进度（每行是自然的日志）。</li>
+<li>容器/CI 日志采集器天然友好。</li>
+</ul>
+<h3 id="设计要点"><a href="#设计要点" class="headerlink" title="设计要点"></a>设计要点</h3><ul>
+<li><strong>最后一行必须是终态事件</strong>（<code>type: result</code> 或 <code>type: error</code>），让消费者知道什么时候停。</li>
+<li><strong>每条事件都带 <code>ts</code>（ISO-8601 UTC）</strong>，方便后排序/去重。</li>
+<li>如果你同时需要”单 JSON 模式”给简单消费者，提供 <code>--json=single</code> / <code>--json=stream</code> 二选一。</li>
+</ul>
+<h3 id="❌-反例"><a href="#❌-反例" class="headerlink" title="❌ 反例"></a>❌ 反例</h3><p>把进度信息用文本夹在 JSON 前后：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Building...</span><br><span class="line">[===&gt;      ] 30%</span><br><span class="line">&#123;&quot;ok&quot;:true&#125;</span><br></pre></td></tr></table></figure>
+<p>这对人类看着没毛病，对 Agent 是灾难。</p>
+<hr>
+<h2 id="五、【新增】输出体积与上下文预算：别把-Agent-的窗口塞爆"><a href="#五、【新增】输出体积与上下文预算：别把-Agent-的窗口塞爆" class="headerlink" title="五、【新增】输出体积与上下文预算：别把 Agent 的窗口塞爆"></a>五、【新增】输出体积与上下文预算：别把 Agent 的窗口塞爆</h2><p><strong>这是面向 Agent 最容易被忽略、却最影响实际效果的一点。</strong> 一个 <code>kubectl get pods -A -o json</code> 动辄几 MB，塞进上下文等于直接爆窗口。</p>
+<h3 id="设计要点-1"><a href="#设计要点-1" class="headerlink" title="设计要点"></a>设计要点</h3><ol>
+<li><p><strong>默认截断 + 显式分页</strong></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"ok"</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">"data"</span>: [ <span class="comment">/* 最多 50 条 */</span> ],</span><br><span class="line">  <span class="attr">"meta"</span>: &#123; <span class="attr">"count"</span>: <span class="number">50</span>, <span class="attr">"total"</span>: <span class="number">12345</span>, <span class="attr">"truncated"</span>: <span class="literal">true</span>, <span class="attr">"next_cursor"</span>: <span class="string">"eyJvZmZzZXQiOjUwfQ=="</span> &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>--limit</code> 和 <code>--cursor</code> 是一对组合拳。</p>
+</li>
+<li><p><strong>字段投影</strong>：<code>--fields id,name,status</code> 让 Agent 只要它要的列，可以减少 80% 以上的 token。</p>
+</li>
+<li><p><strong>过滤优先于分页</strong>：提供 <code>--filter status=failed --since 7d</code>，比让 Agent 拉全量再过滤省得多。</p>
+</li>
+<li><p><strong>摘要模式</strong>：<code>--summary</code> 只返回计数、分组等聚合结果。</p>
+</li>
+<li><p><strong>明确告知被截断</strong>：永远不要沉默地丢数据，必须有 <code>truncated: true</code> 之类的信号。</p>
+</li>
+</ol>
+<h3 id="❌-反例-1"><a href="#❌-反例-1" class="headerlink" title="❌ 反例"></a>❌ 反例</h3><p>一条命令返回 200MB JSON，没有分页，也没有截断提示。Agent 要么 OOM 要么被迫上 <code>head</code>/<code>jq</code> 做二次加工，而 <code>head</code> 截断会破坏 JSON 语法。</p>
+<hr>
+<h2 id="六、退出码要”可编排”，不是只有成功-失败"><a href="#六、退出码要”可编排”，不是只有成功-失败" class="headerlink" title="六、退出码要”可编排”，不是只有成功/失败"></a>六、退出码要”可编排”，不是只有成功/失败</h2><p>人类用户经常只看一眼报错文案；Agent 更依赖退出码来决定下一步。</p>
+<blockquote>
+<p><strong>退出码不是礼节，而是状态机接口。</strong></p>
+</blockquote>
+<h3 id="建议分层（参考-BSD-sysexits-h-64–78）"><a href="#建议分层（参考-BSD-sysexits-h-64–78）" class="headerlink" title="建议分层（参考 BSD sysexits.h 64–78）"></a>建议分层（参考 BSD <code>sysexits.h</code> 64–78）</h3><table>
+<thead>
+<tr>
+<th>码</th>
+<th>含义</th>
+<th>Agent 典型响应</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>成功</td>
+<td>继续</td>
+</tr>
+<tr>
+<td>1</td>
+<td>通用失败（兜底）</td>
+<td>查 stderr</td>
+</tr>
+<tr>
+<td>2</td>
+<td>参数错误（<code>EX_USAGE=64</code>）</td>
+<td>重新读 <code>--help</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>认证失败（<code>EX_NOPERM=77</code>）</td>
+<td>检查 env / 重新登录</td>
+</tr>
+<tr>
+<td>4</td>
+<td>资源不存在</td>
+<td>跳过或重建</td>
+</tr>
+<tr>
+<td>5</td>
+<td>权限不足</td>
+<td>转人工</td>
+</tr>
+<tr>
+<td>6</td>
+<td>网络/临时失败</td>
+<td>指数退避重试</td>
+</tr>
+<tr>
+<td>7</td>
+<td>冲突，需人工确认</td>
+<td>转人工或加 <code>--force</code></td>
+</tr>
+<tr>
+<td>8</td>
+<td>前置依赖未满足</td>
+<td>先装依赖/先建资源</td>
+</tr>
+</tbody>
+</table>
+<p><strong>注</strong>：具体数值可以沿用 sysexits 的 64+，也可以用上表的 2–8。关键不是数字，而是<strong>团队内一致 + 每个码文档化 + <code>mycli --help</code> 里写清楚</strong>。</p>
+<h3 id="❌-反例-2"><a href="#❌-反例-2" class="headerlink" title="❌ 反例"></a>❌ 反例</h3><p>无论什么错都退出 <code>1</code>，Agent 只能靠匹配 stderr 文本来分支——一次文案改动就能打爆它。</p>
+<hr>
+<h2 id="七、帮助信息要让-Agent-快速建模"><a href="#七、帮助信息要让-Agent-快速建模" class="headerlink" title="七、帮助信息要让 Agent 快速建模"></a>七、帮助信息要让 Agent 快速建模</h2><p>CLI 对 Agent 最大的优势之一，是天然具备自描述能力：<code>--help</code>、子命令层级、参数说明，本质上都是工具的即时 schema。</p>
+<h3 id="7-1-层级清晰"><a href="#7-1-层级清晰" class="headerlink" title="7.1 层级清晰"></a>7.1 层级清晰</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mycli --<span class="built_in">help</span></span><br><span class="line">mycli project --<span class="built_in">help</span></span><br><span class="line">mycli project list --<span class="built_in">help</span></span><br><span class="line">mycli project create --<span class="built_in">help</span></span><br></pre></td></tr></table></figure>
+<p>让 Agent 能逐层探索，而不是一次性暴露 2000 行帮助。</p>
+<h3 id="7-2-帮助文案里明确写出输入-输出契约"><a href="#7-2-帮助文案里明确写出输入-输出契约" class="headerlink" title="7.2 帮助文案里明确写出输入/输出契约"></a>7.2 帮助文案里明确写出输入/输出契约</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Output:</span><br><span class="line">  Default : human-readable table</span><br><span class="line">  --json  : single JSON object (see schema v1.2)</span><br><span class="line">  --json=stream : NDJSON events</span><br><span class="line"></span><br><span class="line">Exit codes:</span><br><span class="line">  0 success   3 auth required   4 not found   6 retryable</span><br></pre></td></tr></table></figure>
+<h3 id="7-3-示例优先"><a href="#7-3-示例优先" class="headerlink" title="7.3 示例优先"></a>7.3 示例优先</h3><p>每个高频子命令至少给一条最短成功路径：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Create a project</span></span><br><span class="line">$ mycli project create --name demo --json</span><br><span class="line">&#123;<span class="string">"ok"</span>:<span class="literal">true</span>,<span class="string">"data"</span>:&#123;<span class="string">"id"</span>:<span class="string">"prj_abc"</span>,<span class="string">"name"</span>:<span class="string">"demo"</span>&#125;&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="7-4-可枚举入口"><a href="#7-4-可枚举入口" class="headerlink" title="7.4 可枚举入口"></a>7.4 可枚举入口</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mycli --list                 <span class="comment"># 所有顶层命令</span></span><br><span class="line">mycli project --list         <span class="comment"># 某个资源域下所有子命令</span></span><br><span class="line">mycli status --list-values   <span class="comment"># 枚举值可发现</span></span><br></pre></td></tr></table></figure>
+<h3 id="7-5-Shell-completion-是-Agent-友好的副产品"><a href="#7-5-Shell-completion-是-Agent-友好的副产品" class="headerlink" title="7.5 Shell completion 是 Agent 友好的副产品"></a>7.5 Shell completion 是 Agent 友好的副产品</h3><p>为 bash/zsh/fish 生成补全（<code>mycli completion bash</code>），本质上给 Agent 也提供了”有哪些参数可选”的 source of truth——很多 Agent harness 已经会读补全脚本。</p>
+<hr>
+<h2 id="八、【原第六节，升级】AGENTS-md：从命令级-discoverability-到任务级-strategy"><a href="#八、【原第六节，升级】AGENTS-md：从命令级-discoverability-到任务级-strategy" class="headerlink" title="八、【原第六节，升级】AGENTS.md：从命令级 discoverability 到任务级 strategy"></a>八、【原第六节，升级】<code>AGENTS.md</code>：从命令级 discoverability 到任务级 strategy</h2><p>社区事实标准正在向 <strong><code>AGENTS.md</code></strong> 收敛（Cursor、Aider、Zed、OpenAI Codex 等都在读它）；Anthropic 的 Skills 是另一套机制。CLI 作者可以提供以下三层中的任意一层或多层：</p>
+<ul>
+<li><strong><code>AGENTS.md</code></strong>（推荐起步）：随仓库分发的 Agent 使用手册。</li>
+<li><strong><code>mycli agent-prompt</code></strong> 命令：打印一段可直接注入 Agent 系统提示的精简说明。</li>
+<li><strong>MCP server</strong>：结构化的工具封装。</li>
+</ul>
+<p><code>--help</code> 告诉 Agent：<strong>这个命令怎么调</strong>；<br><code>AGENTS.md</code> 告诉 Agent：<strong>遇到某类任务，应该先调哪个命令、再调哪个命令、哪些坑要避开</strong>。</p>
+<h3 id="推荐结构"><a href="#推荐结构" class="headerlink" title="推荐结构"></a>推荐结构</h3><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="section"># MyCLI Agent Guide</span></span><br><span class="line"></span><br><span class="line"><span class="section">## Identity</span></span><br><span class="line">一句话：这个 CLI 做什么、不做什么。</span><br><span class="line"></span><br><span class="line"><span class="section">## Authentication</span></span><br><span class="line">支持哪些认证方式、优先级、失败时退出码。</span><br><span class="line"></span><br><span class="line"><span class="section">## Output Contract</span></span><br><span class="line">stdout/stderr 规则；--json 规则；NDJSON 规则；exit code 表。</span><br><span class="line"></span><br><span class="line"><span class="section">## Command Map</span></span><br><span class="line">资源域 → 职责边界；每个域的入口命令。</span><br><span class="line"></span><br><span class="line"><span class="section">## Common Workflows</span></span><br><span class="line"><span class="bullet">- </span>查询资源</span><br><span class="line"><span class="bullet">- </span>创建资源</span><br><span class="line"><span class="bullet">- </span>更新配置</span><br><span class="line"><span class="bullet">- </span>发布部署</span><br><span class="line"><span class="bullet">- </span>回滚恢复</span><br><span class="line">每个 workflow 给出 3–5 步的调用序列。</span><br><span class="line"></span><br><span class="line"><span class="section">## Invariants</span></span><br><span class="line">始终成立的事实（例如 "project_id 一旦创建不可变"）。</span><br><span class="line"></span><br><span class="line"><span class="section">## Gotchas</span></span><br><span class="line">容易踩的坑（例如 "--force 会跳过依赖检查，不要用于生产库"）。</span><br><span class="line"></span><br><span class="line"><span class="section">## Safe / Unsafe Operations</span></span><br><span class="line">命令风险分级表。</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>CLI 的未来：不只是有帮助文档，而是能主动”教会 Agent 怎么用自己”。</strong></p>
+</blockquote>
+<hr>
+<h2 id="九、交互模式优雅，非交互模式绝对可靠"><a href="#九、交互模式优雅，非交互模式绝对可靠" class="headerlink" title="九、交互模式优雅，非交互模式绝对可靠"></a>九、交互模式优雅，非交互模式绝对可靠</h2><p>传统 CLI 很喜欢：首次运行弹登录、删除前 <code>Are you sure?</code>、参数缺失进表单、spinner、<code>Press any key</code>——对人类友好，对 Agent 是灾难。</p>
+<h3 id="9-1-严格区分两种模式"><a href="#9-1-严格区分两种模式" class="headerlink" title="9.1 严格区分两种模式"></a>9.1 严格区分两种模式</h3><table>
+<thead>
+<tr>
+<th></th>
+<th>交互（TTY）</th>
+<th>非交互（CI/Agent）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>彩色</td>
+<td>✅</td>
+<td>❌（遵守 <code>NO_COLOR</code>）</td>
+</tr>
+<tr>
+<td>进度条/spinner</td>
+<td>✅</td>
+<td>❌（改用 NDJSON 事件）</td>
+</tr>
+<tr>
+<td>二次确认弹窗</td>
+<td>✅</td>
+<td>❌（需要时显式要 <code>--yes</code>）</td>
+</tr>
+<tr>
+<td>参数缺失进表单</td>
+<td>✅</td>
+<td>❌（直接退 2）</td>
+</tr>
+<tr>
+<td>首次运行登录向导</td>
+<td>✅</td>
+<td>❌（报错并提示 env 变量）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>判断依据</strong>：<code>isatty(stdin) &amp;&amp; isatty(stdout)</code> + 环境变量 <code>CI</code> / <code>MYCLI_NON_INTERACTIVE</code>。</p>
+<h3 id="9-2-遵守业界公约"><a href="#9-2-遵守业界公约" class="headerlink" title="9.2 遵守业界公约"></a>9.2 遵守业界公约</h3><ul>
+<li><strong><code>NO_COLOR</code> 环境变量</strong>（<a href="https://no-color.org" target="_blank" rel="noopener">no-color.org</a>）存在即关闭所有 ANSI 色彩，不论 TTY。</li>
+<li><strong><code>TERM=dumb</code></strong> 同样应关闭彩色与光标控制。</li>
+<li><strong>SIGPIPE</strong> 要优雅处理：上游 <code>| head -n 10</code> 被关闭管道时不要报错退出。</li>
+</ul>
+<hr>
+<h2 id="十、安全分级要编码进命令语义"><a href="#十、安全分级要编码进命令语义" class="headerlink" title="十、安全分级要编码进命令语义"></a>十、安全分级要编码进命令语义</h2><p>面向 Agent 的 CLI，安全不能只靠 README 里的”请谨慎使用”。</p>
+<h3 id="分级"><a href="#分级" class="headerlink" title="分级"></a>分级</h3><ul>
+<li><strong>read</strong>：查询、列举、预览、diff。</li>
+<li><strong>write</strong>：创建、更新、触发执行。</li>
+<li><strong>dangerous</strong>：删除、覆盖、清空、支付、发布到生产。</li>
+</ul>
+<h3 id="配套机制"><a href="#配套机制" class="headerlink" title="配套机制"></a>配套机制</h3><ul>
+<li><code>read</code>：直接执行。</li>
+<li><code>write</code>：需 <code>--yes</code>（非交互场景）。</li>
+<li><code>dangerous</code>：需 <code>--force</code>，关键操作再加 <code>--confirm &lt;resource-id&gt;</code> 要求 Agent 复述 ID。</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mycli config update --file prod.yaml --yes</span><br><span class="line">mycli release deploy --env prod --yes</span><br><span class="line">mycli release rollback --env prod --force</span><br><span class="line">mycli db drop --name users --force --confirm users  <span class="comment"># 必须复述 "users"</span></span><br></pre></td></tr></table></figure>
+<p><strong>参考 <code>kubectl delete</code> 与 <code>terraform destroy</code></strong>：前者用 <code>--force --grace-period=0</code>，后者强制交互确认除非 <code>-auto-approve</code>——都是把风险编码进参数的好例子。</p>
+<blockquote>
+<p><strong>让 Agent 具备可验证的安全边界。很多系统失败，并不是模型不会推理，而是工具给了它”过度自由”。</strong></p>
+</blockquote>
+<hr>
+<h2 id="十一、命令应该幂等、可重试、可预演"><a href="#十一、命令应该幂等、可重试、可预演" class="headerlink" title="十一、命令应该幂等、可重试、可预演"></a>十一、命令应该幂等、可重试、可预演</h2><p>Agent 会天然地重试。只要你给它一个”可能是临时失败”的信号，它大概率会再次执行。</p>
+<h3 id="11-1-幂等-key-去重语义"><a href="#11-1-幂等-key-去重语义" class="headerlink" title="11.1 幂等 key / 去重语义"></a>11.1 幂等 key / 去重语义</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mycli invoice create --request-id req_20260421_abc --json</span><br></pre></td></tr></table></figure>
+<p>服务端用 <code>request_id</code> 去重 24h，第二次调用返回同一结果而不是创建新记录。</p>
+<h3 id="11-2-dry-run"><a href="#11-2-dry-run" class="headerlink" title="11.2 --dry-run"></a>11.2 <code>--dry-run</code></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mycli release deploy --env prod --dry-run --json</span><br></pre></td></tr></table></figure>
+<h3 id="11-3-plan-apply-二阶段（参考-Terraform）"><a href="#11-3-plan-apply-二阶段（参考-Terraform）" class="headerlink" title="11.3 plan / apply 二阶段（参考 Terraform）"></a>11.3 <code>plan</code> / <code>apply</code> 二阶段（参考 Terraform）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mycli infra plan --out plan_123.json</span><br><span class="line">mycli infra apply --plan plan_123.json --yes --json</span><br></pre></td></tr></table></figure>
+<p>把”理解变化”和”执行变化”拆开，Agent 可以先读 plan、让人类或另一个模型审一遍，再 apply。</p>
+<h3 id="11-4-显式标注错误是否可重试"><a href="#11-4-显式标注错误是否可重试" class="headerlink" title="11.4 显式标注错误是否可重试"></a>11.4 显式标注错误是否可重试</h3><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"ok"</span>: <span class="literal">false</span>,</span><br><span class="line">  <span class="attr">"error"</span>: &#123; <span class="attr">"code"</span>: <span class="string">"NETWORK_TIMEOUT"</span>, <span class="attr">"retryable"</span>: <span class="literal">true</span>, <span class="attr">"retry_after_ms"</span>: <span class="number">2000</span> &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="十二、资源标识与时间要机器友好"><a href="#十二、资源标识与时间要机器友好" class="headerlink" title="十二、资源标识与时间要机器友好"></a>十二、资源标识与时间要机器友好</h2><p><strong>❌ 反例</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">NAME        STATUS      CREATED</span><br><span class="line">project-a   active      2 days ago</span><br><span class="line">project-b   failed      yesterday</span><br></pre></td></tr></table></figure>
+<p>问题：相对时间无法稳定比较；名称可能不唯一；列宽表格难以解析。</p>
+<p><strong>✅ 正例</strong></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"ok"</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">"data"</span>: [</span><br><span class="line">    &#123; <span class="attr">"id"</span>: <span class="string">"prj_123"</span>, <span class="attr">"name"</span>: <span class="string">"project-a"</span>, <span class="attr">"status"</span>: <span class="string">"active"</span>,</span><br><span class="line">      <span class="attr">"created_at"</span>: <span class="string">"2026-04-21T09:30:00Z"</span> &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="纪律"><a href="#纪律" class="headerlink" title="纪律"></a>纪律</h3><ul>
+<li>每个资源都有<strong>稳定、URL-safe、带前缀</strong>的 ID（<code>prj_</code>、<code>usr_</code>、<code>rel_</code>），便于 Agent 一眼识别类型。</li>
+<li>时间一律 ISO-8601 UTC，不受 <code>LC_ALL</code> / 时区影响。</li>
+<li>状态是闭集合枚举。</li>
+<li>任何对名称的操作都要支持用 ID 替代（<code>mycli project get --id prj_123</code> 而不是只能 <code>--name</code>）。</li>
+</ul>
+<hr>
+<h2 id="十三、参数命名直白，凭证走安全通道"><a href="#十三、参数命名直白，凭证走安全通道" class="headerlink" title="十三、参数命名直白，凭证走安全通道"></a>十三、参数命名直白，凭证走安全通道</h2><h3 id="13-1-参数命名"><a href="#13-1-参数命名" class="headerlink" title="13.1 参数命名"></a>13.1 参数命名</h3><p><strong>❌ 反例</strong>：<code>tool do -x -m fast</code><br><strong>✅ 正例</strong>：<code>tool convert --input in.md --output out.html --mode fast</code></p>
+<p>规则：</p>
+<ul>
+<li>少用无语义短参数（<code>-h</code>/<code>-v</code> 除外）。</li>
+<li>长参数优先，与领域模型命名一致。</li>
+<li>枚举值可预测、可 discover。</li>
+<li>同一个参数在不同子命令下语义不要漂移。</li>
+</ul>
+<p>判断标准：<strong>脱离文档时，模型能不能大致猜中用途？</strong></p>
+<h3 id="13-2-凭证注入：三种方式的优先级"><a href="#13-2-凭证注入：三种方式的优先级" class="headerlink" title="13.2 凭证注入：三种方式的优先级"></a>13.2 凭证注入：三种方式的优先级</h3><table>
+<thead>
+<tr>
+<th>方式</th>
+<th>推荐度</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>环境变量（<code>MYCLI_TOKEN</code>）</td>
+<td>⭐⭐⭐</td>
+<td>CI/Agent 默认</td>
+</tr>
+<tr>
+<td>stdin（<code>--token-stdin</code>）</td>
+<td>⭐⭐⭐</td>
+<td>避免进 shell history</td>
+</tr>
+<tr>
+<td>配置文件（<code>~/.mycli/config</code>）</td>
+<td>⭐⭐</td>
+<td>人类日常使用</td>
+</tr>
+<tr>
+<td>命令行参数（<code>--token xxx</code>）</td>
+<td>❌</td>
+<td>会进 <code>ps</code>/history，<strong>不要做</strong></td>
+</tr>
+</tbody>
+</table>
+<p>并且：</p>
+<ul>
+<li><strong>永远不要把 token 回显到 stdout 或 stderr</strong>（包括 <code>--verbose</code> 模式）。</li>
+<li>错误信息里暴露 token 前 4 位用于调试即可。</li>
+<li>支持 <code>mycli auth whoami --json</code> 让 Agent 自检当前身份。</li>
+</ul>
+<hr>
+<h2 id="十四、环境可移植性：别让-Agent-死在依赖上"><a href="#十四、环境可移植性：别让-Agent-死在依赖上" class="headerlink" title="十四、环境可移植性：别让 Agent 死在依赖上"></a>十四、环境可移植性：别让 Agent 死在依赖上</h2><p>Agent 对环境脆弱性的容忍度远低于人类开发者——人类会手动修，Agent 往往只会”再试一次”。</p>
+<p>优先目标：</p>
+<ul>
+<li><strong>单文件分发</strong>（Go/Rust 的天然优势；Python 可用 PyInstaller / uv 单二进制）。</li>
+<li>最少运行时依赖、无需人工激活虚拟环境。</li>
+<li><code>mycli --version</code> 输出 semver + commit hash + build date。</li>
+<li><code>mycli doctor</code> 自检：依赖、认证、网络、权限一次性扫描并结构化报告。</li>
+<li>缺失依赖时给<strong>结构化错误 + 修复建议</strong>，不要只打印 <code>ImportError</code>。</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ mycli doctor --json</span><br><span class="line">&#123;<span class="string">"ok"</span>:<span class="literal">false</span>,<span class="string">"data"</span>:&#123;<span class="string">"checks"</span>:[</span><br><span class="line">  &#123;<span class="string">"name"</span>:<span class="string">"auth"</span>,<span class="string">"ok"</span>:<span class="literal">true</span>&#125;,</span><br><span class="line">  &#123;<span class="string">"name"</span>:<span class="string">"network"</span>,<span class="string">"ok"</span>:<span class="literal">true</span>&#125;,</span><br><span class="line">  &#123;<span class="string">"name"</span>:<span class="string">"dep:docker"</span>,<span class="string">"ok"</span>:<span class="literal">false</span>,<span class="string">"hint"</span>:<span class="string">"Install Docker Desktop &gt;= 4.20"</span>&#125;</span><br><span class="line">]&#125;&#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="十五、把-CLI-当产品来做评测"><a href="#十五、把-CLI-当产品来做评测" class="headerlink" title="十五、把 CLI 当产品来做评测"></a>十五、把 CLI 当产品来做评测</h2><p>工具质量不只靠单元测试，还要靠系统化评测——尤其是让真实 Agent 去跑一遍。</p>
+<h3 id="三层评测"><a href="#三层评测" class="headerlink" title="三层评测"></a>三层评测</h3><p><strong>1）语法层</strong>：参数一致性、<code>--help</code> 完整性、所有核心命令 <code>--json</code> 覆盖、错误码稳定。</p>
+<p><strong>2）契约层</strong>：stdout/stderr 不混、JSON schema 无漂移、non-TTY 不阻塞、错误可恢复、NDJSON 终态事件必有。</p>
+<p><strong>3）Agent 实战层</strong>：给真实 Agent 一组任务，统计指标。</p>
+<h3 id="最小评测脚本（Agent-实战层）"><a href="#最小评测脚本（Agent-实战层）" class="headerlink" title="最小评测脚本（Agent 实战层）"></a>最小评测脚本（Agent 实战层）</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># eval_suite.yaml</span></span><br><span class="line"><span class="attr">tasks:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">query_project_status</span></span><br><span class="line">    <span class="attr">prompt:</span> <span class="string">"查询 project-a 当前状态"</span></span><br><span class="line">    <span class="attr">success_when:</span> <span class="string">"output contains status field with enum value"</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">list_recent_failures</span></span><br><span class="line">    <span class="attr">prompt:</span> <span class="string">"列出过去 7 天失败的任务"</span></span><br><span class="line">    <span class="attr">success_when:</span> <span class="string">"returns array with time filter applied"</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">dry_run_deploy</span></span><br><span class="line">    <span class="attr">prompt:</span> <span class="string">"预演一次 prod 部署但不执行"</span></span><br><span class="line">    <span class="attr">success_when:</span> <span class="string">"exit 0 and no side effects observed"</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">recover_from_missing_resource</span></span><br><span class="line">    <span class="attr">prompt:</span> <span class="string">"删除一个不存在的 project，恢复后完成目标"</span></span><br><span class="line">    <span class="attr">success_when:</span> <span class="string">"agent handles exit code 4 without human help"</span></span><br><span class="line"></span><br><span class="line"><span class="attr">metrics:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">first_try_success_rate</span>   <span class="comment"># 首次成功率</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">avg_steps_per_task</span>        <span class="comment"># 平均调用步数</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">error_recovery_rate</span>       <span class="comment"># 错误恢复率</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">tokens_per_task</span>           <span class="comment"># 上下文消耗</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">human_escalation_rate</span>     <span class="comment"># 是否需要人工介入</span></span><br></pre></td></tr></table></figure>
+<p>每次发版跑一遍，退化立即可见。</p>
+<hr>
+<h2 id="十六、【新增】存量-CLI-的渐进式改造路径"><a href="#十六、【新增】存量-CLI-的渐进式改造路径" class="headerlink" title="十六、【新增】存量 CLI 的渐进式改造路径"></a>十六、【新增】存量 CLI 的渐进式改造路径</h2><p>大部分读者不是新写 CLI，而是改老的。一口气重写成本过高，建议按下列顺序 retrofit（每步都能单独发布、独立收益）：</p>
+<ol>
+<li><strong>Phase 0（1 天）</strong>：确认 stdout/stderr 纪律，把所有日志挪到 stderr。</li>
+<li><strong>Phase 1（1 周）</strong>：核心 3–5 个命令加 <code>--json</code>，字段按 <code>{ok, data, meta}</code> 结构。</li>
+<li><strong>Phase 2（1 周）</strong>：错误走结构化 JSON + 退出码分层，补 <code>retryable</code> 字段。</li>
+<li><strong>Phase 3（2 周）</strong>：长任务改造成 NDJSON；加分页、字段投影、<code>--limit</code>。</li>
+<li><strong>Phase 4（1 周）</strong>：非交互模式严格化（NO_COLOR、<code>--yes</code>、不弹任何向导）。</li>
+<li><strong>Phase 5（持续）</strong>：写 <code>AGENTS.md</code>、建评测集、每版本跑一遍。</li>
+<li><strong>Phase 6（可选）</strong>：MCP server 薄壳封装。</li>
+</ol>
+<p><strong>反模式</strong>：一次性推倒重来、把所有命令都加 <code>--json</code> 但 schema 不稳定、<code>AGENTS.md</code> 写了但不跟代码同步演进。</p>
+<hr>
+<h2 id="十七、【新增】真实-CLI-案例点评"><a href="#十七、【新增】真实-CLI-案例点评" class="headerlink" title="十七、【新增】真实 CLI 案例点评"></a>十七、【新增】真实 CLI 案例点评</h2><blockquote>
+<p>学习最快的方式是看业界做对和做错的地方。</p>
+</blockquote>
+<ul>
+<li><strong><code>kubectl</code></strong>：<code>-o json</code> / <code>-o yaml</code> / <code>-o jsonpath</code> 是典范；缺点是 <code>kubectl apply</code> 的输出一会儿人类文本一会儿结构化，非 <code>-o</code> 场景 stderr/stdout 也有混用。</li>
+<li><strong><code>gh</code>（GitHub CLI）</strong>：<code>--json field1,field2</code> 字段投影做得极好，极大压缩 Agent 上下文；<code>gh api</code> 暴露底层 REST 兜底；<code>AGENTS.md</code> 式引导欠缺。</li>
+<li><strong><code>stripe</code> CLI</strong>：<code>--api-key</code> 和 env var 组合清晰，<code>stripe events resume</code> 幂等支持好；错误 JSON 结构稳定。</li>
+<li><strong><code>terraform</code></strong>：<code>plan</code>/<code>apply</code> 二阶段、<code>-auto-approve</code>、<code>-json</code> 流式输出是 Agent 友好模板级案例。</li>
+<li><strong><code>aws</code> CLI v2</strong>：<code>--output json</code> 默认结构化、分页 <code>--max-items</code>/<code>--starting-token</code> 完善；但帮助文档过长、子命令数量巨大，Agent 首次建模成本高——提醒我们 discoverability 要配合 <code>AGENTS.md</code> 裁剪。</li>
+<li><strong><code>docker</code></strong>：历史包袱重，<code>docker ps</code> 默认输出表格且列不稳定，<code>--format &#39;\{\{json \.\}\}&#39;</code> 是事实标准但不直观——反面教材：JSON 不该是隐藏档。</li>
+<li><strong><code>npm</code>/<code>pnpm</code></strong>：<code>--json</code> 覆盖不全、错误信息人机混排是典型反例。</li>
+</ul>
+<hr>
+<h2 id="十八、最容易被忽略的一点"><a href="#十八、最容易被忽略的一点" class="headerlink" title="十八、最容易被忽略的一点"></a>十八、最容易被忽略的一点</h2><p>很多人以为”面向 Agent 友好 = 多加个 <code>--json</code>“。</p>
+<p>真正让人眼前一亮的 CLI，不是”让 Agent 能调”，而是：</p>
+<blockquote>
+<p><strong>它会主动降低 Agent 的推理负担。</strong></p>
+</blockquote>
+<p>具体表现：</p>
+<ul>
+<li>不让 Agent 猜输出格式 → 稳定 JSON schema + 版本号</li>
+<li>不让 Agent 猜下一步该调哪个命令 → <code>AGENTS.md</code> + workflow 示例</li>
+<li>不让 Agent 猜错误是否可重试 → <code>retryable</code> 字段</li>
+<li>不让 Agent 猜这个操作是不是危险 → read/write/dangerous 分级 + <code>--confirm</code></li>
+<li>不让 Agent 猜资源标识该怎么取 → 稳定 ID + ISO 时间</li>
+<li>不让 Agent 猜非交互模式会不会卡住 → 严格的 TTY 检测与退出纪律</li>
+<li>不让 Agent 猜输出会不会爆窗口 → 默认截断 + 分页 + 字段投影</li>
+</ul>
+<p><strong>把复杂性消解在工具设计里，而不是丢给模型。</strong> 这是 AI 时代 CLI 设计真正的升级方向。</p>
+<hr>
+<h2 id="十九、Agent-Friendly-CLI-自查清单（打印贴墙版）"><a href="#十九、Agent-Friendly-CLI-自查清单（打印贴墙版）" class="headerlink" title="十九、Agent-Friendly CLI 自查清单（打印贴墙版）"></a>十九、Agent-Friendly CLI 自查清单（打印贴墙版）</h2><h3 id="输出契约"><a href="#输出契约" class="headerlink" title="输出契约"></a>输出契约</h3><ul>
+<li style="list-style: none"><input type="checkbox"> stdout 只输出数据，stderr 只输出日志/提示</li>
+<li style="list-style: none"><input type="checkbox"> 所有核心命令支持 <code>--json</code></li>
+<li style="list-style: none"><input type="checkbox"> JSON 采用 <code>{ok, data, meta}</code> 或等价的稳定结构</li>
+<li style="list-style: none"><input type="checkbox"> <code>meta.schema_version</code> 字段存在</li>
+<li style="list-style: none"><input type="checkbox"> 空值返回结构而非 <code>&quot;No results&quot;</code></li>
+<li style="list-style: none"><input type="checkbox"> 长任务支持 NDJSON（<code>--json=stream</code>）并以终态事件收尾</li>
+<li style="list-style: none"><input type="checkbox"> 时间全部 ISO-8601 UTC</li>
+<li style="list-style: none"><input type="checkbox"> 资源有稳定、带前缀的 ID</li>
+</ul>
+<h3 id="错误处理"><a href="#错误处理" class="headerlink" title="错误处理"></a>错误处理</h3><ul>
+<li style="list-style: none"><input type="checkbox"> 退出码分层（至少区分：参数错 / 认证 / 找不到 / 临时失败 / 冲突）</li>
+<li style="list-style: none"><input type="checkbox"> 错误以 JSON 返回，带 <code>code</code> / <code>message</code> / <code>hint</code> / <code>retryable</code></li>
+<li style="list-style: none"><input type="checkbox"> 退出码在 <code>--help</code> 中文档化</li>
+</ul>
+<h3 id="体积与性能"><a href="#体积与性能" class="headerlink" title="体积与性能"></a>体积与性能</h3><ul>
+<li style="list-style: none"><input type="checkbox"> 列表命令默认 <code>--limit</code>，支持 <code>--cursor</code> 分页</li>
+<li style="list-style: none"><input type="checkbox"> 支持 <code>--fields</code> 字段投影</li>
+<li style="list-style: none"><input type="checkbox"> 支持 <code>--filter</code> / <code>--since</code> 等过滤</li>
+<li style="list-style: none"><input type="checkbox"> 被截断时有 <code>truncated: true</code> 信号</li>
+</ul>
+<h3 id="交互-vs-非交互"><a href="#交互-vs-非交互" class="headerlink" title="交互 vs 非交互"></a>交互 vs 非交互</h3><ul>
+<li style="list-style: none"><input type="checkbox"> TTY/non-TTY 行为明确区分</li>
+<li style="list-style: none"><input type="checkbox"> 遵守 <code>NO_COLOR</code> 公约</li>
+<li style="list-style: none"><input type="checkbox"> 非交互模式下绝不等待输入</li>
+<li style="list-style: none"><input type="checkbox"> 需要确认的操作有 <code>--yes</code> / <code>--force</code></li>
+</ul>
+<h3 id="安全"><a href="#安全" class="headerlink" title="安全"></a>安全</h3><ul>
+<li style="list-style: none"><input type="checkbox"> 命令按 read/write/dangerous 分级</li>
+<li style="list-style: none"><input type="checkbox"> 危险操作需 <code>--confirm &lt;resource-id&gt;</code> 复述</li>
+<li style="list-style: none"><input type="checkbox"> 凭证不走命令行参数，不回显到任何输出</li>
+</ul>
+<h3 id="Discoverability"><a href="#Discoverability" class="headerlink" title="Discoverability"></a>Discoverability</h3><ul>
+<li style="list-style: none"><input type="checkbox"> 层级化 <code>--help</code>，每个子命令都有</li>
+<li style="list-style: none"><input type="checkbox"> 帮助里写明 stdout/stderr/exit code 契约</li>
+<li style="list-style: none"><input type="checkbox"> 每个高频命令有可直接运行的 example</li>
+<li style="list-style: none"><input type="checkbox"> 提供 shell completion</li>
+<li style="list-style: none"><input type="checkbox"> 有 <code>mycli doctor</code> 自检</li>
+<li style="list-style: none"><input type="checkbox"> 有 <code>mycli --version</code> 含 commit hash</li>
+</ul>
+<h3 id="Agent-文档"><a href="#Agent-文档" class="headerlink" title="Agent 文档"></a>Agent 文档</h3><ul>
+<li style="list-style: none"><input type="checkbox"> 仓库有 <code>AGENTS.md</code></li>
+<li style="list-style: none"><input type="checkbox"> 包含 workflow、invariants、gotchas、风险表</li>
+<li style="list-style: none"><input type="checkbox"> 有 Agent 评测集，每版本跑一次</li>
+</ul>
+<h3 id="工程可移植性"><a href="#工程可移植性" class="headerlink" title="工程可移植性"></a>工程可移植性</h3><ul>
+<li style="list-style: none"><input type="checkbox"> 单文件分发或极少依赖</li>
+<li style="list-style: none"><input type="checkbox"> 缺失依赖给结构化错误与修复建议</li>
+</ul>
+<hr>
+<h2 id="二十、结语：CLI-正在变成”可组合的文本协议”"><a href="#二十、结语：CLI-正在变成”可组合的文本协议”" class="headerlink" title="二十、结语：CLI 正在变成”可组合的文本协议”"></a>二十、结语：CLI 正在变成”可组合的文本协议”</h2><p>在 GUI 时代，软件的核心竞争力常常体现在界面。<br>但在 Agent 时代，很多系统首先被消费的，不再是界面，而是：</p>
+<ul>
+<li>命令结构</li>
+<li>输出契约</li>
+<li>错误语义</li>
+<li>权限边界</li>
+<li>帮助系统</li>
+<li>可组合性</li>
+</ul>
+<p>从这个意义上说，CLI 正在重新变得重要——不是因为大家回到了终端，而是因为 <strong>Agent 天生适合终端</strong>。</p>
+<p>所以面向 AI / Agent 开发 CLI，最值得记住的一句话是：</p>
+<blockquote>
+<p><strong>把你的 CLI 当成一个给模型调用的 API 来设计，而不是一个给人临时敲一下的命令。</strong></p>
+</blockquote>
+<p>这样做，CLI 才会从”脚手架工具”进化成”Agent 基础设施”。</p>
+<hr>
+<h3 id="附录：延伸阅读"><a href="#附录：延伸阅读" class="headerlink" title="附录：延伸阅读"></a>附录：延伸阅读</h3><ul>
+<li><a href="https://clig.dev" target="_blank" rel="noopener">clig.dev</a> — 经典 Command Line Interface Guidelines</li>
+<li><a href="https://no-color.org" target="_blank" rel="noopener">no-color.org</a> — <code>NO_COLOR</code> 环境变量公约</li>
+<li>BSD <code>sysexits.h</code> — 退出码约定</li>
+<li>AGENTS.md / llms.txt — Agent 时代兴起的仓库级元数据约定</li>
+<li>Terraform plan/apply、Kubernetes <code>kubectl -o json</code>、GitHub <code>gh --json</code> — 值得研究的工业级 agent-friendly 实现</li>
+</ul>
+<hr>
+<h3 id="变更记录（v1-0-→-v1-1）"><a href="#变更记录（v1-0-→-v1-1）" class="headerlink" title="变更记录（v1.0 → v1.1）"></a>变更记录（v1.0 → v1.1）</h3><ul>
+<li>新增：CLI 与 MCP 的关系对比（第一节）</li>
+<li>新增：NDJSON 流式输出章节（第四节）</li>
+<li>新增：输出体积与 token 预算章节（第五节）</li>
+<li>新增：凭证注入安全通道（第十三节）</li>
+<li>新增：存量 CLI 渐进式改造路径（第十六节）</li>
+<li>新增：真实 CLI 案例点评（第十七节）</li>
+<li>新增：自查清单（第十九节）</li>
+<li>扩充：退出码章节补上 sysexits.h 引用</li>
+<li>重命名：<code>SKILL.md</code> → <code>AGENTS.md</code>，补充社区标准说明</li>
+<li>补充：NO_COLOR / SIGPIPE / shell completion 业界公约</li>
+<li>每节尽量补充”❌ 反例 / ✅ 正例”对照</li>
+<li>调整：原 15、16 节合并精简为第十八、二十节</li>
+</ul>
+</div></article></div><div class="post-paginator"><div class="post-links"><div class="post-next"><a href="/2026/03/10/notes/【笔记】Harness Engineering（驾驭工程）/" class="next">Next Post<span>【笔记】Harness Engineering（驾驭工程）</span></a></div></div></div></div><div class="sidebar"><div class="social-links"><ul><li class="social-link"><a href="http://github.com/MichealWayne" target="_blank" class="link-github"><i class="icon icon-github"></i></a></li><li class="social-link"><a href="mailto:michealwayne@163.com" target="_self" class="link-mail"><i class="icon icon-mail"></i></a></li></ul></div><div class="recent-posts widget"><h3 class="widget-title"> Recent Posts</h3><div class="widget-content"><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2026/04/18/ai/面向 AI : Agent 友好的 CLI 开发建议/">面向 AI / Agent 友好的 CLI 开发建议</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/03/10/notes/【笔记】Harness Engineering（驾驭工程）/">【笔记】Harness Engineering（驾驭工程）</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/02/23/notes/【笔记】location.href和location.assign进行页面URL跳转/">【笔记】location.href 和 location.assign 进行页面 URL 跳转</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/02/21/tools/【工具】zeroclaw配置项(config.toml)说明/">【工具】ZeroClaw配置项(config.toml)说明</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/01/18/ai/Skills 技术深度解析：AI Agent 能力扩展的新范式/">Skills 技术深度解析：AI Agent 能力扩展的新范式</a></li></ul></div></div><div class="recent-comment widget"><h3 class="widget-title"> Author</h3><div class="widget-content"><div class="m-author"><div class="u-avatar"><img src="data:image/jpeg;base64,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"></div><div class="u-author_tit"><p>My name is Micheal Wayne and this is my blog.<br>I am a front-end software engineer.<br>Contact: <a href="mailto:michealwayne@163.com"> <span>michealwayne@163.com</span></a></p></div></div></div></div><div class="tag-lists widget"><h3 class="widget-title"> Tags</h3><div class="widget-content"><ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/APM/">APM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BOM/">BOM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Bun/">Bun</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DOM/">DOM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GEO/">GEO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTML/">HTML</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IDE/">IDE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OKR/">OKR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SEO/">SEO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UML/">UML</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UX/">UX</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WebApi/">WebApi</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WebSocket/">WebSocket</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zepto/">Zepto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ai/">ai</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/canvas/">canvas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/">css</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/es/">es</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/es6/">es6</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eslint/">eslint</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gpt/">gpt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/html5/">html5</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/">http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jQuery/">jQuery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/">js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lerna/">lerna</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lottie/">lottie</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/">nodejs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prettier/">prettier</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prompt/">prompt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pwa/">pwa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/">react</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sketch/">sketch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skywalking/">skywalking</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/taro/">taro</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tslint/">tslint</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/typescript/">typescript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue/">vue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webApi/">webApi</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpack/">webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/代码规范/">代码规范</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/前端/">前端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/动效/">动效</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图形/">图形</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/安全/">安全</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/小程序/">小程序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/工具/">工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/工程/">工程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/微前端/">微前端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/思维逻辑/">思维逻辑</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/性能/">性能</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/插件/">插件</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/日常工作/">日常工作</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/架构/">架构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/概念/">概念</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/正则/">正则</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/浏览器/">浏览器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/用户体验/">用户体验</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/笔记/">笔记</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/编码/">编码</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/网络协议/">网络协议</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/规范/">规范</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/设计模式/">设计模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/调试/">调试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/质量/">质量</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/跨端/">跨端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/软件/">软件</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/软件工程/">软件工程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/项目管理/">项目管理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/高并发/">高并发</a></li></ul></div></div><div class="archive-lists widget"><h3 class="widget-title"> Archive</h3><div class="widget-content"><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/04/">April 2026</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/03/">March 2026</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/02/">February 2026</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/01/">January 2026</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/12/">December 2025</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/11/">November 2025</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/10/">October 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/09/">September 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/08/">August 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/06/">June 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/05/">May 2025</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/04/">April 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/03/">March 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">February 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/01/">January 2025</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/12/">December 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/11/">November 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/09/">September 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/08/">August 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/07/">July 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/06/">June 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/05/">May 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/04/">April 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/03/">March 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/01/">January 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/12/">December 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/11/">November 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/10/">October 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">September 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/07/">July 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">June 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">May 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">April 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">November 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/05/">May 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">April 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">December 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">August 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">March 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">September 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">November 2017</a><span class="archive-list-count">5</span></li></ul></div></div></div></div></div><footer><div class="copyright"><div class="container"><div class="col-6"><div class="site-info">© 2016 - 2026 <a href="http://blog.michealwayne.cn">Micheal Wayne</a></div></div><div class="col-6"><div class="site-contact"><div class="social-links"><ul><li class="social-link"><a href="http://github.com/MichealWayne" target="_blank" class="link-github"><i class="icon icon-github"></i></a></li><li class="social-link"><a href="mailto:michealwayne@163.com" target="_self" class="link-mail"><i class="icon icon-mail"></i></a></li></ul></div></div></div></div></div></footer><a class="scroll-up"><span class="icon icon-up"></span></a><script src="https://code.jquery.com/jquery-3.1.0.min.js"></script><script src="/js/posfixed.js"></script><script src="/js/utils.js"></script><script src="/js/search.js"></script></body></html>
