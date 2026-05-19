@@ -1,0 +1,725 @@
+<!DOCTYPE html><html><head><meta name="generator" content="Hexo 3.9.0"><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> 大模型缓存技术工程指南（上）：从价格信号到推理缓存机制 | Wayne的博客</title><meta name="description" content="大模型缓存技术工程指南（上）：从价格信号到推理缓存机制 - Micheal Wayne"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/scss/casual.css"><link rel="stylesheet" href="/css/icon.css"><link rel="search" type="application/opensearchdescription+xml" href="http://blog.michealwayne.cn/atom.xml" title="Wayne的博客"></head><script>(function (w) {w.frontjsConfig={token:"81a82620fb0dca7680f2f06be134fa4f",behaviour:8,FPSThreshold:10};w.frontjsTmpData = {r:[],e:[],l:[]};w.frontjsTmpCollector = function (ev) {(ev.message ? window.frontjsTmpData.e : window.frontjsTmpData.r).push([new Date().getTime(), ev])};w.FrontJS = {addEventListener: function (t, f) {w.frontjsTmpData.l.push([t, f]);return f;},removeEventListener: function (t, f) {for (var i = 0; i < w.frontjsTmpData.l.length; i++) {t === w.frontjsTmpData.l[i][0] && f === w.frontjsTmpData.l[i][1] && w.frontjsTmpData.l.splice(i, 1);}return f;}};w.document.addEventListener("error", w.frontjsTmpCollector, true);w.addEventListener("error", w.frontjsTmpCollector, true);w.addEventListener("load", function () {var n = w.document.createElement("script");n.src = "https://frontjs-static.pgyer.com/dist/current/frontjs.web.min.js"; w.document.body.appendChild(n);}, true);})(window);</script><body><div class="header"><header class="site-header"><div class="site-nav"><span class="button-toggle"></span><div class="container"><div class="nav-item"><a href="/" target="_self" data-text="home">Home</a></div><div class="nav-item"><a href="/archives" target="_self" data-text="archive">Archive</a></div><div class="nav-item"><a href="/about" target="_self" data-text="about">About</a></div></div><form id="search-form" class="nav-item"><input type="text" id="local-search-input" name="q" results="0" placeholder="search" autocomplete="off" autocorrect="off" class="search form-control"><span onclick="resetSearch()" class="fa fa-times"> </span></form><div id="local-search-result"></div><p class="no-result">No results found</p></div></header></div><div class="main"><div class="container"><div class="content"><div class="post"><article class="post-block"><h1 class="post-title">大模型缓存技术工程指南（上）：从价格信号到推理缓存机制</h1><span class="post-date">May 16, 2026</span><span class="post-tag"><a href="/tags/笔记/">笔记</a><a href="/tags/ai/">ai</a></span><img src="/images/llm-cache/i-logo_part1.png" class="bgimage"><div class="post-content"><h1 id="大模型缓存技术工程指南（上）：从价格信号到推理缓存机制"><a href="#大模型缓存技术工程指南（上）：从价格信号到推理缓存机制" class="headerlink" title="大模型缓存技术工程指南（上）：从价格信号到推理缓存机制"></a>大模型缓存技术工程指南（上）：从价格信号到推理缓存机制</h1><blockquote>
+<p><strong>版本说明</strong>：本文为“上篇”三次优化版，面向工程团队理解大模型缓存技术的底层机制、成本含义和系统设计边界。本文会少量出现 Prompt 组织示例，但仅用于解释缓存机制；系统化 Prompt / Agent 工程实践放在下篇展开。  </p>
+</blockquote>
+<blockquote>
+<p><strong>时效性提示</strong>：本文涉及的模型厂商缓存价格、TTL、最低 token 门槛、支持模型范围、API 字段名称具有较强时效性(2026-05)。价格与 API 行为仅用于解释机制和工程决策，不应直接作为预算依据。正式成本测算请以调用时的官方 Pricing 页面、模型文档和 API 返回的 <code>usage</code> 字段为准。</p>
+</blockquote>
+<p><img src="/images/llm-cache/p-main.png" alt="p-main"></p>
+<hr>
+<h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><ol>
+<li><a href="#1-为什么从缓存价格讲起">为什么从“缓存价格”讲起</a></li>
+<li><a href="#2-先澄清价格表里的-cache-通常是哪种-cache">先澄清：价格表里的 Cache 通常是哪种 Cache</a></li>
+<li><a href="#3-工程分层视角下的大模型缓存版图">工程分层视角下的大模型缓存版图</a></li>
+<li><a href="#4-大模型推理的两个阶段prefill-与-decode">大模型推理的两个阶段：Prefill 与 Decode</a></li>
+<li><a href="#5-kv-cache单次生成内部的推理缓存">KV Cache：单次生成内部的推理缓存</a></li>
+<li><a href="#6-pagedattentionkv-cache-的显存管理机制">PagedAttention：KV Cache 的显存管理机制</a></li>
+<li><a href="#7-prefix-cache--prompt-cache--context-cache跨请求复用的缓存">Prefix Cache / Prompt Cache / Context Cache：跨请求复用的缓存</a></li>
+<li><a href="#8-应用层缓存semantic-cache-与-response-cache">应用层缓存：Semantic Cache 与 Response Cache</a></li>
+<li><a href="#9-缓存策略适用场景对比">缓存策略适用场景对比</a></li>
+<li><a href="#10-与缓存相关但不等同于缓存的推理优化技术">与缓存相关但不等同于缓存的推理优化技术</a></li>
+<li><a href="#11-工程观测指标与成本测算方式">工程观测指标与成本测算方式</a></li>
+<li><a href="#12-常见误区">常见误区</a></li>
+<li><a href="#13-工程落地示例">工程落地示例</a></li>
+<li><a href="#14-附录厂商缓存价格与产品形态示例">附录：厂商缓存价格与产品形态示例</a></li>
+<li><a href="#15-参考资料">参考资料</a></li>
+</ol>
+<hr>
+<h2 id="TL-DR"><a href="#TL-DR" class="headerlink" title="TL;DR"></a>TL;DR</h2><p><img src="/images/llm-cache/p-part1.png" alt="p-part1"></p>
+<p>一句话：大模型缓存分很多层：KV Cache 是模型内部加速生成，Prompt / Prefix / Context Cache 是跨请求复用稳定上下文，Semantic / Response Cache 是应用层复用答案。</p>
+<p>核心要点：</p>
+<ol>
+<li>价格表里的 cached input 通常不是 KV Cache<br>厂商说的 cached input / cache read 多数指 Prompt Cache、Prefix Cache 或 Context Cache。</li>
+<li>KV Cache 解决生成时的重复计算<br>Prefill 阶段生成并保存 K/V，Decode 阶段复用历史 K/V，避免每生成一个 token 都重算全部上下文。</li>
+<li>KV Cache 很吃显存<br>显存大致随这些因素线性增长：<code>层数 × KV heads × head_dim × 上下文长度 × batch size</code>。所以长上下文和高并发会显著增加 serving 成本。</li>
+<li>PagedAttention 是 KV Cache 的显存管理方案<br>它像操作系统分页一样，把 KV Cache 切成 block，减少显存碎片，并支持 prefix block 复用。</li>
+<li>Prompt / Prefix Cache 优化的是重复输入<br>如果多个请求有相同前缀，比如固定 system prompt、工具定义、代码规范，就可以复用这部分 prefill 结果。</li>
+<li>Context Cache 更像显式缓存对象<br>适合长文档、代码仓库、设计系统、固定知识库等反复使用的上下文。</li>
+<li>Semantic / Response Cache 是应用层缓存<br>FAQ、客服、知识库问答可以直接复用历史答案，但要注意时效、权限和误命中风险。</li>
+</ol>
+<hr>
+<h2 id="1-为什么从“缓存价格”讲起"><a href="#1-为什么从“缓存价格”讲起" class="headerlink" title="1. 为什么从“缓存价格”讲起"></a>1. 为什么从“缓存价格”讲起</h2><p>过去我们谈大模型成本时，常见口径是：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">总成本 ≈ 输入 token 成本 + 输出 token 成本</span><br></pre></td></tr></table></figure>
+<p>但随着长上下文、Agent、多轮工具调用、RAG、代码仓库分析等场景变多，输入 token 中有大量内容是重复的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">- system prompt</span><br><span class="line">- 角色设定</span><br><span class="line">- 安全规则</span><br><span class="line">- 工具 schema</span><br><span class="line">- 代码规范</span><br><span class="line">- DSL 规范</span><br><span class="line">- 项目 README</span><br><span class="line">- 组件库文档</span><br><span class="line">- RAG 长文档</span><br><span class="line">- 多轮对话历史</span><br></pre></td></tr></table></figure>
+<p>于是模型厂商逐渐在价格表里显式区分：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">input tokens</span><br><span class="line">cached input tokens</span><br><span class="line">cache write tokens</span><br><span class="line">cache read tokens</span><br><span class="line">output tokens</span><br></pre></td></tr></table></figure>
+<p>这件事本身是一个非常重要的信号：</p>
+<blockquote>
+<p><strong>缓存已经不是推理系统内部的“实现细节”，而是大模型 API 成本模型、Prompt 组织方式和 Agent 平台架构设计中的一等公民。</strong></p>
+</blockquote>
+<p>对于工程团队来说，这会带来三个直接问题：</p>
+<ol>
+<li>为什么同样是输入 token，有些 token 会便宜很多？</li>
+<li>价格表里的 <code>cached input</code> 到底对应哪种缓存？</li>
+<li>我们在设计 Prompt、Agent、RAG、低代码生成平台时，应该如何让缓存更容易命中？</li>
+</ol>
+<p>本文上篇重点回答前两个问题：<strong>缓存机制是什么、它们分别解决什么问题、工程上该如何区分</strong>。<br>下篇再重点讨论：<strong>如何组织 Prompt 和 Agent 上下文，让缓存真正命中</strong>。</p>
+<hr>
+<h2 id="2-先澄清：价格表里的-Cache-通常是哪种-Cache"><a href="#2-先澄清：价格表里的-Cache-通常是哪种-Cache" class="headerlink" title="2. 先澄清：价格表里的 Cache 通常是哪种 Cache"></a>2. 先澄清：价格表里的 Cache 通常是哪种 Cache</h2><p>大模型技术里有很多“缓存”概念：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">KV Cache</span><br><span class="line">Prefix Cache</span><br><span class="line">Prompt Cache</span><br><span class="line">Context Cache</span><br><span class="line">Semantic Cache</span><br><span class="line">Response Cache</span><br></pre></td></tr></table></figure>
+<p>这些名字很容易混在一起。尤其是很多工程同学第一次看到 OpenAI、Anthropic、Gemini 价格表里的 <code>cached input</code>、<code>cache read</code>、<code>context caching price</code> 时，会自然以为它们指的都是同一种技术。</p>
+<p>实际上需要先区分：</p>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>答案</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>单次生成过程中，模型为了避免重复计算历史 token 的缓存是什么？</td>
+<td>KV Cache</td>
+</tr>
+<tr>
+<td>多个请求之间，如果 prompt 前缀相同，复用已经计算过的前缀状态是什么？</td>
+<td>Prefix Cache / Prompt Cache</td>
+</tr>
+<tr>
+<td>厂商 API 中显式创建、后续引用的大上下文缓存是什么？</td>
+<td>Context Cache</td>
+</tr>
+<tr>
+<td>应用层根据问题相似度直接复用答案是什么？</td>
+<td>Semantic Cache / Response Cache</td>
+</tr>
+</tbody>
+</table>
+<p>价格表中的 <code>cached input</code>、<code>cache read</code>、<code>context cache</code>，通常指的是：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">跨请求复用稳定输入上下文的缓存</span><br></pre></td></tr></table></figure>
+<p>也就是 Prompt Cache、Prefix Cache 或 Context Cache 这一类，而不是单次请求内部的 KV Cache。</p>
+<h3 id="2-1-KV-Cache-与-Prompt-Cache-的关系"><a href="#2-1-KV-Cache-与-Prompt-Cache-的关系" class="headerlink" title="2.1 KV Cache 与 Prompt Cache 的关系"></a>2.1 KV Cache 与 Prompt Cache 的关系</h3><p>可以这样理解：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">KV Cache：</span><br><span class="line">  本次请求内部，decode 过程中复用历史 token 的 K/V 张量。</span><br><span class="line"></span><br><span class="line">Prompt / Prefix Cache：</span><br><span class="line">  多次请求之间，复用之前请求已经计算好的前缀 K/V 状态。</span><br><span class="line"></span><br><span class="line">Context Cache：</span><br><span class="line">  厂商产品化后的显式缓存能力，通常允许开发者先创建一个缓存对象，再在后续请求中引用。</span><br></pre></td></tr></table></figure>
+<p>它们并不是完全割裂的。很多 Prompt Cache / Prefix Cache 的底层实现，本质上仍然在复用已经计算好的 KV 状态。区别在于：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">KV Cache 更偏模型推理过程；</span><br><span class="line">Prompt Cache 更偏 API 产品和请求复用；</span><br><span class="line">Context Cache 更偏显式上下文资产管理；</span><br><span class="line">Semantic Cache 更偏应用层结果复用。</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="3-工程分层视角下的大模型缓存版图"><a href="#3-工程分层视角下的大模型缓存版图" class="headerlink" title="3. 工程分层视角下的大模型缓存版图"></a>3. 工程分层视角下的大模型缓存版图</h2><p>本文不再使用“严格 MECE 分类”这个表述。原因是 Prompt Cache、Prefix Cache、Context Cache 在机制和产品形态上高度重叠，Semantic Cache 和 Response Cache 也可能重叠。</p>
+<p>更准确的说法是：</p>
+<blockquote>
+<p><strong>本文采用工程分层分类：从模型推理层、推理服务层、API 产品层、应用层四个层级理解缓存。不同缓存策略之间可能重叠，但分层有助于工程决策。</strong></p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>典型缓存</th>
+<th>主要解决的问题</th>
+<th>工程关注点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>模型推理层</td>
+<td>KV Cache</td>
+<td>单次生成内部避免重复计算历史 token</td>
+<td>显存占用、长上下文、batch size、decode 延迟</td>
+</tr>
+<tr>
+<td>推理服务层</td>
+<td>PagedAttention、Prefix Cache、RadixAttention</td>
+<td>多请求复用、显存碎片、并发调度</td>
+<td>block 管理、LRU、ref count、prefix 命中</td>
+</tr>
+<tr>
+<td>API 产品层</td>
+<td>Prompt Cache、Context Cache</td>
+<td>降低重复输入成本和首 token 延迟</td>
+<td>prompt 顺序、TTL、cache read/write、usage 统计</td>
+</tr>
+<tr>
+<td>应用层</td>
+<td>Semantic Cache、Response Cache</td>
+<td>直接减少模型调用</td>
+<td>相似度阈值、失效策略、正确性风险</td>
+</tr>
+</tbody>
+</table>
+<p>从工程视角看，这四层分别对应不同问题：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">模型推理层：模型怎么少算？</span><br><span class="line">推理服务层：多请求怎么共享算过的东西？</span><br><span class="line">API 产品层：厂商如何把缓存变成可计费、可观测、可配置能力？</span><br><span class="line">应用层：业务系统能否直接复用已有答案？</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="4-大模型推理的两个阶段：Prefill-与-Decode"><a href="#4-大模型推理的两个阶段：Prefill-与-Decode" class="headerlink" title="4. 大模型推理的两个阶段：Prefill 与 Decode"></a>4. 大模型推理的两个阶段：Prefill 与 Decode</h2><p>理解缓存前，必须先理解大模型生成的两个阶段。</p>
+<h3 id="4-1-Prefill：处理输入-prompt"><a href="#4-1-Prefill：处理输入-prompt" class="headerlink" title="4.1 Prefill：处理输入 prompt"></a>4.1 Prefill：处理输入 prompt</h3><p>当用户发送一个 prompt，例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">你是一个前端专家，请根据以下设计规范生成 React 组件……</span><br></pre></td></tr></table></figure>
+<p>模型需要一次性处理整段输入，计算每个输入 token 的中间状态，并为后续生成准备 Key / Value。</p>
+<p>这个阶段通常称为 <strong>Prefill</strong>。</p>
+<p>Prefill 的特点：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">- 和输入 prompt 长度强相关</span><br><span class="line">- 长文档、长 system prompt、长 RAG 片段会显著增加 prefill 成本</span><br><span class="line">- 可以通过 Prompt Cache / Prefix Cache 复用相同前缀来降低成本</span><br></pre></td></tr></table></figure>
+<h3 id="4-2-Decode：逐-token-生成输出"><a href="#4-2-Decode：逐-token-生成输出" class="headerlink" title="4.2 Decode：逐 token 生成输出"></a>4.2 Decode：逐 token 生成输出</h3><p>Prefill 完成后，模型开始一个 token 一个 token 生成答案。</p>
+<p>例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">第 1 步生成：我</span><br><span class="line">第 2 步生成：我认为</span><br><span class="line">第 3 步生成：我认为可以</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>这个阶段称为 <strong>Decode</strong>。</p>
+<p>Decode 的特点：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">- 和输出长度强相关</span><br><span class="line">- 每一步都要关注历史上下文</span><br><span class="line">- KV Cache 可以避免每一步都重复计算所有历史 token 的 K/V</span><br></pre></td></tr></table></figure>
+<h3 id="4-3-缓存分别作用在哪里"><a href="#4-3-缓存分别作用在哪里" class="headerlink" title="4.3 缓存分别作用在哪里"></a>4.3 缓存分别作用在哪里</h3><table>
+<thead>
+<tr>
+<th>缓存</th>
+<th>主要作用阶段</th>
+<th>解决的问题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>KV Cache</td>
+<td>Prefill + Decode</td>
+<td>Prefill 阶段生成并保存输入 token 的 K/V；Decode 阶段复用历史 K/V 并追加新 token 的 K/V</td>
+</tr>
+<tr>
+<td>Prefix / Prompt Cache</td>
+<td>Prefill</td>
+<td>多请求之间复用相同 prompt 前缀</td>
+</tr>
+<tr>
+<td>Context Cache</td>
+<td>Prefill</td>
+<td>显式复用长文档、长上下文</td>
+</tr>
+<tr>
+<td>Semantic / Response Cache</td>
+<td>模型调用前</td>
+<td>直接跳过或减少模型调用</td>
+</tr>
+</tbody>
+</table>
+<p>需要特别注意：<strong>KV Cache 不是只在 Decode 阶段才存在</strong>。更准确地说：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Prefill 阶段：</span><br><span class="line">  模型处理完整输入 prompt，同时生成并保存所有输入 token 的 K/V。</span><br><span class="line">  这一步是在“建立缓存”。</span><br><span class="line"></span><br><span class="line">Decode 阶段：</span><br><span class="line">  模型每生成一个新 token，就复用已有 K/V，并为新 token 追加新的 K/V。</span><br><span class="line">  这一步是在“使用并增量扩展缓存”。</span><br></pre></td></tr></table></figure>
+<p>因此，工程上常说“KV Cache 优化 Decode”，主要是因为它最直观地避免了 decode 每一步重算历史 token；但从生命周期看，KV Cache 贯穿 Prefill 和 Decode 两个阶段。</p>
+<p>一个简化链路：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">用户请求</span><br><span class="line">  ↓</span><br><span class="line">应用层：查 Semantic Cache / Response Cache</span><br><span class="line">  ↓ 未命中</span><br><span class="line">API / Serving 层：查 Prompt Cache / Prefix Cache</span><br><span class="line">  ↓ 部分命中</span><br><span class="line">模型推理层：Prefill 未命中部分，并生成/保存 K/V</span><br><span class="line">  ↓</span><br><span class="line">Decode 阶段：复用已有 KV Cache 逐 token 生成，并追加新 token 的 K/V</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="5-KV-Cache：单次生成内部的推理缓存"><a href="#5-KV-Cache：单次生成内部的推理缓存" class="headerlink" title="5. KV Cache：单次生成内部的推理缓存"></a>5. KV Cache：单次生成内部的推理缓存</h2><h3 id="5-1-基本原理"><a href="#5-1-基本原理" class="headerlink" title="5.1 基本原理"></a>5.1 基本原理</h3><p>Transformer 自回归生成时，每生成一个新 token，都需要关注前面已经出现过的 token。</p>
+<p>如果没有 KV Cache，模型生成第 N 个 token 时，可能需要反复计算前面 1 到 N-1 个 token 的 Key / Value。这样历史越长，重复计算越多。</p>
+<p>KV Cache 的核心思想是：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">历史 token 的 Key / Value 一旦计算出来，就缓存下来。</span><br><span class="line">后续生成新 token 时，只计算新增 token 的 Key / Value，</span><br><span class="line">然后把新 token 的 Query 与历史缓存的 K/V 一起做 attention。</span><br></pre></td></tr></table></figure>
+<p>类比前端工程：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">没有 KV Cache：</span><br><span class="line">  每次页面状态变化，都把整棵组件树从头算一遍。</span><br><span class="line"></span><br><span class="line">有 KV Cache：</span><br><span class="line">  已经计算过的稳定子树结果保留下来，只计算新增部分。</span><br></pre></td></tr></table></figure>
+<p>当然这个类比只是帮助理解，真实模型中缓存的是注意力层中的张量，不是组件树。</p>
+<h3 id="5-2-KV-Cache-解决什么问题"><a href="#5-2-KV-Cache-解决什么问题" class="headerlink" title="5.2 KV Cache 解决什么问题"></a>5.2 KV Cache 解决什么问题</h3><p>KV Cache 的生命周期贯穿 prefill 和 decode：prefill 阶段生成并保存输入 token 的 K/V，decode 阶段复用这些历史 K/V 来避免重复计算。因此它最直接解决的是 decode 阶段的历史 token 重算问题，同时也是 Prompt / Prefix Cache 能跨请求复用前缀状态的底层基础之一。</p>
+<p>适合场景：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">- 所有自回归生成场景</span><br><span class="line">- 长输出生成</span><br><span class="line">- 多轮对话</span><br><span class="line">- 长上下文问答</span><br><span class="line">- 代码生成</span><br><span class="line">- Agent 多步任务</span><br></pre></td></tr></table></figure>
+<p>不适合把它理解成：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">- 降低 API 价格表中 cached input 的唯一原因</span><br><span class="line">- 应用层可以直接控制的普通 Redis 缓存</span><br><span class="line">- 可以直接缓存最终答案的结果缓存</span><br></pre></td></tr></table></figure>
+<p>KV Cache 通常由模型推理框架、模型服务或厂商后端管理，普通 API 调用者很少直接操作它。</p>
+<h3 id="5-3-KV-Cache-显存占用如何估算"><a href="#5-3-KV-Cache-显存占用如何估算" class="headerlink" title="5.3 KV Cache 显存占用如何估算"></a>5.3 KV Cache 显存占用如何估算</h3><p>KV Cache 最大的问题不是“是否能缓存”，而是“缓存太占显存”。</p>
+<p>工程上可以用一个近似公式估算：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">KV Cache Memory</span><br><span class="line">≈ 2 × num_layers × num_kv_heads × head_dim × seq_len × batch_size × bytes_per_element</span><br></pre></td></tr></table></figure>
+<p>其中：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>2</code></td>
+<td>Key 和 Value 两份缓存</td>
+</tr>
+<tr>
+<td><code>num_layers</code></td>
+<td>Transformer 层数</td>
+</tr>
+<tr>
+<td><code>num_kv_heads</code></td>
+<td>K/V head 数</td>
+</tr>
+<tr>
+<td><code>head_dim</code></td>
+<td>每个 head 的维度</td>
+</tr>
+<tr>
+<td><code>seq_len</code></td>
+<td>上下文长度</td>
+</tr>
+<tr>
+<td><code>batch_size</code></td>
+<td>并发序列数</td>
+</tr>
+<tr>
+<td><code>bytes_per_element</code></td>
+<td>数据类型占用字节数，如 FP16/BF16 通常为 2</td>
+</tr>
+</tbody>
+</table>
+<p>这个公式解释了为什么长上下文和高并发会快速吃掉显存：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">seq_len 增加 2 倍 → KV Cache 近似增加 2 倍</span><br><span class="line">batch_size 增加 2 倍 → KV Cache 近似增加 2 倍</span><br><span class="line">layers 更多 → KV Cache 增加</span><br><span class="line">KV heads 更多 → KV Cache 增加</span><br></pre></td></tr></table></figure>
+<p>一个速查示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">假设某 7B 级模型：</span><br><span class="line">- num_layers = 32</span><br><span class="line">- num_kv_heads = 8</span><br><span class="line">- head_dim = 128</span><br><span class="line">- seq_len = 4096</span><br><span class="line">- batch_size = 1</span><br><span class="line">- bytes_per_element = 2，FP16 / BF16</span><br><span class="line"></span><br><span class="line">KV Cache Memory</span><br><span class="line">≈ 2 × 32 × 8 × 128 × 4096 × 1 × 2 bytes</span><br><span class="line">≈ 536,870,912 bytes</span><br><span class="line">≈ 512 MiB</span><br><span class="line">≈ 0.5 GiB</span><br></pre></td></tr></table></figure>
+<p>这只是单个 batch、4K 上下文下的 KV Cache 量级。如果上下文扩展到 32K，或者 batch size 从 1 提升到 16，KV Cache 会线性放大。实际 serving 中还要叠加模型权重、激活、中间 buffer、调度开销和框架预留显存，因此长上下文并发能力经常首先受限于 KV Cache。</p>
+<h3 id="5-4-MHA-MQA-GQA-MLA-对-KV-Cache-的影响"><a href="#5-4-MHA-MQA-GQA-MLA-对-KV-Cache-的影响" class="headerlink" title="5.4 MHA / MQA / GQA / MLA 对 KV Cache 的影响"></a>5.4 MHA / MQA / GQA / MLA 对 KV Cache 的影响</h3><p>注意公式里用的是 <code>num_kv_heads</code>，而不是简单的 <code>num_heads</code>。这是因为不同 attention 架构对 K/V head 的设计不同。</p>
+<table>
+<thead>
+<tr>
+<th>架构</th>
+<th>简化理解</th>
+<th>对 KV Cache 的影响</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MHA，Multi-Head Attention</td>
+<td>每个 Q head 都有独立 K/V</td>
+<td>KV Cache 最大</td>
+</tr>
+<tr>
+<td>MQA，Multi-Query Attention</td>
+<td>多个 Q head 共享一组 K/V</td>
+<td>显著降低 KV Cache</td>
+</tr>
+<tr>
+<td>GQA，Grouped-Query Attention</td>
+<td>多组 Q head 共享少量 K/V</td>
+<td>在效果和显存间折中</td>
+</tr>
+<tr>
+<td>MLA，Multi-head Latent Attention</td>
+<td>用 latent 表示压缩 K/V 信息</td>
+<td>进一步降低缓存压力</td>
+</tr>
+</tbody>
+</table>
+<p>对工程人员来说，这个点很重要。两个模型参数量接近，但如果 attention 结构不同，在长上下文和高并发 serving 下的显存压力可能完全不同。</p>
+<p>这里尤其要避免两个误解：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">1. MQA 和 GQA 不是完全并列、互不相关的设计。</span><br><span class="line">   可以把 MQA 理解成 GQA 的特殊情况：所有 Q heads 共享同一组 K/V。</span><br><span class="line"></span><br><span class="line">2. MLA 中的“压缩”不是简单把 KV Cache 量化成更低 bit，</span><br><span class="line">   也不是直接裁剪掉一部分 token。</span><br><span class="line">   它更接近通过低秩 latent 表示重构注意力所需信息，</span><br><span class="line">   因此应与 KV Cache Quantization、H2O 这类缓存量化/裁剪方法区分开。</span><br></pre></td></tr></table></figure>
+<h3 id="5-5-KV-Cache-的工程挑战"><a href="#5-5-KV-Cache-的工程挑战" class="headerlink" title="5.5 KV Cache 的工程挑战"></a>5.5 KV Cache 的工程挑战</h3><p>KV Cache 带来的挑战包括：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1. 显存占用巨大</span><br><span class="line">2. 多请求长度不同，容易产生显存碎片</span><br><span class="line">3. 长上下文请求会挤占并发能力</span><br><span class="line">4. batch 内不同序列 decode 步数不同，调度复杂</span><br><span class="line">5. 缓存是否保留、何时释放、如何淘汰，都影响吞吐和延迟</span><br></pre></td></tr></table></figure>
+<p>因此推理框架不仅要“有 KV Cache”，还要有高效的 KV Cache 管理机制。这就是 PagedAttention、Prefix Cache、RadixAttention 等技术出现的背景。</p>
+<hr>
+<h2 id="6-PagedAttention：KV-Cache-的显存管理机制"><a href="#6-PagedAttention：KV-Cache-的显存管理机制" class="headerlink" title="6. PagedAttention：KV Cache 的显存管理机制"></a>6. PagedAttention：KV Cache 的显存管理机制</h2><h3 id="6-1-为什么需要-PagedAttention"><a href="#6-1-为什么需要-PagedAttention" class="headerlink" title="6.1 为什么需要 PagedAttention"></a>6.1 为什么需要 PagedAttention</h3><p>如果把每个请求的 KV Cache 都当作一段连续显存来分配，会遇到类似操作系统内存管理中的问题：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">- 请求长度不同</span><br><span class="line">- 输出长度不可提前准确预测</span><br><span class="line">- 有的请求很快结束，有的请求很长</span><br><span class="line">- 连续显存块难以复用</span><br><span class="line">- 碎片越来越多</span><br></pre></td></tr></table></figure>
+<p>vLLM 的 PagedAttention 借鉴了操作系统分页思想，把 KV Cache 切成固定大小的 block。逻辑上一个请求的上下文是连续 token 序列，但物理上它的 KV Cache block 可以分散在不同显存位置。</p>
+<h3 id="6-2-核心概念"><a href="#6-2-核心概念" class="headerlink" title="6.2 核心概念"></a>6.2 核心概念</h3><table>
+<thead>
+<tr>
+<th>概念</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>block / page</td>
+<td>固定大小的 KV Cache 存储单元，通常容纳若干 token 的 K/V</td>
+</tr>
+<tr>
+<td>block table</td>
+<td>记录逻辑 token 位置到物理 KV block 的映射</td>
+</tr>
+<tr>
+<td>non-contiguous memory</td>
+<td>逻辑连续，物理不要求连续</td>
+</tr>
+<tr>
+<td>reference count</td>
+<td>记录某个 block 被多少请求引用</td>
+</tr>
+<tr>
+<td>copy-on-write</td>
+<td>多请求共享前缀时，只有发生分叉才复制或追加</td>
+</tr>
+<tr>
+<td>LRU eviction</td>
+<td>显存不足时按策略淘汰较少复用的 block</td>
+</tr>
+</tbody>
+</table>
+<p>类比操作系统：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">虚拟内存：</span><br><span class="line">  进程看到的是连续地址空间，物理内存可以分散。</span><br><span class="line"></span><br><span class="line">PagedAttention：</span><br><span class="line">  请求看到的是连续上下文，KV Cache 可以分散在不同 block。</span><br></pre></td></tr></table></figure>
+<h3 id="6-3-PagedAttention-解决什么问题"><a href="#6-3-PagedAttention-解决什么问题" class="headerlink" title="6.3 PagedAttention 解决什么问题"></a>6.3 PagedAttention 解决什么问题</h3><p>PagedAttention 的价值不是改变模型输出，而是提升 serving 效率：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1. 降低显存碎片</span><br><span class="line">2. 支持更高 batch size</span><br><span class="line">3. 支持请求之间共享 prefix blocks</span><br><span class="line">4. 支持更灵活的调度和释放</span><br><span class="line">5. 为 Prefix Cache 提供基础数据结构</span><br></pre></td></tr></table></figure>
+<p>vLLM 官方文档中，Automatic Prefix Caching 的设计也建立在 KV cache blocks 的复用之上：已经处理过的请求会留下 KV cache blocks，新请求如果有相同 prefix，就可以复用这些 blocks。</p>
+<h3 id="6-4-一个简化例子"><a href="#6-4-一个简化例子" class="headerlink" title="6.4 一个简化例子"></a>6.4 一个简化例子</h3><p>假设 block size = 4 tokens。</p>
+<p>请求 A：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Prompt A: [A, B, C, D, E, F]</span><br></pre></td></tr></table></figure>
+<p>可以拆成：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Block 1: [A, B, C, D]</span><br><span class="line">Block 2: [E, F, _, _]</span><br></pre></td></tr></table></figure>
+<p>请求 B：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Prompt B: [A, B, C, D, E, G]</span><br></pre></td></tr></table></figure>
+<p>它与请求 A 的前 5 个 token 相同，但如果只缓存完整 block，那么至少：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Block 1: [A, B, C, D] 可以复用</span><br><span class="line">Block 2: [E, F, _, _] 不能完整复用</span><br></pre></td></tr></table></figure>
+<p>这也说明了一个工程事实：</p>
+<blockquote>
+<p>Prefix Cache 往往不是“相同多少字符就能全部命中”，实际命中粒度可能受 block size、tokenization、hash 规则、cache eviction 等因素影响。</p>
+</blockquote>
+<hr>
+<h2 id="7-Prefix-Cache-Prompt-Cache-Context-Cache：跨请求复用的缓存"><a href="#7-Prefix-Cache-Prompt-Cache-Context-Cache：跨请求复用的缓存" class="headerlink" title="7. Prefix Cache / Prompt Cache / Context Cache：跨请求复用的缓存"></a>7. Prefix Cache / Prompt Cache / Context Cache：跨请求复用的缓存</h2><h3 id="7-1-Prefix-Cache-的基本原理"><a href="#7-1-Prefix-Cache-的基本原理" class="headerlink" title="7.1 Prefix Cache 的基本原理"></a>7.1 Prefix Cache 的基本原理</h3><p>Prefix Cache 的核心是：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">如果新请求和历史请求拥有相同前缀，</span><br><span class="line">就复用前缀部分已经计算好的 KV cache blocks，</span><br><span class="line">从而跳过这部分 prompt 的 prefill 计算。</span><br></pre></td></tr></table></figure>
+<p>例如：</p>
+<p>请求 1：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[固定 system prompt]</span><br><span class="line">[固定工具定义]</span><br><span class="line">[固定项目规范]</span><br><span class="line">[用户问题 A]</span><br></pre></td></tr></table></figure>
+<p>请求 2：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[固定 system prompt]</span><br><span class="line">[固定工具定义]</span><br><span class="line">[固定项目规范]</span><br><span class="line">[用户问题 B]</span><br></pre></td></tr></table></figure>
+<p>两者前面三段完全一致。Prefix Cache 可以复用这部分已经计算好的结果，只处理用户问题 A/B 的差异部分。</p>
+<h3 id="7-2-Prompt-Cache-与-Prefix-Cache-的关系"><a href="#7-2-Prompt-Cache-与-Prefix-Cache-的关系" class="headerlink" title="7.2 Prompt Cache 与 Prefix Cache 的关系"></a>7.2 Prompt Cache 与 Prefix Cache 的关系</h3><p>在很多厂商 API 中，Prompt Cache 是 Prefix Cache 的产品化表达。</p>
+<p>OpenAI 文档明确建议：把静态或重复内容放在 prompt 开头，把变量内容放在结尾；缓存命中依赖 exact prefix match。OpenAI 当前 Prompt Caching 文档说明，缓存对 1024 tokens 及以上的 prompt 可用，低于该长度的请求也会返回 <code>cached_tokens</code> 字段但通常为 0；不过具体模型、平台和供应商网关可能存在差异，正式实现仍应以当前文档和实际 <code>usage</code> 为准。</p>
+<p>从工程角度看：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Prefix Cache：</span><br><span class="line">  更偏推理系统实现术语。</span><br><span class="line"></span><br><span class="line">Prompt Cache：</span><br><span class="line">  更偏 API 产品术语，关注开发者如何组织 prompt、如何计费、如何观测 cached_tokens。</span><br></pre></td></tr></table></figure>
+<h3 id="7-3-Context-Cache-的产品化形态"><a href="#7-3-Context-Cache-的产品化形态" class="headerlink" title="7.3 Context Cache 的产品化形态"></a>7.3 Context Cache 的产品化形态</h3><p>Gemini / Vertex AI 这类产品中，Context Cache 更像是显式上下文资产：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1. 先把长文档、长背景、视频、代码等上下文创建成 cache</span><br><span class="line">2. 后续请求引用这个 cache</span><br><span class="line">3. 动态问题单独传入</span><br></pre></td></tr></table></figure>
+<p>这类方式适合：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">- 针对同一份长文档反复问答</span><br><span class="line">- 针对同一套代码仓库反复分析</span><br><span class="line">- 针对同一份产品手册持续生成客服回复</span><br><span class="line">- 针对同一套设计系统持续生成页面</span><br></pre></td></tr></table></figure>
+<p>它和 OpenAI 自动 Prompt Cache 的区别主要是：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>自动 Prompt Cache</th>
+<th>显式 Context Cache</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>开发者是否显式创建 cache</td>
+<td>通常不需要</td>
+<td>需要</td>
+</tr>
+<tr>
+<td>是否有 cache ID</td>
+<td>通常没有或弱化</td>
+<td>通常有</td>
+</tr>
+<tr>
+<td>是否关注 exact prefix</td>
+<td>是</td>
+<td>也关注内容一致性，但产品抽象更强</td>
+</tr>
+<tr>
+<td>适合场景</td>
+<td>重复 prompt 前缀</td>
+<td>大文档、多次引用、长上下文资产</td>
+</tr>
+</tbody>
+</table>
+<h3 id="7-4-Prompt-Cache-主要优化-Prefill，不优化长输出-Decode"><a href="#7-4-Prompt-Cache-主要优化-Prefill，不优化长输出-Decode" class="headerlink" title="7.4 Prompt Cache 主要优化 Prefill，不优化长输出 Decode"></a>7.4 Prompt Cache 主要优化 Prefill，不优化长输出 Decode</h3><p>这是一个非常关键的边界。</p>
+<p>如果你的请求是：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">输入很长，输出较短</span><br></pre></td></tr></table></figure>
+<p>Prompt Cache 的收益通常明显，因为它减少了长输入的 prefill 成本。</p>
+<p>如果你的请求是：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">输入很短，输出很长</span><br></pre></td></tr></table></figure>
+<p>Prompt Cache 的收益会有限，因为主要耗时和成本在 decode / output tokens 上。</p>
+<p>vLLM 文档也明确指出，Automatic Prefix Caching 主要减少 query processing / prefilling 阶段的时间，不会减少生成新 token 的 decode 时间。</p>
+<hr>
+<h2 id="8-应用层缓存：Semantic-Cache-与-Response-Cache"><a href="#8-应用层缓存：Semantic-Cache-与-Response-Cache" class="headerlink" title="8. 应用层缓存：Semantic Cache 与 Response Cache"></a>8. 应用层缓存：Semantic Cache 与 Response Cache</h2><p>前面几类缓存主要在模型或推理服务层。应用层也可以做缓存。</p>
+<h3 id="8-1-Response-Cache"><a href="#8-1-Response-Cache" class="headerlink" title="8.1 Response Cache"></a>8.1 Response Cache</h3><p>Response Cache 最像传统后端缓存：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">key = 完全相同请求</span><br><span class="line">value = 模型返回结果</span><br></pre></td></tr></table></figure>
+<p>适合：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">- FAQ</span><br><span class="line">- 固定配置解释</span><br><span class="line">- 静态文档问答</span><br><span class="line">- 低风险模板生成</span><br></pre></td></tr></table></figure>
+<p>风险：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">- 用户上下文不同但请求文本相同，答案可能不应相同</span><br><span class="line">- 模型输出本身有随机性，缓存会固定答案</span><br><span class="line">- 过期策略不好会返回旧信息</span><br></pre></td></tr></table></figure>
+<h3 id="8-2-Semantic-Cache"><a href="#8-2-Semantic-Cache" class="headerlink" title="8.2 Semantic Cache"></a>8.2 Semantic Cache</h3><p>Semantic Cache 不要求问题完全一致，而是基于 embedding 或语义相似度判断。</p>
+<p>例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">问题 A：如何配置 Codex 的 baseURL？</span><br><span class="line">问题 B：Codex 怎么设置第三方 API 地址？</span><br></pre></td></tr></table></figure>
+<p>语义相似，可以复用或半复用已有答案。</p>
+<p>适合：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">- 客服</span><br><span class="line">- 内部知识库</span><br><span class="line">- 常见技术问题</span><br><span class="line">- 运营问答</span><br></pre></td></tr></table></figure>
+<p>风险：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">- 相似不等于相同</span><br><span class="line">- 阈值过低会错答</span><br><span class="line">- 对权限、时效、用户上下文敏感的问题不适合直接复用</span><br></pre></td></tr></table></figure>
+<h3 id="8-3-Response-Cache-与-Semantic-Cache-的重叠"><a href="#8-3-Response-Cache-与-Semantic-Cache-的重叠" class="headerlink" title="8.3 Response Cache 与 Semantic Cache 的重叠"></a>8.3 Response Cache 与 Semantic Cache 的重叠</h3><p>这两者不是互斥关系：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">完全相同请求命中 Response Cache；</span><br><span class="line">语义相似请求命中 Semantic Cache；</span><br><span class="line">Semantic Cache 命中后返回的也可能是历史 response。</span><br></pre></td></tr></table></figure>
+<p>因此更合理的理解是：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Response Cache 是精确匹配缓存；</span><br><span class="line">Semantic Cache 是近似匹配缓存；</span><br><span class="line">两者可以组成应用层缓存体系。</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="9-缓存策略适用场景对比"><a href="#9-缓存策略适用场景对比" class="headerlink" title="9. 缓存策略适用场景对比"></a>9. 缓存策略适用场景对比</h2><table>
+<thead>
+<tr>
+<th>场景</th>
+<th>最适合的缓存</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>单次长输出生成</td>
+<td>KV Cache</td>
+<td>Decode 阶段必须复用历史 K/V</td>
+</tr>
+<tr>
+<td>长 system prompt + 多个用户问题</td>
+<td>Prompt / Prefix Cache</td>
+<td>稳定前缀重复，prefill 可复用</td>
+</tr>
+<tr>
+<td>同一长文档反复问答</td>
+<td>Context Cache / Prefix Cache</td>
+<td>长文档可以作为稳定上下文</td>
+</tr>
+<tr>
+<td>Agent 多轮工具调用</td>
+<td>Prompt Cache + KV Cache</td>
+<td>system/tools/rules 稳定，历史上下文可部分复用</td>
+</tr>
+<tr>
+<td>代码仓库分析</td>
+<td>Context Cache / Prefix Cache</td>
+<td>README、规范、项目结构可复用</td>
+</tr>
+<tr>
+<td>FAQ 客服</td>
+<td>Semantic Cache / Response Cache</td>
+<td>可以直接减少模型调用</td>
+</tr>
+<tr>
+<td>实时行情 / 最新新闻</td>
+<td>不建议长期缓存答案</td>
+<td>数据时效性强，容易过期</td>
+</tr>
+<tr>
+<td>输出很长、输入很短</td>
+<td>KV Cache 更关键</td>
+<td>Prompt Cache 对成本帮助有限</td>
+</tr>
+<tr>
+<td>多租户工具 schema 相同</td>
+<td>Prompt Cache</td>
+<td>tools 可共享缓存，但要注意租户隔离</td>
+</tr>
+<tr>
+<td>低代码 DSL 生成</td>
+<td>Prompt Cache / Context Cache</td>
+<td>DSL schema、组件规范、设计规范稳定</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="10-与缓存相关但不等同于缓存的推理优化技术"><a href="#10-与缓存相关但不等同于缓存的推理优化技术" class="headerlink" title="10. 与缓存相关但不等同于缓存的推理优化技术"></a>10. 与缓存相关但不等同于缓存的推理优化技术</h2><p>评估文章技术深度时，容易把很多 serving 优化都归为缓存。这里做一个边界说明。</p>
+<table>
+<thead>
+<tr>
+<th>技术</th>
+<th>是否缓存策略</th>
+<th>与缓存的关系</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FlashAttention</td>
+<td>不是缓存策略</td>
+<td>优化 attention 计算和显存访问</td>
+</tr>
+<tr>
+<td>Chunked Prefill</td>
+<td>不是缓存本身</td>
+<td>把长 prompt 的 prefill 分块调度，提高并发和吞吐</td>
+</tr>
+<tr>
+<td>Continuous Batching</td>
+<td>不是缓存本身</td>
+<td>动态合批，提高 GPU 利用率</td>
+</tr>
+<tr>
+<td>Speculative Decoding</td>
+<td>不是缓存策略</td>
+<td>用小模型草稿 + 大模型验证，加速 decode</td>
+</tr>
+<tr>
+<td>StreamingLLM</td>
+<td>不是通用缓存策略</td>
+<td>面向长序列流式推理，通过 attention sink 等机制保留少量关键历史状态，与 KV Cache 管理相关但不等同于 Prompt/Prefix Cache</td>
+</tr>
+<tr>
+<td>H2O / KV Cache 压缩</td>
+<td>是 KV Cache 优化</td>
+<td>选择性保留重要 token 的 KV，降低显存占用</td>
+</tr>
+<tr>
+<td>KV Cache Quantization</td>
+<td>是 KV Cache 优化</td>
+<td>用更低精度存储 K/V，降低显存占用</td>
+</tr>
+<tr>
+<td>Prefix Cache</td>
+<td>是缓存策略</td>
+<td>多请求复用前缀 KV blocks</td>
+</tr>
+<tr>
+<td>PagedAttention</td>
+<td>是缓存管理机制</td>
+<td>管理 KV Cache block，降低碎片，提高复用</td>
+</tr>
+</tbody>
+</table>
+<h3 id="10-1-为什么要提这些技术"><a href="#10-1-为什么要提这些技术" class="headerlink" title="10.1 为什么要提这些技术"></a>10.1 为什么要提这些技术</h3><p>因为真实推理系统的延迟和成本不是单一缓存决定的。</p>
+<p>一个线上 LLM serving 系统通常同时依赖：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">KV Cache</span><br><span class="line">PagedAttention</span><br><span class="line">Prefix Cache</span><br><span class="line">Continuous Batching</span><br><span class="line">Chunked Prefill</span><br><span class="line">Speculative Decoding</span><br><span class="line">KV Cache Quantization</span><br><span class="line">模型并行 / 张量并行</span><br><span class="line">请求调度</span><br><span class="line">限流与优先级</span><br></pre></td></tr></table></figure>
+<p>因此，Prompt Cache 命中率高不代表整体延迟一定最低；如果输出很长，decode 仍然是瓶颈。如果显存紧张，KV Cache 淘汰频繁，prefix 命中也可能不稳定。</p>
+<h3 id="10-2-Chunked-Prefill-与-Prefix-Cache-的协作关系"><a href="#10-2-Chunked-Prefill-与-Prefix-Cache-的协作关系" class="headerlink" title="10.2 Chunked Prefill 与 Prefix Cache 的协作关系"></a>10.2 Chunked Prefill 与 Prefix Cache 的协作关系</h3><p>Chunked Prefill 和 Prefix Cache 经常同时出现在推理服务中，但它们解决的问题不同。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Prefix Cache：</span><br><span class="line">  如果请求前缀已经计算过，就跳过这部分 prefill。</span><br><span class="line"></span><br><span class="line">Chunked Prefill：</span><br><span class="line">  如果仍然有一段很长的 prompt 需要 prefill，</span><br><span class="line">  就把它拆成多个小块，与其他请求穿插调度。</span><br></pre></td></tr></table></figure>
+<p>两者同时开启时，可以理解为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">原始长 prompt</span><br><span class="line">  ↓</span><br><span class="line">Prefix Cache 先判断哪些前缀 block 已经命中</span><br><span class="line">  ↓</span><br><span class="line">已命中的部分跳过 prefill</span><br><span class="line">  ↓</span><br><span class="line">剩余未命中的 prompt 片段仍然可能很长</span><br><span class="line">  ↓</span><br><span class="line">Chunked Prefill 把未命中片段继续切块调度</span><br></pre></td></tr></table></figure>
+<p>这也解释了一个常见现象：</p>
+<blockquote>
+<p><strong>即使开启了 Prefix Cache，TTFT 仍然可能不稳定。</strong></p>
+</blockquote>
+<p>原因可能包括：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">- 只有部分前缀命中，剩余未命中部分仍然较长</span><br><span class="line">- block 粒度导致看似相同的文本没有完全复用</span><br><span class="line">- cache 被淘汰，导致需要重新 prefill</span><br><span class="line">- Chunked Prefill 为了整体吞吐，会让长 prompt 与其他请求交错执行</span><br><span class="line">- GPU 当前 batch、队列长度、调度策略不同</span><br></pre></td></tr></table></figure>
+<p>所以工程上观察缓存效果时，不应只看 <code>cache_hit_rate</code>，还要结合 <code>prefill_latency</code>、<code>queue_time</code>、<code>TTFT</code>、<code>num_cached_blocks</code>、<code>kv_cache_eviction_count</code> 等指标一起判断。</p>
+<hr>
+<h2 id="11-工程观测指标与成本测算方式"><a href="#11-工程观测指标与成本测算方式" class="headerlink" title="11. 工程观测指标与成本测算方式"></a>11. 工程观测指标与成本测算方式</h2><p>缓存优化不能只靠“感觉”。需要可观测。</p>
+<h3 id="11-1-API-层指标"><a href="#11-1-API-层指标" class="headerlink" title="11.1 API 层指标"></a>11.1 API 层指标</h3><p>建议记录：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">model</span><br><span class="line">request_id</span><br><span class="line">prompt_template_id</span><br><span class="line">prompt_template_version</span><br><span class="line">input_tokens</span><br><span class="line">cached_input_tokens</span><br><span class="line">cache_creation_input_tokens</span><br><span class="line">cache_read_input_tokens</span><br><span class="line">output_tokens</span><br><span class="line">total_tokens</span><br><span class="line">time_to_first_token</span><br><span class="line">end_to_end_latency</span><br><span class="line">prompt_cache_key</span><br><span class="line">cache_retention_policy</span><br></pre></td></tr></table></figure>
+<p>不同厂商字段名不同，但核心关注点类似：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">输入 token 中有多少被缓存命中？</span><br><span class="line">缓存写入成本是多少？</span><br><span class="line">缓存读取成本是多少？</span><br><span class="line">输出 token 成本是否占主要部分？</span><br><span class="line">TTFT 是否下降？</span><br></pre></td></tr></table></figure>
+<h3 id="11-2-推理服务层指标"><a href="#11-2-推理服务层指标" class="headerlink" title="11.2 推理服务层指标"></a>11.2 推理服务层指标</h3><p>如果你自建 vLLM / SGLang / TensorRT-LLM 这类 serving，需要关注：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">prefix_cache_hit_rate</span><br><span class="line">kv_cache_usage</span><br><span class="line">kv_cache_eviction_count</span><br><span class="line">num_cached_blocks</span><br><span class="line">num_free_blocks</span><br><span class="line">prefill_latency</span><br><span class="line">decode_latency</span><br><span class="line">tokens_per_second</span><br><span class="line">time_to_first_token</span><br><span class="line">gpu_memory_usage</span><br><span class="line">batch_size</span><br><span class="line">request_queue_time</span><br></pre></td></tr></table></figure>
+<h3 id="11-3-成本测算口径"><a href="#11-3-成本测算口径" class="headerlink" title="11.3 成本测算口径"></a>11.3 成本测算口径</h3><p>一个更合理的成本模型：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">总成本 =</span><br><span class="line">  普通输入 token 成本</span><br><span class="line">+ 缓存写入 token 成本</span><br><span class="line">+ 缓存读取 token 成本</span><br><span class="line">+ 输出 token 成本</span><br><span class="line">+ 其他工具/检索/存储/网络成本</span><br></pre></td></tr></table></figure>
+<p>不要只看 <code>total_tokens</code>。在启用缓存后，同样数量的 input tokens，可能对应不同价格：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">input tokens: 1.0x</span><br><span class="line">cached input / cache read: 折扣价</span><br><span class="line">cache write: 可能等于输入价，也可能有额外倍率</span><br><span class="line">output tokens: 通常仍按输出价格计费</span><br></pre></td></tr></table></figure>
+<h3 id="11-4-Break-even-思维"><a href="#11-4-Break-even-思维" class="headerlink" title="11.4 Break-even 思维"></a>11.4 Break-even 思维</h3><p>以一个抽象模型说明：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">普通输入价格 = 1.0x</span><br><span class="line">缓存写入价格 = W</span><br><span class="line">缓存读取价格 = R</span><br><span class="line">重复使用次数 = N</span><br></pre></td></tr></table></figure>
+<p>不用缓存：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">成本 = N × 1.0</span><br></pre></td></tr></table></figure>
+<p>使用缓存：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">成本 = W + (N - 1) × R</span><br></pre></td></tr></table></figure>
+<p>缓存划算的条件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">W + (N - 1) × R &lt; N</span><br></pre></td></tr></table></figure>
+<p>这个公式比记厂商价格更重要。因为厂商价格会变，但判断逻辑不变。</p>
+<hr>
+<h2 id="12-常见误区"><a href="#12-常见误区" class="headerlink" title="12. 常见误区"></a>12. 常见误区</h2><h3 id="误区-1：只要有-cached-input，最终答案就是缓存答案"><a href="#误区-1：只要有-cached-input，最终答案就是缓存答案" class="headerlink" title="误区 1：只要有 cached input，最终答案就是缓存答案"></a>误区 1：只要有 cached input，最终答案就是缓存答案</h3><p>不是。</p>
+<p>Prompt Cache 通常缓存的是输入前缀的中间状态，不是最终回答。模型仍然会根据当前动态输入生成新的输出。</p>
+<h3 id="误区-2：Prompt-Cache-能降低所有成本"><a href="#误区-2：Prompt-Cache-能降低所有成本" class="headerlink" title="误区 2：Prompt Cache 能降低所有成本"></a>误区 2：Prompt Cache 能降低所有成本</h3><p>不是。</p>
+<p>Prompt Cache 主要降低重复输入部分的成本和 prefill 延迟。输出 token 成本仍然存在，长输出任务收益可能有限。</p>
+<h3 id="误区-3：KV-Cache-和-Prompt-Cache-是同一个东西"><a href="#误区-3：KV-Cache-和-Prompt-Cache-是同一个东西" class="headerlink" title="误区 3：KV Cache 和 Prompt Cache 是同一个东西"></a>误区 3：KV Cache 和 Prompt Cache 是同一个东西</h3><p>不是同一层概念。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">KV Cache：单次生成内部复用历史 K/V。</span><br><span class="line">Prompt Cache：跨请求复用相同 prompt 前缀的预计算状态。</span><br></pre></td></tr></table></figure>
+<p>但 Prompt Cache 的底层可能复用 KV cache blocks。</p>
+<h3 id="误区-4：应用层可以直接控制模型内部-KV-Cache"><a href="#误区-4：应用层可以直接控制模型内部-KV-Cache" class="headerlink" title="误区 4：应用层可以直接控制模型内部 KV Cache"></a>误区 4：应用层可以直接控制模型内部 KV Cache</h3><p>通常不行。</p>
+<p>使用厂商 API 时，开发者通常只能通过 prompt 组织、cache_control、context cache、retention policy 等产品接口间接影响缓存命中。</p>
+<h3 id="误区-5：缓存一定安全无风险"><a href="#误区-5：缓存一定安全无风险" class="headerlink" title="误区 5：缓存一定安全无风险"></a>误区 5：缓存一定安全无风险</h3><p>缓存也有风险：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">- 过期内容被复用</span><br><span class="line">- 多租户隔离不当</span><br><span class="line">- 语义缓存误命中</span><br><span class="line">- 动态内容放入稳定前缀导致缓存失效</span><br><span class="line">- 成本测算忽略 cache write</span><br></pre></td></tr></table></figure>
+<h3 id="误区-6：分类必须严格互斥"><a href="#误区-6：分类必须严格互斥" class="headerlink" title="误区 6：分类必须严格互斥"></a>误区 6：分类必须严格互斥</h3><p>不需要。工程上更有价值的是知道每类缓存在哪一层、解决什么问题、由谁控制、如何观测。</p>
+<hr>
+<h2 id="13-工程落地示例"><a href="#13-工程落地示例" class="headerlink" title="13. 工程落地示例"></a>13. 工程落地示例</h2><p>本节不再放复杂的“自制 KV Cache 模拟代码”。因为真实 KV Cache 涉及张量、显存布局、attention kernel、block table、调度器等，简单 TypeScript Map 难以提供工程价值。</p>
+<p>这里改为提供更贴近实际落地的示例。注意，本章示例只用于说明“缓存如何在工程系统中被启用和观测”，不会系统展开 Prompt 组织方法；稳定前缀、动态后缀、模板治理、Prompt Lint 等内容放到下篇讨论。</p>
+<h3 id="13-1-OpenAI：观测-cached-tokens"><a href="#13-1-OpenAI：观测-cached-tokens" class="headerlink" title="13.1 OpenAI：观测 cached_tokens"></a>13.1 OpenAI：观测 cached_tokens</h3><blockquote>
+<p>注意：具体 SDK 字段、模型名、缓存 retention 参数可能随版本变化，请以当前 SDK 和 API 文档为准。下面的模型名仅为示例占位符。OpenAI 当前文档同时提到 Responses API 和 Chat Completions 都可以返回缓存命中信息；新项目可优先参考 Responses API，存量项目如果仍在使用 Chat Completions，可以沿用 <code>messages</code> 结构。</p>
+</blockquote>
+<p>Responses API 示例：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> OpenAI <span class="keyword">from</span> <span class="string">"openai"</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> client = <span class="keyword">new</span> OpenAI(&#123;</span><br><span class="line">  apiKey: process.env.OPENAI_API_KEY,</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> stableSystemPrompt = <span class="string">`</span></span><br><span class="line"><span class="string">你是一个公司内部前端代码评审 Agent。</span></span><br><span class="line"><span class="string">你必须遵循公司代码规范、组件库规范、安全规则和输出格式。</span></span><br><span class="line"><span class="string">以下是固定规则：</span></span><br><span class="line"><span class="string">...</span></span><br><span class="line"><span class="string">`</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> userTask = <span class="string">`</span></span><br><span class="line"><span class="string">请评审以下 diff，并指出潜在问题：</span></span><br><span class="line"><span class="string">...</span></span><br><span class="line"><span class="string">`</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> response = <span class="keyword">await</span> client.responses.create(&#123;</span><br><span class="line">  <span class="comment">// 示例模型名，请以当前官方支持的模型为准</span></span><br><span class="line">  model: <span class="string">"gpt-5.5"</span>,</span><br><span class="line">  input: [</span><br><span class="line">    &#123;</span><br><span class="line">      role: <span class="string">"system"</span>,</span><br><span class="line">      content: stableSystemPrompt,</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      role: <span class="string">"user"</span>,</span><br><span class="line">      content: userTask,</span><br><span class="line">    &#125;,</span><br><span class="line">  ],</span><br><span class="line">  <span class="comment">// 对支持的模型，可根据需要设置 prompt_cache_retention</span></span><br><span class="line">  <span class="comment">// prompt_cache_retention: "24h",</span></span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(response.usage);</span><br></pre></td></tr></table></figure>
+<p>Chat Completions 风格示例：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> chat = <span class="keyword">await</span> client.chat.completions.create(&#123;</span><br><span class="line">  <span class="comment">// 示例模型名，请以当前官方支持的模型为准</span></span><br><span class="line">  model: <span class="string">"gpt-5.5"</span>,</span><br><span class="line">  messages: [</span><br><span class="line">    &#123;</span><br><span class="line">      role: <span class="string">"system"</span>,</span><br><span class="line">      content: stableSystemPrompt,</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      role: <span class="string">"user"</span>,</span><br><span class="line">      content: userTask,</span><br><span class="line">    &#125;,</span><br><span class="line">  ],</span><br><span class="line">  <span class="comment">// 对支持的模型，可根据需要设置 prompt_cache_retention</span></span><br><span class="line">  <span class="comment">// prompt_cache_retention: "24h",</span></span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(chat.usage);</span><br></pre></td></tr></table></figure>
+<p>工程上要重点记录：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">usage.input_tokens / usage.prompt_tokens</span><br><span class="line">usage.input_tokens_details.cached_tokens / usage.prompt_tokens_details.cached_tokens</span><br><span class="line">usage.output_tokens / usage.completion_tokens</span><br><span class="line">TTFT</span><br><span class="line">end_to_end_latency</span><br></pre></td></tr></table></figure>
+<h3 id="13-2-Anthropic：显式-cache-control"><a href="#13-2-Anthropic：显式-cache-control" class="headerlink" title="13.2 Anthropic：显式 cache_control"></a>13.2 Anthropic：显式 cache_control</h3><blockquote>
+<p>注意：以下示例展示结构思路。具体模型名、SDK 字段和 TTL 选项请以 Anthropic 当前文档为准。下面的模型名仅为示例占位符。</p>
+</blockquote>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> Anthropic <span class="keyword">from</span> <span class="string">"@anthropic-ai/sdk"</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> anthropic = <span class="keyword">new</span> Anthropic(&#123;</span><br><span class="line">  apiKey: process.env.ANTHROPIC_API_KEY,</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> stableLongContext = <span class="string">`</span></span><br><span class="line"><span class="string">你是一个代码生成 Agent。</span></span><br><span class="line"><span class="string">以下是固定工具定义、项目规范、组件库规范、DSL schema：</span></span><br><span class="line"><span class="string">...</span></span><br><span class="line"><span class="string">`</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> dynamicUserQuestion = <span class="string">`</span></span><br><span class="line"><span class="string">请基于上面的规范生成一个活动页。</span></span><br><span class="line"><span class="string">`</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> message = <span class="keyword">await</span> anthropic.messages.create(&#123;</span><br><span class="line">  <span class="comment">// 示例模型名，请以当前官方支持的模型为准</span></span><br><span class="line">  model: <span class="string">"claude-sonnet-4-6"</span>,</span><br><span class="line">  max_tokens: <span class="number">1024</span>,</span><br><span class="line">  messages: [</span><br><span class="line">    &#123;</span><br><span class="line">      role: <span class="string">"user"</span>,</span><br><span class="line">      content: [</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="keyword">type</span>: <span class="string">"text"</span>,</span><br><span class="line">          text: stableLongContext,</span><br><span class="line">          cache_control: &#123;</span><br><span class="line">            <span class="keyword">type</span>: <span class="string">"ephemeral"</span>,</span><br><span class="line">            <span class="comment">// ttl: "1h" // 是否支持及具体写法以当前文档为准</span></span><br><span class="line">          &#125;,</span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="keyword">type</span>: <span class="string">"text"</span>,</span><br><span class="line">          text: dynamicUserQuestion,</span><br><span class="line">        &#125;,</span><br><span class="line">      ],</span><br><span class="line">    &#125;,</span><br><span class="line">  ],</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(message.usage);</span><br></pre></td></tr></table></figure>
+<p>工程要点：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">- 把稳定长上下文放在 cache_control 之前</span><br><span class="line">- 动态用户问题放在后面</span><br><span class="line">- 记录 cache_creation_input_tokens 和 cache_read_input_tokens</span><br><span class="line">- 评估 5 分钟 TTL 和 1 小时 TTL 的复用次数是否足以覆盖写入成本</span><br></pre></td></tr></table></figure>
+<h3 id="13-3-vLLM：开启-Automatic-Prefix-Caching"><a href="#13-3-vLLM：开启-Automatic-Prefix-Caching" class="headerlink" title="13.3 vLLM：开启 Automatic Prefix Caching"></a>13.3 vLLM：开启 Automatic Prefix Caching</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vllm serve Qwen/Qwen2.5-7B-Instruct \</span><br><span class="line">  --<span class="built_in">enable</span>-prefix-caching</span><br></pre></td></tr></table></figure>
+<p>或者在 Python 中：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> vllm <span class="keyword">import</span> LLM, SamplingParams</span><br><span class="line"></span><br><span class="line">llm = LLM(</span><br><span class="line">    model=<span class="string">"Qwen/Qwen2.5-7B-Instruct"</span>,</span><br><span class="line">    enable_prefix_caching=<span class="literal">True</span>,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">sampling_params = SamplingParams(temperature=<span class="number">0.2</span>, max_tokens=<span class="number">512</span>)</span><br><span class="line"></span><br><span class="line">shared_prefix = <span class="string">"""</span></span><br><span class="line"><span class="string">你是一个前端代码生成 Agent。</span></span><br><span class="line"><span class="string">以下是固定组件库规范、DSL schema 和输出格式：</span></span><br><span class="line"><span class="string">...</span></span><br><span class="line"><span class="string">"""</span></span><br><span class="line"></span><br><span class="line">prompts = [</span><br><span class="line">    shared_prefix + <span class="string">"\n用户任务：生成活动页 A"</span>,</span><br><span class="line">    shared_prefix + <span class="string">"\n用户任务：生成活动页 B"</span>,</span><br><span class="line">    shared_prefix + <span class="string">"\n用户任务：生成活动页 C"</span>,</span><br><span class="line">]</span><br><span class="line"></span><br><span class="line">outputs = llm.generate(prompts, sampling_params)</span><br></pre></td></tr></table></figure>
+<p>适合测试：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">- 开启/关闭 prefix caching 的 TTFT 差异</span><br><span class="line">- 共享前缀长度变化对命中率的影响</span><br><span class="line">- 输出很长时收益是否下降</span><br><span class="line">- 多并发情况下 cache eviction 是否增加</span><br></pre></td></tr></table></figure>
+<h3 id="13-4-应用层-Semantic-Cache-示例结构"><a href="#13-4-应用层-Semantic-Cache-示例结构" class="headerlink" title="13.4 应用层 Semantic Cache 示例结构"></a>13.4 应用层 Semantic Cache 示例结构</h3><p>下面的代码只展示语义缓存的决策流程，不代表生产级实现。生产环境通常不应该对全量缓存记录逐条遍历计算相似度，而应先通过向量数据库或 ANN 索引召回 TopK 候选，再对候选做 TTL、权限、相似度阈值和业务约束校验。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> CachedAnswer = &#123;</span><br><span class="line">  question: <span class="built_in">string</span>;</span><br><span class="line">  embedding: <span class="built_in">number</span>[];</span><br><span class="line">  answer: <span class="built_in">string</span>;</span><br><span class="line">  updatedAt: <span class="built_in">number</span>;</span><br><span class="line">  ttlMs: <span class="built_in">number</span>;</span><br><span class="line">  tenantId: <span class="built_in">string</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">semanticCacheLookup</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  question: <span class="built_in">string</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">  tenantId: <span class="built_in">string</span>,</span></span></span><br><span class="line"><span class="function"><span class="params">  threshold = 0.92,</span></span></span><br><span class="line"><span class="function"><span class="params"></span>): <span class="title">Promise</span>&lt;<span class="title">CachedAnswer</span> | <span class="title">null</span>&gt; </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> queryEmbedding = <span class="keyword">await</span> embed(question);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 生产环境建议使用向量数据库 / ANN 索引召回 TopK，</span></span><br><span class="line">  <span class="comment">// 不要对全量缓存记录做线性遍历。</span></span><br><span class="line">  <span class="keyword">const</span> candidates = <span class="keyword">await</span> vectorStore.searchTopK&lt;CachedAnswer&gt;(&#123;</span><br><span class="line">    embedding: queryEmbedding,</span><br><span class="line">    topK: <span class="number">20</span>,</span><br><span class="line">    filter: &#123; tenantId &#125;,</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> now = <span class="built_in">Date</span>.now();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> validCandidates = candidates.filter(<span class="function"><span class="params">item</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> expired = now - item.updatedAt &gt; item.ttlMs;</span><br><span class="line">    <span class="keyword">const</span> sameTenant = item.tenantId === tenantId;</span><br><span class="line">    <span class="keyword">return</span> !expired &amp;&amp; sameTenant;</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">let</span> best: CachedAnswer | <span class="literal">null</span> = <span class="literal">null</span>;</span><br><span class="line">  <span class="keyword">let</span> bestScore = <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">const</span> item of validCandidates) &#123;</span><br><span class="line">    <span class="keyword">const</span> score = cosineSimilarity(queryEmbedding, item.embedding);</span><br><span class="line">    <span class="keyword">if</span> (score &gt; bestScore) &#123;</span><br><span class="line">      bestScore = score;</span><br><span class="line">      best = item;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (!best || bestScore &lt; threshold) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> best;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注意：这类缓存不能用于高风险、强时效、强权限隔离的问题，除非有非常严格的校验。即使语义相似度很高，也建议在关键场景增加二次校验，例如权限校验、文档版本校验、数据更新时间校验、答案引用来源校验等。</p>
+<hr>
+<h2 id="14-附录：厂商缓存价格与产品形态示例"><a href="#14-附录：厂商缓存价格与产品形态示例" class="headerlink" title="14. 附录：厂商缓存价格与产品形态示例"></a>14. 附录：厂商缓存价格与产品形态示例</h2><blockquote>
+<p>本节仅作为机制说明，不作为预算依据。<br>大模型厂商价格、模型名、TTL、缓存门槛、支持范围变化很快，请以调用时官方文档为准。</p>
+</blockquote>
+<h3 id="14-1-OpenAI-Prompt-Caching"><a href="#14-1-OpenAI-Prompt-Caching" class="headerlink" title="14.1 OpenAI Prompt Caching"></a>14.1 OpenAI Prompt Caching</h3><p>OpenAI 当前 Prompt Caching 文档的关键点包括：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">- 自动启用，无需额外代码</span><br><span class="line">- 对 1024 tokens 及以上的 prompt 可用</span><br><span class="line">- exact prefix match 对命中很关键</span><br><span class="line">- 静态内容放前面，动态内容放后面</span><br><span class="line">- usage 中会返回 cached_tokens</span><br><span class="line">- Prompt cache retention 可有 in-memory / extended 等策略，具体支持依模型而定</span><br><span class="line">- 当前文档说明 prompt cache pricing 对不同 retention policy 相同</span><br></pre></td></tr></table></figure>
+<p>工程含义：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">OpenAI 更偏“自动缓存 + 开发者优化 prompt 结构 + 观测 cached_tokens”。</span><br></pre></td></tr></table></figure>
+<h3 id="14-2-Anthropic-Claude-Prompt-Caching"><a href="#14-2-Anthropic-Claude-Prompt-Caching" class="headerlink" title="14.2 Anthropic / Claude Prompt Caching"></a>14.2 Anthropic / Claude Prompt Caching</h3><p>Anthropic 当前 Claude API Pricing 文档中，Prompt Caching 价格倍率示例包括：</p>
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>当前官方文档示例倍率</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>5-minute cache write</td>
+<td>1.25× base input price</td>
+</tr>
+<tr>
+<td>1-hour cache write</td>
+<td>2× base input price</td>
+</tr>
+<tr>
+<td>Cache read / hit</td>
+<td>0.1× base input price</td>
+</tr>
+</tbody>
+</table>
+<p>这说明在当前 Anthropic 官方文档口径下，“5 分钟写入 1.25 倍、1 小时写入 2 倍、cache read 0.1 倍”这一描述是成立的。但需要明确：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">- 这是 Anthropic 当前产品规则，不是所有厂商通用规则</span><br><span class="line">- 不同模型、不同平台、不同时间可能变化</span><br><span class="line">- Partner 平台如 Bedrock / Vertex AI 可能有独立定价</span><br><span class="line">- 成本测算必须以实际 usage 字段和官方价格页为准</span><br></pre></td></tr></table></figure>
+<p>工程含义：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Anthropic 更偏“显式 cache_control + TTL 选择 + cache write/read 分开计费”。</span><br></pre></td></tr></table></figure>
+<h3 id="14-3-Gemini-Vertex-AI-Context-Caching"><a href="#14-3-Gemini-Vertex-AI-Context-Caching" class="headerlink" title="14.3 Gemini / Vertex AI Context Caching"></a>14.3 Gemini / Vertex AI Context Caching</h3><p>Gemini / Vertex AI 的 Context Caching 更偏显式缓存大上下文：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">- 先创建 cached content</span><br><span class="line">- 后续请求引用 cache</span><br><span class="line">- 适合长文档、多轮问答、反复使用同一批上下文</span><br><span class="line">- 可能涉及缓存 token 价格和存储价格</span><br></pre></td></tr></table></figure>
+<p>工程含义：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Gemini / Vertex AI 更偏“把长上下文作为可管理资产”。</span><br></pre></td></tr></table></figure>
+<h3 id="14-4-不同产品形态的工程差异"><a href="#14-4-不同产品形态的工程差异" class="headerlink" title="14.4 不同产品形态的工程差异"></a>14.4 不同产品形态的工程差异</h3><table>
+<thead>
+<tr>
+<th>厂商形态</th>
+<th>典型特征</th>
+<th>工程关注点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>自动 Prompt Cache</td>
+<td>无需显式创建 cache</td>
+<td>prompt 前缀稳定、cached_tokens 观测</td>
+</tr>
+<tr>
+<td>显式 cache_control</td>
+<td>开发者标记缓存断点</td>
+<td>cache block 切分、TTL、write/read 成本</td>
+</tr>
+<tr>
+<td>显式 Context Cache</td>
+<td>创建并引用 cache 对象</td>
+<td>cache 生命周期、版本、权限、存储成本</td>
+</tr>
+<tr>
+<td>自建 Prefix Cache</td>
+<td>serving 框架管理 KV blocks</td>
+<td>block size、LRU、ref count、显存</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="15-参考资料"><a href="#15-参考资料" class="headerlink" title="15. 参考资料"></a>15. 参考资料</h2><h3 id="官方文档"><a href="#官方文档" class="headerlink" title="官方文档"></a>官方文档</h3><ul>
+<li><p>OpenAI Prompt Caching<br><a href="https://developers.openai.com/api/docs/guides/prompt-caching" target="_blank" rel="noopener">https://developers.openai.com/api/docs/guides/prompt-caching</a></p>
+</li>
+<li><p>OpenAI API Pricing<br><a href="https://openai.com/api/pricing/" target="_blank" rel="noopener">https://openai.com/api/pricing/</a></p>
+</li>
+<li><p>Anthropic Claude API Pricing<br><a href="https://docs.anthropic.com/en/docs/about-claude/pricing" target="_blank" rel="noopener">https://docs.anthropic.com/en/docs/about-claude/pricing</a></p>
+</li>
+<li><p>Anthropic Prompt Caching<br><a href="https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching" target="_blank" rel="noopener">https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching</a></p>
+</li>
+<li><p>Gemini API Context Caching<br><a href="https://ai.google.dev/gemini-api/docs/caching" target="_blank" rel="noopener">https://ai.google.dev/gemini-api/docs/caching</a></p>
+</li>
+<li><p>Vertex AI Context Cache Overview<br><a href="https://cloud.google.com/vertex-ai/generative-ai/docs/context-cache/context-cache-overview" target="_blank" rel="noopener">https://cloud.google.com/vertex-ai/generative-ai/docs/context-cache/context-cache-overview</a></p>
+</li>
+<li><p>vLLM Automatic Prefix Caching<br><a href="https://docs.vllm.ai/en/stable/features/automatic_prefix_caching/" target="_blank" rel="noopener">https://docs.vllm.ai/en/stable/features/automatic_prefix_caching/</a></p>
+</li>
+<li><p>vLLM Automatic Prefix Caching Design<br><a href="https://docs.vllm.ai/en/latest/design/prefix_caching/" target="_blank" rel="noopener">https://docs.vllm.ai/en/latest/design/prefix_caching/</a></p>
+</li>
+<li><p>vLLM Paged Attention<br><a href="https://docs.vllm.ai/en/latest/design/paged_attention/" target="_blank" rel="noopener">https://docs.vllm.ai/en/latest/design/paged_attention/</a></p>
+</li>
+<li><p>Hugging Face Transformers Cache Explanation<br><a href="https://huggingface.co/docs/transformers/cache_explanation" target="_blank" rel="noopener">https://huggingface.co/docs/transformers/cache_explanation</a></p>
+</li>
+<li><p>Hugging Face Transformers KV Cache Strategies<br><a href="https://huggingface.co/docs/transformers/en/kv_cache" target="_blank" rel="noopener">https://huggingface.co/docs/transformers/en/kv_cache</a></p>
+</li>
+</ul>
+<h3 id="延伸资料"><a href="#延伸资料" class="headerlink" title="延伸资料"></a>延伸资料</h3><ul>
+<li><p>Hugging Face: KV Cache Quantization<br><a href="https://huggingface.co/blog/kv-cache-quantization" target="_blank" rel="noopener">https://huggingface.co/blog/kv-cache-quantization</a></p>
+</li>
+<li><p>SGLang Documentation<br><a href="https://docs.sglang.ai/" target="_blank" rel="noopener">https://docs.sglang.ai/</a></p>
+</li>
+<li><p>SGLang RadixAttention<br><a href="https://docs.sglang.ai/basic_usage/radix_attention.html" target="_blank" rel="noopener">https://docs.sglang.ai/basic_usage/radix_attention.html</a></p>
+</li>
+<li><p>LMSYS Blog: Fast and Expressive LLM Inference with RadixAttention<br><a href="https://lmsys.org/blog/2024-01-17-sglang/" target="_blank" rel="noopener">https://lmsys.org/blog/2024-01-17-sglang/</a></p>
+</li>
+</ul>
+<hr>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>大模型缓存不是单一技术，而是一组跨层优化：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">模型推理层：KV Cache 解决单次生成内部重复计算</span><br><span class="line">推理服务层：PagedAttention / Prefix Cache 解决显存管理和多请求复用</span><br><span class="line">API 产品层：Prompt Cache / Context Cache 让缓存成为可计费、可观测、可配置能力</span><br><span class="line">应用层：Semantic Cache / Response Cache 直接减少模型调用</span><br></pre></td></tr></table></figure>
+<p>上篇的重点是理解这些缓存分别位于哪一层、解决什么问题、有什么边界。文中少量 Prompt 示例只服务于解释缓存机制，不展开治理方法。<br>下篇的重点则是：如何在 Prompt、Agent、RAG、低代码生成平台中组织稳定上下文，让缓存真正命中，并把命中率、成本节省和延迟收益纳入平台治理。</p>
+</div></article></div><div class="post-paginator"><div class="post-links"><div class="post-prev"><a href="/2026/05/16/ai/llm_cache_prompt_engineering_practices_part2_optimized_v3/" class="prev">Previous Post<span>大模型缓存技术工程指南（下）：面向缓存命中的 Prompt 与 Agent 工程实践</span></a></div><div class="post-next"><a href="/2026/04/18/ai/面向 AI : Agent 友好的 CLI 开发建议/" class="next">Next Post<span>面向 AI / Agent 友好的 CLI 开发建议</span></a></div></div></div></div><div class="sidebar"><div class="social-links"><ul><li class="social-link"><a href="http://github.com/MichealWayne" target="_blank" class="link-github"><i class="icon icon-github"></i></a></li><li class="social-link"><a href="mailto:michealwayne@163.com" target="_self" class="link-mail"><i class="icon icon-mail"></i></a></li></ul></div><div class="recent-posts widget"><h3 class="widget-title"> Recent Posts</h3><div class="widget-content"><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2026/05/16/ai/llm_cache_prompt_engineering_practices_part2_optimized_v3/">大模型缓存技术工程指南（下）：面向缓存命中的 Prompt 与 Agent 工程实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/05/16/ai/llm_cache_technology_engineering_guide_part1_optimized_v3/">大模型缓存技术工程指南（上）：从价格信号到推理缓存机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/04/18/ai/面向 AI : Agent 友好的 CLI 开发建议/">面向 AI / Agent 友好的 CLI 开发建议</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/03/10/notes/【笔记】Harness Engineering（驾驭工程）/">【笔记】Harness Engineering（驾驭工程）</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/02/23/notes/【笔记】location.href和location.assign进行页面URL跳转/">【笔记】location.href 和 location.assign 进行页面 URL 跳转</a></li></ul></div></div><div class="recent-comment widget"><h3 class="widget-title"> Author</h3><div class="widget-content"><div class="m-author"><div class="u-avatar"><img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAgAAZABkAAD/7AARRHVja3kAAQAEAAAAQgAA/+4ADkFkb2JlAGTAAAAAAf/bAIQABQMDAwQDBQQEBQcFBAUHCAYFBQYICggICAgICgwKCwsLCwoMDAwMDAwMDA8PEBAPDxYVFRUWGBgYGBgYGBgYGAEFBgYKCQoTDAwTFBEOERQYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgY/8AAEQgB7gH+AwERAAIRAQMRAf/EAIwAAQAABwEAAAAAAAAAAAAAAAABAgMEBQcIBgEBAAAAAAAAAAAAAAAAAAAAABAAAQMDAQQGBQcIBwYHAQAAAAECAxEEBQYhMUESUWGBMhMHcZGhIhSxQlJicoIIwdHxkqKyIxXwwtIzQ1Mk4XODo7MWYzREVJRVFxgRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/AOywAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABCv+wCIFldZzDWj+S6vreF30ZZmMX2qgFrcaz0rB38lbr/ALuRJP3OYC2//Q9H8yN/mDar/wCHJT90Cu3W+lHd3JQL6XU/IBcRam09J3Mjar/xmIvygXsVzbzJWGRkifUci/IBPVezgu0CIAAAAAAAAAAAAAAAAAAhzIiVVfSB5rUXmJg8Sjo43fGXaJ/dQqitRfrP3NAjoXNZfM2tzk71WNifJ4drAxKI1GJ7y1XatVXiB6UAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlVVTjwrXgBhstrfTWN5m3F4x0yVTwYf4j6pwVG1Rv3qAeWyXnHXmZjbGvRLcu3eljP7QHnch5javu1enxSW8bt8UDEby+h1Ff7QMLeZLIXtPjLmW5pu8aR0n7yqBb0Stabenj6wFEAUALt37fSAonQBFrnNdVqqi9SgZKz1VqO0p4GQnaifNdIr2+p1UAzmP82NTQJS5bDds4uczkX1so32Aelxfm1g7hKX0Utm5G8yuosrN/LvaiO/ZA9FjtT4DII34S+hkc7czmRr/wBV1HewDI8ydnSBEAAAAAAAAAAhVQLW/wAtj7CPxL25it2dMj0b6q7VA8pl/NvD2/MzHRPvJOEip4cXrX3v2QPEZvW2osvVtxOsNvxghqxiemi8zu1QMNDC+WVsUTeZ73I1jU38y8AN74HFsxmHtbBv+AxGuVOLt6r2qBfgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUp7qC3hdNcSNiibtdI9Ua1E61UDxud82MXbK6HGRuu5u74rvciRemned2IB4bNaw1HluZtzcvbA9P/LxVZHy9CtSiu++qgYOa4ghSssjWcf4ionyqBZTakwUXeuWu+x7/AMiKBav1nhWd1JXdbWIn71AKTtdY75sEq9if2gJf++rD/wBtN62gTN11jF70M6djfzgVotZ4V+9Xs+0xV/dVQLyHUOEm7l1H95VZ+8BeRyxyN5ono9nS1UVPlAm28aIvWoABRNvWAogBaLwT1IBkLHUeesURLS+niY3cxJHcn6qqrfYBnrPzW1TCrUmWC5Tir2crv+XyoBm7PzjtlWl3jpI/rRSNf+y5GKBlbXzS0lK2skstv/vYnL/0+YDJQ610pN3MlAn+8d4f76IBX/7n03/9nZ//ACI/7QEkmrdMM35O1+7Mx3yKoFpL5g6Qi71+x32Gvf8AutUDHXPmzpmLZG24md9WNGp63OQDD33nHcqipZWDG9D55Of9llP3gPP5HzC1be7Fu/h413Mt2+GifeT3/aBgZZZZZFkle6SR3ee9Vcq9qgSgOxAPW+V2C+Ozvxsjf9PYoj6ruWR2xier3gNtgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlc6m3d2AeT1P5l4vGc9vYct9epsdyu/gxr9ZyVqvUnaqAam1R5greTuflL5JXIq8lrH7zGou5qMTZ6wPKXmun7WWduiNT58q/1WgYe61Dmbhf4ly5qL8xi8nrpQDHukRy1c5V9LkAl8aP6SfrIA8WL6TfWgEzXMXcte1AHt9QEfSoEFSu8ABPHLJG7mjcrHdLVovsAyFrqjNQLRLlZG/RmTnT1rVQMxZa7Yvu3lvRfpxKv7qgZuxzWMvafDzNc5fmKvK/1KBe06fYn5wIAAFEpTgAogBNgAAA2dCeoAAAca8QFE6AAACLWPe5rWoqucqI1qbVVV4Abt0dgG4XBw2rkT4h/wDEuF+u7aqfd3AZoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALPKZfH4uzdd387YIGb3O4r0IiVqoGkvMLz0bO6WzsJFZaNVyKkTla6RvBXv+j9VANT5TW19eczVkVIuEMWxvoVd6oBh3ZOZe41E3V276dPSBRdd3KpTnVE6EonyAU3Pe7vOVfSoEoCidACidAACdssrdzl9YFSO/uG7nc3Yn5gK8eTf89n6v8AtArR5C2f86i9CgVkc1UqioqdW35AJurgAqAqvTT0AZXHarytp7qv8eH/AC5Kr7d4HpMfq3FXLUSV3w0v0ZO7+sgGYRUVKtVFT6VdnrQAAAAAAAAAAAAAAD2nlhplb3IfzS5b/pLVaQpwfNw/UTaoG1KIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHnNc6+w2ksQ69vnI+d6KlnZo5EfPIid1KI6jU+c5UogHLWufNPVOrL50l/L4Nui1itIu5Gi7qV49YHk1c5e8teO3bt6doCq9KgKgQAAAAAAAAAAAEzJHsWrFVvo2AXUOSemyROZOlN/qAu4bmGVPcXb9Fd4FWiV27ukABD8gF1YZe/sn1tpnNam9m9vqWqAegsddJsbewf8SFf6qgZ6yy2PvURbadr1+hWjvUu32AXSotfzIv5QAAAAAAAAAC9wuIustk4bC1Sr5VRXPTajGcXL1IBu/FYy0xlhDZWzeWKFvKnSq8VX0gV57mGCNZJpGxxt2ue9aNRPSoHlpfNnRzs3b4bH3S5TI3MrYmQ2KeI1tV2uWTZHRqIqr725APXAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPK+YvmNitH4nx51Sa/mRUs7NF96RU+cvQxvFePADmDUOpMzqDKzZTKTrNdSqqcUaxvzWMTZRqdAGByNuqL4zU2OVEcnWnECxAAAAAAAAAAAAAAAAAHGqbF6U2AXUGRkZ7r05m+0C/imjkbzMWqATgQ6esABFFVFqirzJxrt9YGRs9SZi1p4c6vYneZLRyL2qiqBmLXXXC6ttv0onf1V2gZGHV+Dk70qxqvzZGO+VqKBeR5vDv7t3F95yJ8qoBWbeWb+7MxfsvaoE/j2/wBNv6yfnAgtzap3pWJ95PzgUJMtio+9dxfrtX5ALWbVWBjWnxHOv0Y2Od7aAZ3TvnXpnTlhItli7i+yUq/x5ZnsgjRODWKiSup90Cwzf4jdcXrXR4+O1xsa7nRMWWX9aTmb+wB4XM6o1FmZOfK5C4vNtUbNI5zE9DK8qdiAbh/DlolY7abVdy33pua2x1U3RNX+JIiL9Jyctep3BUA3OAAAAAAAAAAAAAAAAAAAAAAAAAAAAB57XOuMZpPByZG9dzyrVlpbIqI6aXg1P6y8AOWNSajyuocxNlcnL4tzOuzfyxsTusYi7kQDHdfECDmo5qtdtauxUAxFzA+KVW/N3ov5AKYAAAAAAAAAAAAAAAAATfXiBMx72O5mrRQL+3yDXbJvdXp4AXSLVK8OkCIAB6AIUQCO0AAAVUCC0XeAAjVaU4dADZ/TqAAZ/QWjb3VWpbfFwo5sCr4t5O2i+FAneX0r83rA6yx+PtLCyhsrWNIra3Y2OGNu5rWpREAuAAAAAAAAAAAAAAAAAAAAAAAAAAAAWOazNhh8ZcZLISpDaWzFkleqV2JwTpcq7EA5V8wNcZDVuoJMjc8zLZlI7O2VapDFWqfed84Dz1V6fXtAAAKVzbpNErV7ybWqBiXNc1ytVKKgEAAAAAAAAAAAAAAAAAABGoFWC6miX3NrfortAvre9il2d13Q4C4XZ+dAAAAAAAAAAAAAmgikuLiOCFjnzSuRkUbUq57l2IjU6eIHUflN5eRaS08jJ2tdl7ukt9K3bReEbV+iwD2gAAAAAAAAAAAAAAAAAAAAAAAAAAAIVUDnbz58xnZnLLgMfLXF2D18d7Fqk1wnWm9sYGsAAAAAAtL625k8Vqe+neb0gY6q7OFN6AAAAAAAAAAAAAAAAAAABECAFeC9mj2d5nQoF9DeQSbK8ruhwFfZSvAAAAAAAAAATdt7FQDe3kT5WPsY2anzUPLdTNRcZbPTbEx3+I5q7nuTu9CdYG46IAAAAAAAAAAAAAAAAAAAAAAAAAAAAB4Hzp16mmdLuhtX0y2S5oLREWixt+fIvoTYnX6FA5kqoAAAAAACAY6/tUjXxG7l3oBaAAAAAAAAAAAAAAAAAAAAAARqBUhu5o0911W9CgXMeU/zG/qgXDby2dufy/aAqI5q7nIvoAmr29igFROkABCvb00VN3WoG3PJbyidk5YtR52FUx0bkksbV6Kizva6qSOT/LRdyceOwDflE6E2bQLbI5jFY2JZsheQWkSfPuJWRN7VeqIBYYLWmms7c3Fvh75l++1Rqzy26OfC3m3J4qN8NV6uatAM0AAAAAAAAAAAAAAAAAAAAAAAAAJJZWxRukkcjI2NVz3O2IiNSqqvUByb5layl1Tqy5yLa/BNcsNjHupAxV5Vou5z1VXAebAAAAAAAAg5qOarXJVF3oBirq1fC9OLF7rukCiAAAAAAAAAAAAAAAAAAAAAAAAAIork3KqehQJ23E7dz3esCdL26Tc/2J+YCb4+66fYgE1vlruG4ZM3ke5jkc1r2tc2rdqVRyKi9oHq5fPTzWlY1iZt8cbURrWxQW8SIibqckTaAYi/8xtfX9Uus9kJGrvZ8VK1n6rXI32AWmCwmc1NnbfF2KPuchdvRrFc5XUT5znuXcxqbVUDsHQOicZpDTkGIsWoqs/iXNxT3ppnd57vSB6AAAAAAAAAAAAAAAAAAAAAAAAAAa38/tXrh9ILjYHUvMsroNi0c2FtPEVPtbGdoHNy7d/pAAAAAAAAAAJZI2SMVjkq1eAGKngfC/lduXur0gUgAAAAAAAAAAAAAAAAAAAAAAAAAAARAgA4UAqW1tcXNxFbW8bpbiZ7Y44mJV7nu3NROIHVfkv5S2+jcSt3fMbJn7xrfiXpRWws4RM9HzncQNjAAAAAAAAAAAAAAAAAAAAAAAAAABy3506o/nuvLzw3K61x1bGDin8JffVPS9VA8UAAAAAAAAAAE2AUp4GzMc1+/wCaoGLlifE9WPSipuAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAnghmmlZDCxZZpFRkcbEVXucu5ETi4DpbyP8k2abhjz2djSTPStrDAu1LNrt6dci8V4cANt8rejq7AIgAAAAAAAAAAAAAAAAAAAAAAAADB651CmA0lkstVEfbQuWCtKLK73I02/XVAOQ3Pc5Vc5VVzlVzlXaqqu9faBAAAAAAAAAAAAQoBTubdkrFa7Yqd1QMXLE+N/K9KKntAkAAAAAAAAAAAAAAAAAAAAAAAAAAC4x2PvsjexWVjA+4u53IyGCJFV7l6k6OlQOmPJ3yOtdKIzL5pGXWoHonhtROaO0Rd7WL8+Tpf6gNq0T8gAAAAAAAAAAAAAAAAAAAAAAAAAAANR/iXzaW+nsdiGLR97cLPIif5cCblTrc9F7ANBAAAAAAAAAAAAAAVApz28czFa5F2JVF3Ki9aqoFhcY67gibPJE9LZ6q1k6tVGOcm9EVURFX5OsC2AAAAAAAAAAAAAAAAAAAAAAAAM/orQWpNW5FLPEwK5jaePeP2QQou5Xu/qptXqA6b8t/KrT+i7FEgb8VlnonxWQen8TbvSNP8NidCbVA9wzlexK8d4E4AAAAAAAAAAAAAAAAAAAAAAAAAAAObvxEZb4zX62lasx1rDCqV2c70WZy+p7U7ANbgAAAAAAAAAAABDbtru4AZzSuh9S6muVhxNo6RjVpLcv9yGP7TtydlV6gN0aO8gNOYvkuc05crftSvI5FZbsd1MrzO+8qge4zGmMDlsJJhr+0ikxr0RqQNbytaqblby0Vqp0toBzh5oeRuc0s+bI4xHZDAp76Sp700DU4Stam1Prt7aAa3Wv6E2V9YAAAAAAAAAAAAAAAAAAAAJ4YZp5mQQMfLPI7kjjY1XOcvQiJVagbg8u/wAOGTv/AA7/AFY51hZr77cfGv8AqHpw513Rt9vTQDfeGwmJw1hHYYu1jtLSLuRRNolV3qvFXL0rtAvP0gVoFTkp0AVQAAAAAAAAAAAAAAAAAAAAAAAAAAAcieYl+t/rvNXSrzNfezsY7pZG/wANn7LUAwIAAAAAAAAAAAmhimmlZDExZJZFRI2RornuVeCNTaoG4PLzyBlk8PI6r5o296PFsdR7k6JXNVafZbResDctjYWNjaR2llAy3tok5YoYmoxrU6ERNwFdarv4AP0gQciORUciKi7FRdyp1oBqjzI/Dxhc06TI6dVmMya+++2VP9NM70J/dr1p7vUBoLUuk9Racvvg8zZSWkqr7ivSrJE6WPSrXJ1pX0AYrbspu4gAAAAAAAAAAAAAAAKltbz3M7Le2jfNO/uxRNVz3ehqVr2VA2boz8OWsMu5k+ZVMLYrtVkqc905OhI0X3fvqi9QG8tFeWOj9JQp/KrVrrulJL6dfEuHL9r5idTaIB6cAAAq2+9QKwAAAAAAAAAAAAAAAAAAAAAAAAAAU55mwwySv7sbXPcvU1KqBxbcTOmnkmk78j1kX0uWqr6wJAAAAAAAAAADJ6Z0tnNRZNuPxUCzTLRXu+ZG3i57tzUTim9eAHRPl95VYHScDZeVt3l3IjZb2RK8ip82JPmp17wPYoiIBEAAAAERE3AWuUxGLytm+zyVtHd2smx0M7Ue307dy9aAao1Z+GPT1851xp68fjpnf+mnrNAvodXxE9bgNY6i8ifMnDOcv8v/AJjCm3xscqz9nh0bL/ywPFXdleWkywXcElvOnejmjcxyfdcgFKi0/LwAgAAAAAABx37Oz5dgFS3t7i4lSKCN0sq92ONqvVexNoHsdP8Akl5l5lUWLFPs4l/xr9Ut0T0tcqyL2NA2Tpn8LeOi5ZdRZN9y5NrrayakTK9CyPq5futQDamnNF6V03F4WGx0NovGVreaV32pHK57u1wGYTZ8nZ0AP0AAAACeFV50AuAAAAAAAAAAAAAAAAAAAAAAAAAAAxeq5vB0tlpq0WOyuX16OWJy/kA46r+YAAAAAAAAAAz+h9C5nVmV+DsW8kDKLc3Tk/hxN41X6XQgHS2kdHYXTGKZj8bEja0dcTOp4kz13uevyJuQDMgAAAAAAAAFVAfpAt7/ABmNyEKw39rDdQrvjnjbI31ORUA8plPJHyvyKq+TCRQvXdJaufBT7sbmt9gHmr78MGg5qutry/tXL3U8SORidixq72gYi4/ClZu22+oHsToks0f8kzQLKT8Kd+ncz8TvtWrk+SVQH/8AKWQ8RW/9wRclfcX4V3MqdPL4oF3b/hQhTbPqFzk6GWaM/emUDL2P4XNExKi3d/kLhyd5rXRRovZ4au9oHo8X5F+VtgqObiG3Eid59zLJLX7rnKz2AesxuGxGMiSLG2cFnGm5lvEyJPUxEAu6bKcE3J0egBwp07+sAAAAAAACaNV8RALkAAAAAAAAAAAAAAAAAAAAAAAAAAMHr9VTQmfVN6Y28/6DwOQgAAAAAAAAGc0RovLarzTMfZN5Ymqj7q5clWQx8VVfkTeB0/pjS+J05iIsbjYvDhjRFe93fkfxe9U3qoGTAAAAAAAAAAAAAAr/AEoAqtKcAACqgPz1AAKJSnDoAVXpAAAAAAAAAAAEY/7xvpoBdAAAAAAAAAAAAAAAAAAAAAAAAAABhtdR+JonOxpvdjbxE7YXgcfgAAAAAAAX2AwOUzmWgxeOi8W7uHI1rdtGpxe5eDE4gdR6I0bjdLYCLG2ac0mx93c0o6aVd7l/MmwDO0Tdw30AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABGP+8T1gXQAAAAAAAAAAAAAAAAAAAAAAAAAAWOdtVusJf2yJVZraaJE6edjm/lA40AAAAAAAa1VcjU2uVUajeNV4AdI+TnlymmsIl9ex0zWQaizo6lYY17sadm1wHvQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJ4kTxEAuAAAAAAAAAAAAAAAAAAAAAAAAAAAUQDjHM2HwOYvbHja3EkCp9h6tAtAAAAAA2h5DaB/m2WdqG/jR2PsHUt2OTZLcU39aRptXhzbOCgb+/ptAAAAAAAAAAAFC+v7GwtZLu9njt7WJFWSaVyMY1E4qq/wBOoDXuW/Ed5b2Ezoon3eQVuxz7SBOROusz4gKmD/ET5bZOdIZZ58dI7urexcrF+9G6RqfeVANhW1zbXMLJ7aVk0MnckjdzNcnU5NigTgAAAAAAAF3dldn5QPE6n87fL3ATOt57/wCLu2d+3sm+MqelyKkaL98DCWf4mvLqaZscsORtmr/iTQRqnqjlkd7ANgaf1Np/P2XxuGvor22RaOfE6qtXoe3Y5i/VciKBkQAAAAAAAJ4O+BcAAAAAAAAAAAAAAAAAAAAAAAAAAAA5T84cauP8yMzGie7NMl0zrS4a2Vf2nKB5IAAAAXmDw97mMva4yzajri7kbFHXr2qq9SN2qB1jpvA2WCwdpirJKW9rGjEdSjnOpV73dbl3gZEAAAAAAAAAApXd3bWdrLd3L0jt4GOllkXutY1KuVeqgHJXmj5m5XWeZe97liw8D1Wxsq+6iL896cXuA8fRKUps3UAUSlKbE3JwA2H5N+bGQ0llorG9kdLp66kayeNy1S2V60SSNF3cvFE2UA6naqOYjmqjkVEVFRaoqLuoAAAAAAABoj8QPm5fR3smksJO6BsNEytzEqo9XqlfCaqbU5U7ypt5vQoGjNgD5OgDK6X1XnNN5eLKYe4dDcRKnPVVVkrE3senFF6wOvNF6rx+qNNWeZsnIrLiNvjxpVFimRqeLGvMibWO2e3cBmQAAAAAAVbdu1VArAAAAAAAAAAAAAAAAAAAAAAAAAAAA0D+JnDeDqLG5Vqe5eWzrd6p9OB9dvpbInqA1IAAAANz/hz0c1UutUXLK77SwrSmxf4z07fd9YG512/IAAAAAAAAAAANe/iEys1j5Y3rIlVrryWG2VU+i96vcnoVrFTtA5XTYAAAP0Ade+T2WmyflnhLuVyukS2WByu3r8PI6Db6UaB60AAAAAJJ5WwwPmcvuMar17EqBxBkshc5DI3N/cOV091NLcSrWq8z1qvtAtwAEar+QDev4VMpMrM5jFcqwN+Guo0Xc1z0ex6p6URqAb0AAAAAABXgRUYirx3gVAAAAAAAAAAAAAAAAAAAAAAAAAAAAa6/EDgv5joCS7jbWbGSx3SU3+Gq+G9PU/m7AOawAACtYWVxfX1vZW7VdcXMscETV4vkVET2qB1vpzA2mDwNnibanh2kSRq6lEe5Eq9/3nbQMiAAAAAAAAAAAPEeeeAmzHlrko7dquuLXkvY2JtVyQO95E+4qgcmV3LsVFpt3oqJvpQAAAbvyovCq0TcB2P5ZYCfCaCw+NmTkuIrZHzMXe2SVVmenY56gejAAAAACV7GPY5jkq1yKjk6UXeBxRqTC3GEz99iLhFSWxnkh2pRXcq+670K3aBjgAADoD8LGCmixWWzcjVSO7kjtbdabFSCrnqnUqvT1AbqAAAAACCIqrQC8RERKJuQAAAAAAAAAAAAAAAAAAAAAAAAAAAAC2yePt8hj7iwuErb3MT4JWpv5ZGq1fYoHHWbxVxiczd4y5ok9nM+CSnFWOVK/epUC0AAbG/D/p1cjrN2RkbzQ4qLxkVd3jSe5Gi9feXsA6IqAAAAAAAAAAAAEHNa5qtciOa7Y5qpVFRdlAObPN7yPy+FyFzl8BbuucHK5ZZIYEV0lovFOXaro/rJu+dQDVKKlN6dez8taARa1zlRGorlXuom2vooBufyV8kclPkLfUepIFt7G3c2azsZ0o+Z6bWukThGi8FA6C/p+UAAAAAAADVXnh5OTalamdwjU/ncLOWa3rRLqJm1KKuxJG+3iBzhfWN7Y3ctpeQyW91C7llhlY6N7F+sjkRUAo13daUTdSoHsPLnyr1FrHIN8GKS2w7FRbnJSMXw0bxbHWiPf9VO1UA6swODxuDw9tisdGsVnaxpHGxVqqoiqqqq9K1AvgAAAAAnhbV9ejeBcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEREQDnz8R2lVstQ2+fhbS3yLPBuHImxJ4kpt+0xE9SgapAAdE+QGD+A0N8a9tJsnO+aq7/AAo/4UaL2oru0DYoAAAAAAAAAAAAACbN2zgB5/L+W+g8tOs9/hbSad3fmSJGPd9pzOVV7QKuF0FovDSpNjMRaW06bp2xNWVPQ91Xe0DN+vb+gAAAAAAAAA4U4b+0DG5rS2m82xG5fHW19y9xZ4mvcz7LlSrewDE2flN5bWkyTQ4Cz50WqeJH4iep/MgHpo4oo42xxsaxjERrGtRERqJuoibgJgAAAAAAV4m0b6QKgAAAAAAAAAAAAAAAAAAAAAAAAAAAAADzfmPpJmp9I3uLonxCs8W0cvzZ2IvJ2OqrV9IHJk0UkUj4pEVksblY9jkorXIu1q9aAQYx73ta1Kq5eVqJvVVWiAdf6exTcVgbDGtRE+Ft4oVp0sZRV7VAvgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE0beZ1OjeBc0SlAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABRAOdfxB6HXE6hbnrVlLDKO/jURaMuUSrk++nvJ2geO8vMa3I66w1oqVa+7ifInDkiXnd+yigdYJsAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK8LeVFd0gVAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABiNW6ZsdR6fusRebI7llGS0q6N6bWvTrav5gNFeT+l7/ABnm27H5CNGXeLiuZHom5eZvhI5PquR+wDoEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABNGzmdTgm8C5ogAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKAYibTuOdqJufa3kyCWr7F7kVEbJE+SN6c2zvNVnu+kC8TrAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAi1FctEAuGN5W048QJgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKIBQmiptTd0AUwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAVWtKVUCvDFypVe8BUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKIBbyRq1ap3V49AEgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAXqArQx095d4FUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFRFAoSRKi7NwFMAAAAAAAAAAAAAAAAAAAAAAAAAAAACPGlKqBUigolXeoCsAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABRkgXezZ1AU+G6igQAAAAAAAAAAAAAAAAAAAAAAAAABqK5aJvAuGR8qV3u6QJ6AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEj4kctdwFB7XN2L6wIAAAAAAAAAAAAAAAAAAAAAAF6gJ2RK7bub0gV2sa1KNSgEaAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABQAqIqbQKLoeKeoCmrXJ3koBAAAAAAAAAAAAAAAAAAATNjc7cgFVsDU37QKgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABQAqIu8Ck6Bq7loBTdFInCoEqrTeAAAAAAAAAAAAEUSu4CZsDl40AqNgam/aBUAUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoBBWtXegEiwsXdsAl+H+sBDwHgS+FL0APDk+iA8OT6IEfBk6AI+A8CPw/1gJ/BjTegE6IibgACgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/2Q=="></div><div class="u-author_tit"><p>My name is Micheal Wayne and this is my blog.<br>I am a front-end software engineer.<br>Contact: <a href="mailto:michealwayne@163.com"> <span>michealwayne@163.com</span></a></p></div></div></div></div><div class="tag-lists widget"><h3 class="widget-title"> Tags</h3><div class="widget-content"><ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/APM/">APM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BOM/">BOM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Bun/">Bun</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DOM/">DOM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GEO/">GEO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTML/">HTML</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IDE/">IDE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OKR/">OKR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SEO/">SEO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UML/">UML</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UX/">UX</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WebApi/">WebApi</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WebSocket/">WebSocket</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zepto/">Zepto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ai/">ai</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/canvas/">canvas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/">css</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/es/">es</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/es6/">es6</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eslint/">eslint</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gpt/">gpt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/html5/">html5</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/">http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jQuery/">jQuery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/">js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lerna/">lerna</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lottie/">lottie</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/">nodejs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prettier/">prettier</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prompt/">prompt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pwa/">pwa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/">react</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sketch/">sketch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skywalking/">skywalking</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/taro/">taro</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tslint/">tslint</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/typescript/">typescript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue/">vue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webApi/">webApi</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpack/">webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/代码规范/">代码规范</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/前端/">前端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/动效/">动效</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图形/">图形</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/安全/">安全</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/小程序/">小程序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/工具/">工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/工程/">工程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/微前端/">微前端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/思维逻辑/">思维逻辑</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/性能/">性能</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/插件/">插件</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/日常工作/">日常工作</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/架构/">架构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/概念/">概念</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/正则/">正则</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/浏览器/">浏览器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/用户体验/">用户体验</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/笔记/">笔记</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/算法/">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/编码/">编码</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/网络协议/">网络协议</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/规范/">规范</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/设计模式/">设计模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/调试/">调试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/质量/">质量</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/跨端/">跨端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/软件/">软件</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/软件工程/">软件工程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/项目管理/">项目管理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/高并发/">高并发</a></li></ul></div></div><div class="archive-lists widget"><h3 class="widget-title"> Archive</h3><div class="widget-content"><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/05/">May 2026</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/04/">April 2026</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/03/">March 2026</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/02/">February 2026</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/01/">January 2026</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/12/">December 2025</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/11/">November 2025</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/10/">October 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/09/">September 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/08/">August 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/06/">June 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/05/">May 2025</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/04/">April 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/03/">March 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">February 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/01/">January 2025</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/12/">December 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/11/">November 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/09/">September 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/08/">August 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/07/">July 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/06/">June 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/05/">May 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/04/">April 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/03/">March 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">February 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/01/">January 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/12/">December 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/11/">November 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/10/">October 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">September 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">August 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/07/">July 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">June 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">May 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">April 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">March 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">February 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">December 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">November 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">October 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">September 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">August 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">July 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">June 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/05/">May 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">April 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">February 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">December 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">November 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">August 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">July 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">June 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">May 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">March 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">September 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">February 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">April 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">March 2019</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">December 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">September 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">April 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">November 2017</a><span class="archive-list-count">5</span></li></ul></div></div></div></div></div><footer><div class="copyright"><div class="container"><div class="col-6"><div class="site-info">© 2016 - 2026 <a href="http://blog.michealwayne.cn">Micheal Wayne</a></div></div><div class="col-6"><div class="site-contact"><div class="social-links"><ul><li class="social-link"><a href="http://github.com/MichealWayne" target="_blank" class="link-github"><i class="icon icon-github"></i></a></li><li class="social-link"><a href="mailto:michealwayne@163.com" target="_self" class="link-mail"><i class="icon icon-mail"></i></a></li></ul></div></div></div></div></div></footer><a class="scroll-up"><span class="icon icon-up"></span></a><script src="https://code.jquery.com/jquery-3.1.0.min.js"></script><script src="/js/posfixed.js"></script><script src="/js/utils.js"></script><script src="/js/search.js"></script></body></html>
