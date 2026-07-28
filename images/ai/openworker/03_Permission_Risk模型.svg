@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="600">
+<rect width="100%" height="100%" fill="white"/>
+<text x="500" y="50" text-anchor="middle" font-size="30">Agent Permission Runtime</text>
+<g font-size="22" text-anchor="middle">
+<rect x="100" y="180" width="160" height="90" rx="15" fill="#eee"/>
+<text x="180" y="235">Read</text>
+<rect x="310" y="180" width="160" height="90" rx="15" fill="#ddd"/>
+<text x="390" y="235">Write</text>
+<rect x="520" y="180" width="160" height="90" rx="15" fill="#ccc"/>
+<text x="600" y="235">Execute</text>
+<rect x="730" y="180" width="160" height="90" rx="15" fill="#bbb"/>
+<text x="810" y="235">External</text>
+</g>
+<text x="500" y="400" text-anchor="middle" font-size="24">风险越高，人工审批越强</text>
+</svg>

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800">
+<rect width="100%" height="100%" fill="white"/>
+<text x="600" y="50" text-anchor="middle" font-size="32">AI Worker Agent Runtime Architecture</text>
+<g font-size="22" text-anchor="middle">
+<rect x="450" y="100" width="300" height="80" rx="15" fill="#ddd"/>
+<text x="600" y="150">User Goal</text>
+<rect x="350" y="240" width="500" height="100" rx="15" fill="#eee"/>
+<text x="600" y="300">Agent Runtime</text>
+<rect x="100" y="430" width="220" height="90" rx="15" fill="#eee"/>
+<text x="210" y="485">Planner</text>
+<rect x="490" y="430" width="220" height="90" rx="15" fill="#eee"/>
+<text x="600" y="485">Memory</text>
+<rect x="880" y="430" width="220" height="90" rx="15" fill="#eee"/>
+<text x="990" y="485">Permission</text>
+<rect x="350" y="620" width="500" height="90" rx="15" fill="#ddd"/>
+<text x="600" y="675">Tools + MCP + Artifacts</text>
+</g>
+</svg>
