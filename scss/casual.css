@@ -885,11 +885,19 @@ table {
   padding: 18px 0 22px;
   border-bottom: 1px solid #edf1f4;
   overflow: visible;
+  cursor: pointer;
   transition: border-color 0.2s, transform 0.2s; }
 
-.post-list .post-list-article:hover {
+.post-list .post-list-article:hover,
+.post-list .post-list-article:focus-within {
   border-color: #d8e4e8;
   transform: translateY(-1px); }
+  .post-list .post-list-article:hover .post-title a,
+  .post-list .post-list-article:focus-within .post-title a {
+    color: #39929c; }
+  .post-list .post-list-article:hover .post-excerpt p,
+  .post-list .post-list-article:focus-within .post-excerpt p {
+    color: #536577; }
 
 .post-list .post-title {
   margin-top: 6px; }
@@ -900,7 +908,8 @@ table {
     -webkit-line-clamp: 2; }
 
 .post-list .post-excerpt {
-  margin-top: 0; }
+  margin-top: 0;
+  cursor: pointer; }
   .post-list .post-excerpt p {
     -webkit-line-clamp: 2; }
 
@@ -995,7 +1004,8 @@ table {
     line-height: 1.65;
     overflow: hidden;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 3; }
+    -webkit-line-clamp: 3;
+    transition: color 0.2s; }
 
 .post-block > .post-title {
   margin: 0 0 10px;

@@ -31,6 +31,13 @@
       }
     });
 
+    $('.post-list-article[data-post-url]').on('click', function(e) {
+      if ($(e.target).closest('a').length) {
+        return;
+      }
+      window.location.href = $(this).data('post-url');
+    });
+
   });
 })(jQuery, window, document);
 
