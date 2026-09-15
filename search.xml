@@ -4,6 +4,30 @@
   
     
     <entry>
+      <title>【调研】长周期 Agent 控制平面——LoopX</title>
+      <url>/2026/09/12/ai/%E3%80%90%E8%B0%83%E7%A0%94%E3%80%91%E9%95%BF%E5%91%A8%E6%9C%9F%20Agent%20%E6%8E%A7%E5%88%B6%E5%B9%B3%E9%9D%A2%E2%80%94%E2%80%94LoopX/</url>
+      <content><![CDATA[【介绍】LoopX 不替代 Codex、Claude Code 等 Agent，而是替长期任务记住目标、待办、证据、人工关卡和下一步。它想解决的，是 Agent 跨会话、跨天运行后仍能说清楚“现在该不该继续”。]]></content>
+      
+      
+      <tags><tag>笔记</tag><tag>ai</tag><tag>Agent</tag><tag>开源</tag></tags>
+      
+    </entry>
+    
+  
+    
+    <entry>
+      <title>【调研】WebMCP：让网页把能力交给 Agent</title>
+      <url>/2026/08/31/ai/%E3%80%90%E8%B0%83%E7%A0%94%E3%80%91WebMCP%EF%BC%9A%E8%AE%A9%E7%BD%91%E9%A1%B5%E6%8A%8A%E8%83%BD%E5%8A%9B%E4%BA%A4%E7%BB%99%20Agent/</url>
+      <content><![CDATA[【介绍】WebMCP 不要求 Agent 反复猜按钮用途。页面可以直接声明“我能做什么、怎么调用”。它还只是 W3C 社区组草案，但前端和 Agent 团队已经很值得跟进。]]></content>
+      
+      
+      <tags><tag>笔记</tag><tag>ai</tag><tag>Agent</tag><tag>Web</tag></tags>
+      
+    </entry>
+    
+  
+    
+    <entry>
       <title>OpenWorker：当 AI 不再只是回答问题，而是交付成品</title>
       <url>/2026/07/26/notes/OpenWorker%E6%8A%80%E6%9C%AF%E4%BB%8B%E7%BB%8D/</url>
       <content><![CDATA[【介绍】OpenWorker 是吴恩达团队开源的 AI Coworker，接收目标而非提示词，自主规划并调用工具，交付 Markdown 等成品。本文介绍其四层架构、主循环执行机制、按副作用分级的权限模型、模型中立设计与连接器体系。]]></content>

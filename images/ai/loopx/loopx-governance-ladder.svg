@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="820" viewBox="0 0 1600 820" role="img" aria-labelledby="title desc">
+  <title id="title">按任务状态拓扑选择 Agent 治理等级</title>
+  <desc id="desc">从普通 Agent 到 Goal Mode，再到 LoopX 管理循环，治理能力随多 Lane、外部等待、跨会话交接和多份证据而升级。</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FAFCFE"/><stop offset="1" stop-color="#F1F6F7"/></linearGradient>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#46677B"/></marker>
+    <filter id="shadow" x="-15%" y="-15%" width="130%" height="130%"><feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#17344D" flood-opacity=".12"/></filter>
+  </defs>
+  <rect width="1600" height="820" fill="url(#bg)"/>
+  <text x="90" y="90" font-family="PingFang SC, Noto Sans CJK SC, Arial, sans-serif" font-size="42" font-weight="700" fill="#173650">不要按时长选工具，要按状态拓扑升级治理</text>
+  <text x="92" y="132" font-family="PingFang SC, Noto Sans CJK SC, Arial, sans-serif" font-size="22" fill="#61768A">任务持续三小时不必然需要控制平面；关键在于状态是否已经跨越单一会话可管理的边界。</text>
+  <g font-family="PingFang SC, Noto Sans CJK SC, Arial, sans-serif" filter="url(#shadow)">
+    <rect x="100" y="245" width="385" height="370" rx="22" fill="#EDF4FF" stroke="#A9C4EC" stroke-width="2"/>
+    <rect x="607" y="201" width="385" height="414" rx="22" fill="#EAF8F4" stroke="#8ACDB8" stroke-width="2"/>
+    <rect x="1114" y="157" width="385" height="458" rx="22" fill="#FFF5E6" stroke="#EBC47B" stroke-width="2"/>
+  </g>
+  <g font-family="PingFang SC, Noto Sans CJK SC, Arial, sans-serif">
+    <text x="292" y="300" text-anchor="middle" font-size="29" font-weight="700" fill="#285783">Level 0 · 普通 Agent</text>
+    <text x="292" y="340" text-anchor="middle" font-size="22" fill="#51708B">适合：单会话、单一工作区</text>
+    <line x1="145" y1="373" x2="440" y2="373" stroke="#BDD0EE" stroke-width="2"/>
+    <text x="151" y="416" font-size="22" fill="#365A7B">• 改 Bug、写页面</text>
+    <text x="151" y="460" font-size="22" fill="#365A7B">• 状态主要在当前上下文</text>
+    <text x="151" y="504" font-size="22" fill="#365A7B">• Verifier 明确且单一</text>
+    <text x="151" y="572" font-size="20" font-weight="600" fill="#6A7E90">治理成本应低于协调成本</text>
+
+    <text x="800" y="256" text-anchor="middle" font-size="29" font-weight="700" fill="#1B6C59">Level 1 · /goal</text>
+    <text x="800" y="296" text-anchor="middle" font-size="22" fill="#4E7B70">适合：单一目标的多轮执行</text>
+    <line x1="652" y1="329" x2="947" y2="329" stroke="#B4DDCF" stroke-width="2"/>
+    <text x="658" y="372" font-size="22" fill="#2E6B5B">• Migration、补测试、lint</text>
+    <text x="658" y="416" font-size="22" fill="#2E6B5B">• 多轮，但仍只有一条主线</text>
+    <text x="658" y="460" font-size="22" fill="#2E6B5B">• 目标和完成标准稳定</text>
+    <text x="658" y="528" font-size="20" font-weight="600" fill="#567E73">需要续航，不一定需要控制平面</text>
+
+    <text x="1307" y="212" text-anchor="middle" font-size="29" font-weight="700" fill="#985C16">Level 2 · LoopX</text>
+    <text x="1307" y="252" text-anchor="middle" font-size="22" fill="#89683F">适合：可恢复的长期工作系统</text>
+    <line x1="1159" y1="285" x2="1454" y2="285" stroke="#F0D6A7" stroke-width="2"/>
+    <text x="1165" y="328" font-size="22" fill="#80561E">• 多 Lane、Owner、Lease</text>
+    <text x="1165" y="372" font-size="22" fill="#80561E">• 外部等待与 Scoped Gate</text>
+    <text x="1165" y="416" font-size="22" fill="#80561E">• 跨 Session / Host 交接</text>
+    <text x="1165" y="460" font-size="22" fill="#80561E">• 周期重入、多份 Evidence</text>
+    <text x="1165" y="528" font-size="20" font-weight="600" fill="#89683F">状态拓扑已成为治理问题</text>
+  </g>
+  <g stroke="#46677B" stroke-width="4" marker-end="url(#arrow)"><path d="M497 429H595"/><path d="M1004 429H1102"/></g>
+  <text x="546" y="406" text-anchor="middle" font-family="PingFang SC, Noto Sans CJK SC, Arial, sans-serif" font-size="18" fill="#61768A">多轮</text>
+  <text x="1053" y="406" text-anchor="middle" font-family="PingFang SC, Noto Sans CJK SC, Arial, sans-serif" font-size="18" fill="#61768A">状态分叉</text>
+  <rect x="100" y="692" width="1399" height="2" fill="#CED9DD"/>
+  <text x="100" y="742" font-family="PingFang SC, Noto Sans CJK SC, Arial, sans-serif" font-size="22" font-weight="600" fill="#304D64">升级信号：独立执行 Lane、局部阻塞、不同决策权、外部等待、跨机器交接、周期重入、多个完成证据。</text>
+  <text x="100" y="780" font-family="PingFang SC, Noto Sans CJK SC, Arial, sans-serif" font-size="19" fill="#637789">这些信号大多不存在时，优先保持普通 Agent 的短路径；存在得越多，LoopX 的治理价值越高。</text>
+</svg>

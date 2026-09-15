@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="860" viewBox="0 0 1600 860" role="img" aria-labelledby="title desc">
+  <title id="title">LoopX 长周期 Agent 控制平面架构</title>
+  <desc id="desc">上层工作台发出协作和唤醒信号，LoopX Kernel 决定执行权限和状态迁移，下层 Harness 执行受限回合并与外部系统交互。</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#F7FAFC"/><stop offset="1" stop-color="#EEF4F8"/></linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#17324D" flood-opacity=".12"/></filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#4B667D"/></marker>
+  </defs>
+  <rect width="1600" height="860" fill="url(#bg)"/>
+  <text x="90" y="92" font-family="PingFang SC, Noto Sans CJK SC, Arial, sans-serif" font-size="42" font-weight="700" fill="#15334B">LoopX：长期 Agent 的控制平面</text>
+  <text x="92" y="136" font-family="PingFang SC, Noto Sans CJK SC, Arial, sans-serif" font-size="22" fill="#5B7083">将“何时、由谁、凭什么继续执行”从单次 Agent 回合中抽离出来</text>
+
+  <g filter="url(#shadow)">
+    <rect x="90" y="188" width="1420" height="146" rx="22" fill="#E8F1FF" stroke="#94B8EF" stroke-width="2"/>
+    <rect x="90" y="375" width="1420" height="230" rx="22" fill="#EAF8F4" stroke="#80C9B2" stroke-width="2"/>
+    <rect x="90" y="646" width="1420" height="132" rx="22" fill="#FFF5E6" stroke="#EFC47D" stroke-width="2"/>
+  </g>
+
+  <text x="130" y="236" font-family="PingFang SC, Noto Sans CJK SC, Arial, sans-serif" font-size="23" font-weight="700" fill="#275685">上层：协作与唤醒</text>
+  <text x="130" y="423" font-family="PingFang SC, Noto Sans CJK SC, Arial, sans-serif" font-size="23" font-weight="700" fill="#1D6A59">中层：LoopX Kernel（状态与策略 Authority）</text>
+  <text x="130" y="694" font-family="PingFang SC, Noto Sans CJK SC, Arial, sans-serif" font-size="23" font-weight="700" fill="#A16113">下层：执行与外部世界</text>
+
+  <g font-family="PingFang SC, Noto Sans CJK SC, Arial, sans-serif">
+    <g>
+      <rect x="430" y="221" width="246" height="72" rx="14" fill="#FFFFFF" stroke="#A5C2EE" stroke-width="2"/>
+      <text x="553" y="258" text-anchor="middle" font-size="25" font-weight="600" fill="#244B75">Workspace / Issue</text>
+      <text x="553" y="282" text-anchor="middle" font-size="18" fill="#54708A">团队事实、通知</text>
+      <rect x="915" y="221" width="246" height="72" rx="14" fill="#FFFFFF" stroke="#A5C2EE" stroke-width="2"/>
+      <text x="1038" y="258" text-anchor="middle" font-size="25" font-weight="600" fill="#244B75">Scheduler / Host</text>
+      <text x="1038" y="282" text-anchor="middle" font-size="18" fill="#54708A">唤醒一次检查</text>
+    </g>
+    <path d="M553 294 L553 371" stroke="#4B667D" stroke-width="3" marker-end="url(#arrow)"/>
+    <path d="M1038 294 L1038 371" stroke="#4B667D" stroke-width="3" marker-end="url(#arrow)"/>
+    <text x="575" y="347" font-size="18" fill="#5B7083">issue / wake</text>
+    <text x="1060" y="347" font-size="18" fill="#5B7083">timer / resume</text>
+
+    <g>
+      <rect x="300" y="462" width="234" height="94" rx="15" fill="#FFFFFF" stroke="#8FD0BA" stroke-width="2"/>
+      <text x="417" y="501" text-anchor="middle" font-size="27" font-weight="700" fill="#195E4E">Durable State</text>
+      <text x="417" y="530" text-anchor="middle" font-size="18" fill="#4D786E">Goal · Todo · Evidence</text>
+      <rect x="683" y="462" width="234" height="94" rx="15" fill="#FFFFFF" stroke="#8FD0BA" stroke-width="2"/>
+      <text x="800" y="501" text-anchor="middle" font-size="27" font-weight="700" fill="#195E4E">Policy</text>
+      <text x="800" y="530" text-anchor="middle" font-size="18" fill="#4D786E">Gate · Quota · Capability</text>
+      <rect x="1066" y="462" width="234" height="94" rx="15" fill="#FFFFFF" stroke="#8FD0BA" stroke-width="2"/>
+      <text x="1183" y="501" text-anchor="middle" font-size="27" font-weight="700" fill="#195E4E">Authority</text>
+      <text x="1183" y="530" text-anchor="middle" font-size="18" fill="#4D786E">Claim · Lease · Recovery</text>
+    </g>
+    <path d="M534 509 L677 509" stroke="#5C9C8A" stroke-width="3" marker-end="url(#arrow)"/>
+    <path d="M917 509 L1060 509" stroke="#5C9C8A" stroke-width="3" marker-end="url(#arrow)"/>
+    <text x="800" y="582" text-anchor="middle" font-size="20" fill="#276E5D">只有满足策略且具备执行权，才允许写入下一次受限回合</text>
+
+    <g>
+      <rect x="355" y="683" width="250" height="60" rx="14" fill="#FFFFFF" stroke="#E6B764" stroke-width="2"/>
+      <text x="480" y="722" text-anchor="middle" font-size="25" font-weight="600" fill="#8A5515">Runner / Harness</text>
+      <rect x="950" y="683" width="250" height="60" rx="14" fill="#FFFFFF" stroke="#E6B764" stroke-width="2"/>
+      <text x="1075" y="722" text-anchor="middle" font-size="25" font-weight="600" fill="#8A5515">Git · CI · APIs · Tools</text>
+    </g>
+    <path d="M800 605 L800 676 L610 676" stroke="#4B667D" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+    <path d="M606 713 L944 713" stroke="#4B667D" stroke-width="3" marker-end="url(#arrow)"/>
+    <path d="M1075 678 L1075 627 L850 627" stroke="#4B667D" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+    <text x="760" y="663" font-size="18" fill="#5B7083">bounded turn</text>
+    <text x="840" y="703" font-size="18" fill="#5B7083">执行 / readback</text>
+    <text x="934" y="621" font-size="18" fill="#5B7083">观察与证据</text>
+  </g>
+  <rect x="90" y="806" width="1420" height="2" fill="#C9D5DE"/>
+  <text x="90" y="839" font-family="PingFang SC, Noto Sans CJK SC, Arial, sans-serif" font-size="18" fill="#607689">图示：控制面不替代模型执行或外部权限；它负责将可执行性、写回和长期状态收敛为唯一控制事实。</text>
+</svg>
