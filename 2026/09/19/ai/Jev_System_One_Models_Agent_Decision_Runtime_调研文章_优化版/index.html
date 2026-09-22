@@ -1,0 +1,1224 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> 【调研】从 Generate 到 Decide：Jev、System One Models 与 Agent 决策层 | Wayne的博客</title><meta name="description" content="【调研】从 Generate 到 Decide：Jev、System One Models 与 Agent 决策层 - Wayne"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><script>(function () {
+  var theme = null;
+  try { theme = localStorage.getItem('blog-theme'); } catch (error) {}
+  if (theme !== 'light' && theme !== 'dark') {
+    theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  document.documentElement.setAttribute('data-theme', theme);
+})();</script><link rel="short icon" href="/favicon.png"><link rel="stylesheet" href="/scss/casual.css"><link rel="stylesheet" href="/css/icon.css"><link rel="search" type="application/opensearchdescription+xml" href="https://blog.michealwayne.cn/atom.xml" title="Wayne的博客"><meta name="generator" content="Hexo 8.1.2"><link rel="alternate" href="/atom.xml" title="Wayne的博客" type="application/atom+xml">
+</head><body><a class="skip-link" href="#main-content">跳到主要内容</a><div class="header"><header class="site-header"><div class="site-nav"><button class="button-toggle" type="button" aria-label="打开导航菜单" aria-expanded="false"></button><a class="mobile-brand" href="/" aria-label="Wayne的博客">Wayne</a><div class="container"><div class="nav-item"><a href="/" target="_self" data-text="home">主页</a></div><div class="nav-item"><a href="/archives" target="_self" data-text="archive">归档</a></div><div class="nav-item"><a href="/about" target="_self" data-text="about">关于</a></div></div><button class="theme-toggle theme-toggle-nav" type="button" aria-label="切换到深色模式" title="切换到深色模式"><span class="theme-toggle-label" aria-hidden="true">浅色</span></button><form class="nav-item" id="search-form"><input class="search form-control" type="search" id="local-search-input" name="q" results="0" placeholder="搜索" role="combobox" aria-label="搜索" aria-controls="local-search-result" aria-expanded="false" aria-autocomplete="list" autocomplete="off" autocorrect="off"><button class="fa fa-times" type="button" aria-label="清空搜索"></button></form><div id="local-search-result" role="listbox" aria-live="polite" aria-label="搜索结果"></div><p class="no-result" role="status">没有找到结果</p></div></header></div><main class="main" id="main-content" tabindex="-1"><div class="container"><div class="content"><div class="post"><article class="post-block"><h1 class="post-title">【调研】从 Generate 到 Decide：Jev、System One Models 与 Agent 决策层</h1><div class="post-page-meta"><span class="post-date">2026年9月19日</span><span class="post-tag"><a href="/tags/%E7%AC%94%E8%AE%B0/">笔记</a><a href="/tags/ai/">ai</a><a href="/tags/Agent/">Agent</a></span></div><img class="bgimage" src="/images/ai/jev/i-logo.png" alt="【调研】从 Generate 到 Decide：Jev、System One Models 与 Agent 决策层" width="300" height="200" decoding="async" fetchpriority="high"><div class="post-content"><h1 id="从-Generate-到-Decide：Jev、System-One-Models-与-Agent-决策层"><a href="#从-Generate-到-Decide：Jev、System-One-Models-与-Agent-决策层" class="headerlink" title="从 Generate 到 Decide：Jev、System One Models 与 Agent 决策层"></a>从 Generate 到 Decide：Jev、System One Models 与 Agent 决策层</h1><blockquote>
+<p>TypeSafe AI 将 Jev 定义为首个公开的 <strong>System One Model</strong>：输入状态与一组预定义问题，直接输出 Choice、Score、Noul 等类型化结果及其概率。它试图把高频语义判断从 <code>generate()</code> 中拆出来，变成软件可以直接消费的 <code>decide()</code>。</p>
+<p>这篇文章重点回答六个问题：</p>
+<ol>
+<li>为什么 Agent 时代会出现 Decision Model 这类新需求？</li>
+<li>Jev 与 Structured Output、分类器、Reward Model 到底有什么区别？</li>
+<li>Parallel Sampler、RLCD、Calibration 等概念意味着什么？</li>
+<li>“193× faster”“444× cheaper”“Zero Hallucination”应该怎样理解？</li>
+<li>发布数天后，社区真正把 Jev 用在了哪些场景？</li>
+<li>如果这种模型形态成立，Agent Runtime 是否需要独立的 Decision Runtime？</li>
+</ol>
+</blockquote>
+<blockquote>
+<p><strong>给技术决策者的 TL;DR</strong><br>Jev 是把“该选哪个、是否通过、是否升级”这类有限候选的语义判断，做成可被程序直接消费的 <code>decide()</code> 调用的模型&#x2F;API 形态，而非通用聊天或推理模型。优先在 Agent&#x2F;Skill 路由、结果验收与升级、循环停止&#x2F;重试等高频且答案空间可预定义的场景验证；不要把它用于开放式规划、不可逆授权或安全关键的快速控制。两项核心风险是：其 confidence 是否在真实业务与分布外输入上仍然校准，以及 Frontier LLM 的 function calling、structured output 与缓存优化会否把其延迟&#x2F;成本优势压缩到不足以形成独立品类。</p>
+</blockquote>
+<hr>
+<h2 id="信息可信度说明"><a href="#信息可信度说明" class="headerlink" title="信息可信度说明"></a>信息可信度说明</h2><p>本文引用的信息大致分成四类，可信度依次递减：</p>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>内容</th>
+<th>用途与限制</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A：官方 &#x2F; 一手事实</td>
+<td>API、模型定位、价格、团队、官方 benchmark 方法</td>
+<td>事实性较强，但官方 benchmark 方法论本身仍需独立验证</td>
+</tr>
+<tr>
+<td>B：第三方平台数据</td>
+<td>如 Vercel leaderboard</td>
+<td>可用于判断 adoption signal 与 traffic shape，不能直接推导模型质量</td>
+</tr>
+<tr>
+<td>C：独立社区实验</td>
+<td>使用场景、工程经验、失败模式、benchmark 线索</td>
+<td>多数 launch-week 项目样本较小，不能视为生产证据</td>
+</tr>
+<tr>
+<td>D：SEO &#x2F; Launch Amplification</td>
+<td>发布期营销性文章与转载</td>
+<td>不作为独立效果证据</td>
+</tr>
+</tbody></table>
+<p>后文出现的具体数字与结论，均可按来源对照此表估算可信度。</p>
+<h3 id="术语速查"><a href="#术语速查" class="headerlink" title="术语速查"></a>术语速查</h3><table>
+<thead>
+<tr>
+<th>术语</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Choice &#x2F; Score &#x2F; Noul</td>
+<td>Jev 的三种输出类型：有限候选选择 &#x2F; 数值评分 &#x2F; 0–1 真值概率</td>
+</tr>
+<tr>
+<td>Calibration（校准）</td>
+<td>模型给出的 confidence 是否等于其实际正确率，例如 confidence&#x3D;0.9 时应有约 90% 正确</td>
+</tr>
+<tr>
+<td>ECE（Expected Calibration Error）</td>
+<td>衡量 calibration 好坏的常用指标，越低越好</td>
+</tr>
+<tr>
+<td>Brier Score</td>
+<td>另一种衡量概率预测准确性的指标</td>
+</tr>
+<tr>
+<td>OOD（Out-of-Distribution）</td>
+<td>训练分布之外的输入，用于检验模型泛化与 calibration 是否仍然可靠</td>
+</tr>
+<tr>
+<td>RLCD</td>
+<td>TypeSafe 提出的训练方法名称（Reinforcement Learning for Calibrated Decisions），细节尚未完全公开</td>
+</tr>
+</tbody></table>
+<hr>
+<blockquote>
+<h4 id="Part-1-·-概念与背景（一-～-三）"><a href="#Part-1-·-概念与背景（一-～-三）" class="headerlink" title="Part 1 · 概念与背景（一 ～ 三）"></a>Part 1 · 概念与背景（一 ～ 三）</h4></blockquote>
+<h2 id="一、为什么-Agent-时代开始需要另一种模型"><a href="#一、为什么-Agent-时代开始需要另一种模型" class="headerlink" title="一、为什么 Agent 时代开始需要另一种模型"></a>一、为什么 Agent 时代开始需要另一种模型</h2><p>过去，大模型最典型的交互方式是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Human</span><br><span class="line">  ↓</span><br><span class="line">LLM</span><br><span class="line">  ↓</span><br><span class="line">Human</span><br></pre></td></tr></table></figure>
+
+<p>模型的价值主要体现为回答、写作、总结、解释和代码生成。</p>
+<p>但当 Agent 真正进入软件工程与业务系统以后，运行方式开始变成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Software State</span><br><span class="line">      ↓</span><br><span class="line">    Model</span><br><span class="line">      ↓</span><br><span class="line"> Tool / Agent / Environment</span><br><span class="line">      ↓</span><br><span class="line"> New State</span><br><span class="line">      ↓</span><br><span class="line">    Model</span><br><span class="line">      ↓</span><br><span class="line">     ...</span><br></pre></td></tr></table></figure>
+
+<p>一个任务可能运行几十、几百甚至几千步。</p>
+<p>这时，大量模型调用真正在做的，是回答一系列非常小、却非常频繁的问题，目标已经不再是“生成一段好文字”：</p>
+<ul>
+<li>当前请求应该交给哪个 Agent？</li>
+<li>需要哪个 Skill？</li>
+<li>应该使用便宜模型还是强推理模型？</li>
+<li>当前 Loop 是否已经卡死？</li>
+<li>这次失败应该 retry、replan 还是升级人工？</li>
+<li>这个结果是否足以宣布任务完成？</li>
+<li>是否需要再跑 E2E？</li>
+<li>当前 Tool Call 是否可疑？</li>
+<li>哪些上下文应该继续保留？</li>
+<li>当前状态更适合本地执行还是云端执行？</li>
+</ul>
+<p>这些问题有三个共同特征：</p>
+<ol>
+<li><strong>需要语义理解</strong>，纯规则不够；</li>
+<li><strong>答案空间通常有限</strong>；</li>
+<li><strong>不需要生成长文本</strong>。</li>
+</ol>
+<p>于是一个新的工程问题出现了：</p>
+<blockquote>
+<p>如果最终只需要一个 <code>true/false</code>、一个 route、一个 score 或一个有限选项，为什么每次都要让一个生成式模型经历完整的自回归解码？</p>
+</blockquote>
+<p>这就是 Jev 所瞄准的空档。</p>
+<hr>
+<h2 id="二、规则太硬，Frontier-LLM-太重"><a href="#二、规则太硬，Frontier-LLM-太重" class="headerlink" title="二、规则太硬，Frontier LLM 太重"></a>二、规则太硬，Frontier LLM 太重</h2><p>从软件架构角度看，可以把智能判断粗略分成四层：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">┌────────────────────────────────────────┐</span><br><span class="line">│ L4 Human                               │</span><br><span class="line">│ 审批 / 例外处理 / 不可逆高风险判断     │</span><br><span class="line">├────────────────────────────────────────┤</span><br><span class="line">│ L3 System-2 Model                      │</span><br><span class="line">│ Codex / Claude / GPT / Gemini          │</span><br><span class="line">│ 规划 / Coding / Research / 深度推理     │</span><br><span class="line">├────────────────────────────────────────┤</span><br><span class="line">│ L2 System-1 / Decision Model           │</span><br><span class="line">│ Jev / Jev-like Model                   │</span><br><span class="line">│ Route / Score / Gate / Stop / Escalate │</span><br><span class="line">├────────────────────────────────────────┤</span><br><span class="line">│ L1 Deterministic Runtime               │</span><br><span class="line">│ Rule / Test / Policy / Gate            │</span><br><span class="line">└────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<p>这四层的职责不同：</p>
+<table>
+<thead>
+<tr>
+<th>层次</th>
+<th>擅长什么</th>
+<th>不应承担什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Rule &#x2F; Test</td>
+<td>权限、预算、格式、lint、测试、硬策略</td>
+<td>模糊语义</td>
+</tr>
+<tr>
+<td>Decision Model</td>
+<td>分类、有限候选选择、风险分级、是否升级</td>
+<td>开放式方案发现、复杂推理</td>
+</tr>
+<tr>
+<td>System-2 LLM &#x2F; Agent</td>
+<td>根因分析、规划、代码、解释、跨工具探索</td>
+<td>每一个高频小判断</td>
+</tr>
+<tr>
+<td>Human &#x2F; Approval</td>
+<td>风险取舍、责任承担、不可逆授权</td>
+<td>被模型概率绕过</td>
+</tr>
+</tbody></table>
+<p>Jev 真正试图建立的，就是中间这层：</p>
+<blockquote>
+<p><strong>Semantic Decision Layer</strong></p>
+</blockquote>
+<p>如图 1 所示，这一层只能在 L1 硬规则设定的边界内工作；它的输出可以触发复核或升级，不能替代权限、审批或确定性安全约束。</p>
+<p><img src="/images/ai/jev/jev-system-one-overview.png" alt="图 1：Jev &#x2F; System One 位于确定性规则与生成式推理模型之间，处理有限候选的语义决策。"></p>
+<p><em>图 1：基于公开接口与本文架构推导绘制。Jev 的输出受 schema 约束，但 schema 合法不等于判断正确；该图不描述 TypeSafe 未公开的内部实现。</em></p>
+<hr>
+<h2 id="三、TypeSafe-AI-与-Jev-的背景"><a href="#三、TypeSafe-AI-与-Jev-的背景" class="headerlink" title="三、TypeSafe AI 与 Jev 的背景"></a>三、TypeSafe AI 与 Jev 的背景</h2><h3 id="3-1-TypeSafe-AI"><a href="#3-1-TypeSafe-AI" class="headerlink" title="3.1 TypeSafe AI"></a>3.1 TypeSafe AI</h3><p>TypeSafe AI 是一家位于旧金山的 AI 公司，约 2024 年成立，在 stealth 状态开发约两年后，于 <strong>2026 年 9 月 15 日</strong>正式发布 Jev。</p>
+<p>TypeSafe 同时宣布获得 <strong>4000 万美元 Seed 融资，由 DCVC 领投</strong>。</p>
+<p>官方资料：</p>
+<ul>
+<li>TypeSafe：<a target="_blank" rel="noopener" href="https://typesafe.ai/">https://typesafe.ai/</a></li>
+<li>Introducing System One Models &amp; Jev：<a target="_blank" rel="noopener" href="https://typesafe.ai/blog/introducing-system-one-models-and-jev">https://typesafe.ai/blog/introducing-system-one-models-and-jev</a></li>
+<li>Team：<a target="_blank" rel="noopener" href="https://typesafe.ai/team">https://typesafe.ai/team</a></li>
+<li>DCVC：<a target="_blank" rel="noopener" href="https://www.dcvc.com/news-insights/typesafe-emerges-from-stealth-with-a-new-way-of-doing-ai/">https://www.dcvc.com/news-insights/typesafe-emerges-from-stealth-with-a-new-way-of-doing-ai/</a></li>
+</ul>
+<h3 id="3-2-创始人-Diogo-Almeida"><a href="#3-2-创始人-Diogo-Almeida" class="headerlink" title="3.2 创始人 Diogo Almeida"></a>3.2 创始人 Diogo Almeida</h3><p>TypeSafe CEO <strong>Diogo Almeida</strong> 曾在 OpenAI、Google Brain 任职，并且是 2022 年 InstructGPT 论文《Training language models to follow instructions with human feedback》的作者之一。</p>
+<p>论文：</p>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2203.02155">https://arxiv.org/abs/2203.02155</a></p>
+<p>一些媒体会把 Almeida 描述为“ChatGPT 发明者”或“RLHF 发明者”，这类表述过于简化。</p>
+<p>更准确的说法是：</p>
+<blockquote>
+<p><strong>Diogo Almeida 是 InstructGPT &#x2F; OpenAI 早期 RLHF instruction-following 工作的重要研究参与者之一，这项研究直接推动了 ChatGPT 的技术演进。</strong></p>
+</blockquote>
+<p>TypeSafe 当前团队还包含来自 Meta &#x2F; FAIR、Stripe、Airbnb、Plaid、Docker 等公司的成员。</p>
+<p>整体画像更接近：</p>
+<blockquote>
+<p><strong>Model Research + Production Infrastructure + Developer Platform</strong></p>
+</blockquote>
+<h3 id="3-3-为什么叫-System-One"><a href="#3-3-为什么叫-System-One" class="headerlink" title="3.3 为什么叫 System One"></a>3.3 为什么叫 System One</h3><p>“System One”借用了 Daniel Kahneman《Thinking, Fast and Slow》中 System 1 &#x2F; System 2 的认知隐喻：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">System 1</span><br><span class="line">快速、低成本、直觉判断</span><br><span class="line">          ↓</span><br><span class="line">Jev / Decision Model</span><br><span class="line"></span><br><span class="line">System 2</span><br><span class="line">慢速、显式推理</span><br><span class="line">          ↓</span><br><span class="line">Reasoning LLM / Agent</span><br></pre></td></tr></table></figure>
+
+<p>这并不是说 Jev 真正复刻了人类认知系统。</p>
+<p>工程上更有意义的理解是：</p>
+<blockquote>
+<p><strong>把高频、低延迟、候选有限的判断，与昂贵、开放式的生成和推理解耦。</strong></p>
+</blockquote>
+<h3 id="3-4-为什么叫-Jev"><a href="#3-4-为什么叫-Jev" class="headerlink" title="3.4 为什么叫 Jev"></a>3.4 为什么叫 Jev</h3><p>“Jev”来源于经济学家 William Stanley Jevons。</p>
+<p>背后隐含的是 <strong>Jevons Paradox</strong>：</p>
+<blockquote>
+<p>一种资源使用效率大幅提高后，其总使用量反而可能增加。</p>
+</blockquote>
+<p>TypeSafe 的产品 thesis 是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">AI Judgment Cost ↓↓↓</span><br><span class="line">        ↓</span><br><span class="line">可插入的软件决策点 ↑↑↑</span><br><span class="line">        ↓</span><br><span class="line">总体 Intelligence Consumption ↑↑↑</span><br></pre></td></tr></table></figure>
+
+<p>也就是说，当一次语义判断便宜到接近普通软件调用时，开发者会在过去根本不会使用 AI 的地方加入智能判断。</p>
+<hr>
+<blockquote>
+<h4 id="Part-2-·-技术机制（四-～-十三）"><a href="#Part-2-·-技术机制（四-～-十三）" class="headerlink" title="Part 2 · 技术机制（四 ～ 十三）"></a>Part 2 · 技术机制（四 ～ 十三）</h4></blockquote>
+<blockquote>
+<p><strong>本章术语预览</strong>：Choice 是在预先给定的候选中选择；Calibration 是“90% 的置信度是否真的约有 90% 正确”；ECE 与 Brier Score 是检验这种一致性的指标；OOD 指未见过或显著变化的输入分布；RLCD 是 TypeSafe 对其训练方法的命名，公开细节仍有限。下面首次出现这些术语时会结合具体用途说明。</p>
+</blockquote>
+<h2 id="四、Jev-到底是什么"><a href="#四、Jev-到底是什么" class="headerlink" title="四、Jev 到底是什么"></a>四、Jev 到底是什么</h2><p>Jev 的核心产品定义可以压缩成一句话：</p>
+<blockquote>
+<p><strong>Unstructured state in, typed probabilistic decisions out.</strong></p>
+</blockquote>
+<p>传统生成式模型：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">State / Context</span><br><span class="line">      ↓</span><br><span class="line">Prompt / Reasoning</span><br><span class="line">      ↓</span><br><span class="line">Autoregressive Generation</span><br><span class="line">      ↓</span><br><span class="line">Text / JSON</span><br><span class="line">      ↓</span><br><span class="line">Parse / Validate / Retry</span><br><span class="line">      ↓</span><br><span class="line">Software Action</span><br></pre></td></tr></table></figure>
+
+<p>Jev：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">State / Context</span><br><span class="line">      ↓</span><br><span class="line">Typed Questions</span><br><span class="line">      ↓</span><br><span class="line">Decision Inference</span><br><span class="line">      ↓</span><br><span class="line">Typed Value + Probability</span><br><span class="line">      ↓</span><br><span class="line">Software Action</span><br></pre></td></tr></table></figure>
+
+<p>关键变化是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">generate()</span><br><span class="line">    ↓</span><br><span class="line">decide()</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="五、三种核心-Primitive"><a href="#五、三种核心-Primitive" class="headerlink" title="五、三种核心 Primitive"></a>五、三种核心 Primitive</h2><p>TypeSafe 当前主要暴露三类 Decision Primitive。</p>
+<table>
+<thead>
+<tr>
+<th>Primitive</th>
+<th>含义</th>
+<th>软件类比</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Choice</td>
+<td>在预定义候选中选择</td>
+<td>semantic enum</td>
+</tr>
+<tr>
+<td>Score</td>
+<td>在定义好的尺度上评分</td>
+<td>fuzzy numeric function</td>
+</tr>
+<tr>
+<td>Noul</td>
+<td>0–1 的真值概率</td>
+<td>probabilistic boolean</td>
+</tr>
+</tbody></table>
+<p>例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">state:</span><br><span class="line">“客户称订阅被重复扣费，要求今天处理，否则取消服务。”</span><br><span class="line"></span><br><span class="line">questions:</span><br><span class="line"></span><br><span class="line">category:</span><br><span class="line">  billing | technical | account | other</span><br><span class="line"></span><br><span class="line">is_urgent:</span><br><span class="line">  true | false</span><br><span class="line"></span><br><span class="line">frustration:</span><br><span class="line">  calm | concerned | angry</span><br></pre></td></tr></table></figure>
+
+<p>结果可以直接被程序消费，不需要模型生成自然语言解释。</p>
+<hr>
+<h2 id="六、Decision-Contract：比-Prompt-更重要"><a href="#六、Decision-Contract：比-Prompt-更重要" class="headerlink" title="六、Decision Contract：比 Prompt 更重要"></a>六、Decision Contract：比 Prompt 更重要</h2><p>真正可生产化的 Decision Model，不应该只有一句“帮我判断一下”，而需要一个可复用、可校验的 <strong>Decision Contract</strong>。</p>
+<p>可以定义为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Decision Contract =</span><br><span class="line">State Schema</span><br><span class="line">+ Question Schema</span><br><span class="line">+ Candidate Space</span><br><span class="line">+ Criteria</span><br><span class="line">+ Abstention Strategy</span><br><span class="line">+ Consumer Policy</span><br><span class="line">+ Version</span><br></pre></td></tr></table></figure>
+
+<p>至少包括：</p>
+<table>
+<thead>
+<tr>
+<th>要素</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Stable Decision Key</td>
+<td>便于日志、回放、统计和迁移</td>
+</tr>
+<tr>
+<td>State Boundary</td>
+<td>明确哪些上下文进入模型</td>
+</tr>
+<tr>
+<td>Candidate Space</td>
+<td>决定模型可以输出什么</td>
+</tr>
+<tr>
+<td>Criteria</td>
+<td>把模糊问题改写成可复核标准</td>
+</tr>
+<tr>
+<td>OTHER &#x2F; UNKNOWN &#x2F; ABSTAIN</td>
+<td>避免 forced choice</td>
+</tr>
+<tr>
+<td>Consumer</td>
+<td>结果用于展示、建议、路由还是自动动作</td>
+</tr>
+<tr>
+<td>Version</td>
+<td>schema、截断、criteria 改变都可能改变分布</td>
+</tr>
+</tbody></table>
+<p>这是 Decision Model 与随意 Prompt 调用之间非常重要的工程差异。</p>
+<h3 id="6-1-把-Contract-设计成可治理的接口"><a href="#6-1-把-Contract-设计成可治理的接口" class="headerlink" title="6.1 把 Contract 设计成可治理的接口"></a>6.1 把 Contract 设计成可治理的接口</h3><p>Contract 的目标不是把 prompt 写得更长，而是让同一种业务判断可以被稳定地调用、回放和替换。一个实用的约束是：<strong>Decision Key 标识“业务判断是什么”，Version 标识“当前如何判断”</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>设计点</th>
+<th>建议</th>
+<th>常见误区</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Stable Decision Key</td>
+<td>使用 <code>decision.&lt;业务域&gt;.&lt;判断意图&gt;</code>，例如 <code>decision.support.ticket_route</code>；保持长期稳定</td>
+<td>把 provider、阈值或 <code>v2</code> 写进 key，导致同一判断无法做跨版本统计</td>
+</tr>
+<tr>
+<td>Version</td>
+<td>criteria、候选、状态截断、标签定义任一变化都递增版本；日志同时保存 key 与 version</td>
+<td>只在更换模型时版本化，忽略 prompt&#x2F;schema 改动造成的分布变化</td>
+</tr>
+<tr>
+<td>State Boundary</td>
+<td>明确输入字段、截断策略、缺字段默认值和脱敏规则</td>
+<td>把整段对话或不可复现的实时上下文直接传入</td>
+</tr>
+<tr>
+<td>Consumer Policy</td>
+<td>为展示、建议、自动动作分别定义阈值和 fallback</td>
+<td>让下游业务各自解释同一个 probability</td>
+</tr>
+</tbody></table>
+<p><strong>Criteria 要写成可复核的判定条件，而不是换一种说法的模糊问题。</strong></p>
+<table>
+<thead>
+<tr>
+<th>模糊问法（before）</th>
+<th>可复核标准（after）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>“这个工单紧急吗？”</td>
+<td>“若存在服务不可用、数据泄露迹象、资金损失进行中任一证据，选 <code>P1</code>；仅有一般功能受阻选 <code>P2</code>；证据不足选 <code>UNKNOWN</code>。”</td>
+</tr>
+<tr>
+<td>“这次 Agent 完成了吗？”</td>
+<td>“仅当要求的文件存在、目标测试通过、输出中无未处理错误，且没有声明待人工完成事项时选 <code>PASS</code>；否则选 <code>REVIEW</code> 或 <code>FAIL</code>。”</td>
+</tr>
+<tr>
+<td>“该用强模型吗？”</td>
+<td>“若任务需要跨多个来源推理、修改不可逆资源或现有 fast-model 置信度低于阈值，选 <code>FRONTIER</code>；其余选 <code>FAST</code>。”</td>
+</tr>
+</tbody></table>
+<p><code>OTHER</code>、<code>UNKNOWN</code> 与 <code>ABSTAIN</code> 也不应混用：<code>OTHER</code> 表示输入属于候选空间之外但可确认存在的类别；<code>UNKNOWN</code> 表示证据不足或状态缺失；<code>ABSTAIN</code> 表示模型&#x2F;策略不应作答，例如 OOD、冲突信号或低校准桶。三者的 Consumer Policy 可以不同：<code>OTHER</code> 进入人工归类或扩展候选，<code>UNKNOWN</code> 请求补充状态，<code>ABSTAIN</code> 直接走安全 fallback。</p>
+<p>一个最小可审计模板如下；它不是 Jev 专属格式，但要求 Runtime 能完整记录这些字段：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">key:</span> <span class="string">decision.support.ticket_route</span></span><br><span class="line"><span class="attr">version:</span> <span class="number">3</span></span><br><span class="line"><span class="attr">state_schema:</span> &#123;<span class="attr">ticket_text:</span> <span class="string">string</span>, <span class="attr">account_tier:</span> <span class="string">string?</span>, <span class="attr">recent_outage:</span> <span class="string">boolean?</span>&#125;</span><br><span class="line"><span class="attr">candidates:</span> [<span class="string">BILLING</span>, <span class="string">TECHNICAL</span>, <span class="string">ACCOUNT</span>, <span class="string">OTHER</span>, <span class="string">UNKNOWN</span>]</span><br><span class="line"><span class="attr">criteria:</span> <span class="string">&quot;按路由手册 v3；缺少可判定证据时 UNKNOWN。&quot;</span></span><br><span class="line"><span class="attr">abstention:</span> <span class="string">&quot;若语言不支持、输入截断或 confidence &lt; 0.80，则 ABSTAIN。&quot;</span></span><br><span class="line"><span class="attr">consumer:</span> &#123;<span class="attr">UNKNOWN:</span> <span class="string">request_context</span>, <span class="attr">ABSTAIN:</span> <span class="string">human_queue</span>, <span class="attr">threshold:</span> <span class="number">0.92</span>&#125;</span><br><span class="line"><span class="attr">ground_truth:</span> <span class="string">resolved_queue</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="七、Structured-Output-和-Jev-到底有什么区别"><a href="#七、Structured-Output-和-Jev-到底有什么区别" class="headerlink" title="七、Structured Output 和 Jev 到底有什么区别"></a>七、Structured Output 和 Jev 到底有什么区别</h2><h3 id="7-1-Structured-Output"><a href="#7-1-Structured-Output" class="headerlink" title="7.1 Structured Output"></a>7.1 Structured Output</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">GPT / Claude</span><br><span class="line">      ↓</span><br><span class="line">JSON Schema</span><br><span class="line">      ↓</span><br><span class="line">逐 Token 生成</span><br><span class="line">      ↓</span><br><span class="line">Decoder Constraint</span><br><span class="line">      ↓</span><br><span class="line">&#123;</span><br><span class="line">  &quot;route&quot;: &quot;review&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>它本质上仍然是：</p>
+<blockquote>
+<p><strong>Constrained Generation</strong></p>
+</blockquote>
+<h3 id="7-2-Jev"><a href="#7-2-Jev" class="headerlink" title="7.2 Jev"></a>7.2 Jev</h3><p>TypeSafe 的产品主张则是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Input Representation</span><br><span class="line">       ↓</span><br><span class="line">┌─────────┬─────────┬─────────┐</span><br><span class="line">│  code   │ review  │  test   │</span><br><span class="line">│  0.12   │  0.73   │  0.15   │</span><br><span class="line">└─────────┴─────────┴─────────┘</span><br></pre></td></tr></table></figure>
+
+<p>即：</p>
+<blockquote>
+<p><strong>Direct Decision Inference</strong></p>
+</blockquote>
+<p>这解释了为什么 Jev：</p>
+<ul>
+<li>不需要自由文本输出；</li>
+<li>output 不按 token 收费；</li>
+<li>可以直接返回 option probability；</li>
+<li>多个独立 question 可以并行；</li>
+<li>理论上具有远低于完整文本生成的延迟。</li>
+</ul>
+<p>因此：</p>
+<blockquote>
+<p><strong>Structured Output 是“限制模型怎样说”，Jev 是“尽量不让模型说”。</strong></p>
+</blockquote>
+<hr>
+<h2 id="八、Parallel-Sampler：为什么多个问题可能很快"><a href="#八、Parallel-Sampler：为什么多个问题可能很快" class="headerlink" title="八、Parallel Sampler：为什么多个问题可能很快"></a>八、Parallel Sampler：为什么多个问题可能很快</h2><p>TypeSafe 强调 Jev 的另一个核心能力是 <strong>parallel sampler</strong>。</p>
+<p>传统模型如果把多个判断拆成多次调用：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Question A → Generation</span><br><span class="line">Question B → Generation</span><br><span class="line">Question C → Generation</span><br></pre></td></tr></table></figure>
+
+<p>Jev 的目标形态是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Shared State</span><br><span class="line">    ↓</span><br><span class="line">Representation</span><br><span class="line">    ↓</span><br><span class="line">┌────────┬────────┬────────┐</span><br><span class="line">│   A    │   B    │   C    │</span><br><span class="line">└────────┴────────┴────────┘</span><br><span class="line">     parallel decisions</span><br></pre></td></tr></table></figure>
+
+<p>对于 Agent Runtime，这一点很重要。</p>
+<p>一次 Loop iteration 可能同时需要判断：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">complete?</span><br><span class="line">stuck?</span><br><span class="line">retry?</span><br><span class="line">replan?</span><br><span class="line">risk?</span><br><span class="line">need human?</span><br></pre></td></tr></table></figure>
+
+<p>如果这些判断可以共享 state 并在一次 inference 中完成，Decision Model 的优势会随着问题数量增加而放大。</p>
+<hr>
+<h2 id="九、RLCD-与-Calibration"><a href="#九、RLCD-与-Calibration" class="headerlink" title="九、RLCD 与 Calibration"></a>九、RLCD 与 Calibration</h2><p>TypeSafe 将其训练方法称为：</p>
+<blockquote>
+<p><strong>Reinforcement Learning for Calibrated Decisions（RLCD）</strong></p>
+</blockquote>
+<p>官方将其与 RLHF &#x2F; RLVR 对比：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">RLHF</span><br><span class="line">优化人类偏好</span><br><span class="line"></span><br><span class="line">RLVR</span><br><span class="line">优化可程序验证的正确性</span><br><span class="line"></span><br><span class="line">RLCD</span><br><span class="line">优化带校准概率的决策</span><br></pre></td></tr></table></figure>
+
+<p>它真正要优化的，是让置信度贴近真实正确率。单纯把 confidence 拉高没有意义：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">P(correct | confidence = x) ≈ x</span><br></pre></td></tr></table></figure>
+
+<h3 id="9-1-为什么-Calibration-比-Accuracy-更重要"><a href="#9-1-为什么-Calibration-比-Accuracy-更重要" class="headerlink" title="9.1 为什么 Calibration 比 Accuracy 更重要"></a>9.1 为什么 Calibration 比 Accuracy 更重要</h3><p>假设两个模型：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Model A</span><br><span class="line">Accuracy = 92%</span><br><span class="line">但所有回答都 confidence = 0.99</span><br><span class="line"></span><br><span class="line">Model B</span><br><span class="line">Accuracy = 90%</span><br><span class="line">但 confidence 与真实准确率高度吻合</span><br></pre></td></tr></table></figure>
+
+<p>如果只是离线分类，A 可能更好。</p>
+<p>但如果是自动化系统：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (p &gt; <span class="number">0.99</span>) <span class="title function_">autoExecute</span>()</span><br><span class="line"><span class="keyword">else</span> <span class="keyword">if</span> (p &gt; <span class="number">0.85</span>) <span class="title function_">secondVerifier</span>()</span><br><span class="line"><span class="keyword">else</span> <span class="title function_">humanReview</span>()</span><br></pre></td></tr></table></figure>
+
+<p>Model B 可能更有价值。</p>
+<p>因此需要观察：</p>
+<ul>
+<li>Reliability Diagram</li>
+<li>Expected Calibration Error（ECE）</li>
+<li>Brier Score</li>
+<li>Coverage &#x2F; Error Curve</li>
+<li>High-confidence Error Rate</li>
+</ul>
+<p>经典校准研究：</p>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/abs/1706.04599">https://arxiv.org/abs/1706.04599</a></p>
+<h3 id="9-2-RLCD-仍然是-Claim，而不是已经完全被验证的突破"><a href="#9-2-RLCD-仍然是-Claim，而不是已经完全被验证的突破" class="headerlink" title="9.2 RLCD 仍然是 Claim，而不是已经完全被验证的突破"></a>9.2 RLCD 仍然是 Claim，而不是已经完全被验证的突破</h3><p>截至本文，TypeSafe 仍未公开足够的：</p>
+<ul>
+<li>RLCD 算法细节；</li>
+<li>模型架构；</li>
+<li>参数规模；</li>
+<li>训练数据；</li>
+<li>大规模 OOD calibration benchmark。</li>
+</ul>
+<p>因此目前不能确定：</p>
+<blockquote>
+<p>RLCD 是独立的新训练范式，还是 RL、classification、reward model 与 calibration 技术的组合创新。</p>
+</blockquote>
+<p>更稳妥的判断是：</p>
+<blockquote>
+<p><strong>Calibration 是 Jev 最值得验证的能力，而不是可以直接相信的供应商属性。</strong></p>
+</blockquote>
+<hr>
+<h2 id="十、“Zero-Hallucination”到底是什么意思"><a href="#十、“Zero-Hallucination”到底是什么意思" class="headerlink" title="十、“Zero Hallucination”到底是什么意思"></a>十、“Zero Hallucination”到底是什么意思</h2><p>TypeSafe 首页强调：</p>
+<blockquote>
+<p>Zero Hallucinations</p>
+</blockquote>
+<p>Jev 确实可以做到：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">✓ 不产生 malformed JSON</span><br><span class="line">✓ 不产生 schema 外字段</span><br><span class="line">✓ 不返回未定义 enum</span><br><span class="line">✓ 不输出自由文本幻觉</span><br></pre></td></tr></table></figure>
+
+<p>如果：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">route ∈ &#123;code, review, test&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Jev 不会回答：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">marketing</span><br></pre></td></tr></table></figure>
+
+<p>但是它仍然可能：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">正确答案：review</span><br><span class="line"></span><br><span class="line">模型：</span><br><span class="line">route = code</span><br><span class="line">confidence = 0.97</span><br></pre></td></tr></table></figure>
+
+<p>因此更准确的表达应该是：</p>
+<blockquote>
+<p><strong>Zero out-of-schema generation ≠ Zero semantic error</strong></p>
+</blockquote>
+<p>甚至从生产系统角度看：</p>
+<blockquote>
+<p><strong>“错误但完全合法”的结果，往往比 malformed JSON 更难发现。</strong></p>
+</blockquote>
+<hr>
+<h2 id="十一、193-6×-faster-444-6×-cheaper-怎么看"><a href="#十一、193-6×-faster-444-6×-cheaper-怎么看" class="headerlink" title="十一、193.6× faster &#x2F; 444.6× cheaper 怎么看"></a>十一、193.6× faster &#x2F; 444.6× cheaper 怎么看</h2><p>TypeSafe 官方在 workflow eval 中给出了：</p>
+<ul>
+<li><strong>193.6× faster</strong></li>
+<li><strong>444.6× cheaper</strong></li>
+</ul>
+<p>这些数字不应理解成：</p>
+<blockquote>
+<p>“所有任务 Jev 都比 GPT 快 193 倍。”</p>
+</blockquote>
+<p>官方 workflow 包括：</p>
+<ul>
+<li>Security Incident</li>
+<li>Agent Trace Observability</li>
+<li>Invoice Processing</li>
+<li>Customer Service</li>
+</ul>
+<p>它们本身就非常适合：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">复杂流程</span><br><span class="line"> ↓</span><br><span class="line">拆成很多有限候选判断</span><br><span class="line"> ↓</span><br><span class="line">代码组合结果</span><br></pre></td></tr></table></figure>
+
+<p>因此这些数字更适合被理解为：</p>
+<blockquote>
+<p><strong>证明 Jev 在 System-One-shaped workload 上存在巨大效率潜力。</strong></p>
+</blockquote>
+<p>而不是通用 benchmark。</p>
+<p>官方评测：</p>
+<p><a target="_blank" rel="noopener" href="https://evals.typesafe.ai/">https://evals.typesafe.ai/</a></p>
+<hr>
+<h2 id="十二、Jev-的开放与收费状态"><a href="#十二、Jev-的开放与收费状态" class="headerlink" title="十二、Jev 的开放与收费状态"></a>十二、Jev 的开放与收费状态</h2><p>截至 2026-09-21：</p>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>模型权重</td>
+<td>闭源</td>
+</tr>
+<tr>
+<td>官方 API</td>
+<td>已开放 &#x2F; Early Access</td>
+</tr>
+<tr>
+<td>Web Console</td>
+<td>有</td>
+</tr>
+<tr>
+<td>OpenRouter</td>
+<td>已接入</td>
+</tr>
+<tr>
+<td>Vercel AI Gateway</td>
+<td>已接入</td>
+</tr>
+<tr>
+<td>官方本地部署</td>
+<td>未公开</td>
+</tr>
+<tr>
+<td>输入</td>
+<td>以文本 &#x2F; 结构化文本状态为主</td>
+</tr>
+<tr>
+<td>输出</td>
+<td>Typed Decisions</td>
+</tr>
+<tr>
+<td>Input Price</td>
+<td>约 $0.042 &#x2F; 1M tokens</td>
+</tr>
+<tr>
+<td>Output</td>
+<td>免费</td>
+</tr>
+</tbody></table>
+<p>TypeSafe 首页将价格写成：</p>
+<blockquote>
+<p><strong>$42 &#x2F; 1B input tokens</strong></p>
+</blockquote>
+<p>这意味着在很多高频 decision workload 中，成本已经低到不再是主要障碍。</p>
+<p>真正需要验证的是：</p>
+<ul>
+<li>中文表现；</li>
+<li>本业务准确率；</li>
+<li>calibration；</li>
+<li>OOD；</li>
+<li>长上下文；</li>
+<li>high-confidence error；</li>
+<li>数据安全。</li>
+</ul>
+<hr>
+<h2 id="十三、Jev-到底“新不新”"><a href="#十三、Jev-到底“新不新”" class="headerlink" title="十三、Jev 到底“新不新”"></a>十三、Jev 到底“新不新”</h2><h3 id="13-1-质疑方：这不就是分类器吗？"><a href="#13-1-质疑方：这不就是分类器吗？" class="headerlink" title="13.1 质疑方：这不就是分类器吗？"></a>13.1 质疑方：这不就是分类器吗？</h3><p>从技术形态上看，Jev 与很多已有技术都有相似之处：</p>
+<ul>
+<li>BERT classifier</li>
+<li>NLI</li>
+<li>Cross Encoder</li>
+<li>Reward Model</li>
+<li>Reranker</li>
+<li>Energy-based Model</li>
+<li>Logits Readout</li>
+</ul>
+<p>所以“有限答案集合 → probability distribution”本身显然不是新的数学思想。</p>
+<h3 id="13-2-支持方：真正的新价值是-Generalized-Decision-Model"><a href="#13-2-支持方：真正的新价值是-Generalized-Decision-Model" class="headerlink" title="13.2 支持方：真正的新价值是 Generalized Decision Model"></a>13.2 支持方：真正的新价值是 Generalized Decision Model</h3><p>传统 classifier 通常是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">固定 Task</span><br><span class="line">↓</span><br><span class="line">准备 Dataset</span><br><span class="line">↓</span><br><span class="line">Fine-tune</span><br><span class="line">↓</span><br><span class="line">部署一个 Model</span><br></pre></td></tr></table></figure>
+
+<p>Jev 想实现：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Natural-language Instructions</span><br><span class="line">+</span><br><span class="line">Arbitrary Candidate Schema</span><br><span class="line">↓</span><br><span class="line">新的 Decision Task</span><br></pre></td></tr></table></figure>
+
+<p>每个新任务都跳过重新训练。</p>
+<p>这才是它真正需要证明的能力：</p>
+<blockquote>
+<p><strong>General-purpose + task-configurable + calibrated decision model</strong></p>
+</blockquote>
+<h3 id="13-3-一个更合理的评价"><a href="#13-3-一个更合理的评价" class="headerlink" title="13.3 一个更合理的评价"></a>13.3 一个更合理的评价</h3><p>目前更合适的说法是：Jev 的学术 novelty 尚有争议，但其产品 abstraction 很清晰。</p>
+<p>“TypeSafe 是否发明了 classifier”这个问题意义不大，真正值得追问的是：</p>
+<blockquote>
+<p>“是否真的存在一种跳过任务级 fine-tune、足够通用、足够快、且概率足够可信的 Decision Model，可以成为软件基础设施？”</p>
+</blockquote>
+<hr>
+<blockquote>
+<h4 id="Part-3-·-生态与应用场景（十四-～-十九）"><a href="#Part-3-·-生态与应用场景（十四-～-十九）" class="headerlink" title="Part 3 · 生态与应用场景（十四 ～ 十九）"></a>Part 3 · 生态与应用场景（十四 ～ 十九）</h4></blockquote>
+<h2 id="十四、Jev-like-生态已经迅速出现"><a href="#十四、Jev-like-生态已经迅速出现" class="headerlink" title="十四、Jev-like 生态已经迅速出现"></a>十四、Jev-like 生态已经迅速出现</h2><p>Jev 发布后几天内，社区已经出现多条实现路线。</p>
+<table>
+<thead>
+<tr>
+<th>路线</th>
+<th>代表项目</th>
+<th>思路</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>双向 Encoder + Decision Head</td>
+<td>Laya &#x2F; Verdict &#x2F; Von</td>
+<td>一次 forward 直接评分</td>
+</tr>
+<tr>
+<td>Small LLM + Readout Head</td>
+<td>Kev</td>
+<td>复用预训练知识，不生成文本</td>
+</tr>
+<tr>
+<td>LLM + Logits Readout</td>
+<td>OpenJev &#x2F; Simple-Jev</td>
+<td>直接读取候选 token logits</td>
+</tr>
+<tr>
+<td>Shared Prefill &#x2F; Option Scoring</td>
+<td>daseinlabs open-jev</td>
+<td>共享 KV Cache 批量候选评分</td>
+</tr>
+<tr>
+<td>Diffusion Backbone</td>
+<td>DiffusionGemma OpenJev</td>
+<td>利用并行生成机制做决策</td>
+</tr>
+<tr>
+<td>Generic Adapter</td>
+<td>LitJev 等</td>
+<td>把现有模型包装成 Decision API</td>
+</tr>
+</tbody></table>
+<p>其中 Laya 当前社区开发非常活跃，已经出现 Calibration temperature 持久化、OpenAI-compatible API、高 cardinality choice、GPU fast path 与 benchmark harness 等工作。</p>
+<p>这说明：</p>
+<blockquote>
+<p><strong>Decision Model 这一形态正在快速被开源社区拆解和复现。</strong></p>
+</blockquote>
+<p>但这不等于这些项目已经拥有与 Jev 相同的 calibration、泛化或生产性能。</p>
+<hr>
+<h2 id="十五、一个重要开放问题：它是“新模型层”，还是“新-API-推理方式”"><a href="#十五、一个重要开放问题：它是“新模型层”，还是“新-API-推理方式”" class="headerlink" title="十五、一个重要开放问题：它是“新模型层”，还是“新 API &#x2F; 推理方式”"></a>十五、一个重要开放问题：它是“新模型层”，还是“新 API &#x2F; 推理方式”</h2><p>随着 Jev-like 实现增多，开始出现两类路线：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">             Jev-like Ecosystem</span><br><span class="line">                    │</span><br><span class="line">       ┌────────────┴────────────┐</span><br><span class="line">       ↓                         ↓</span><br><span class="line">专用 Decision Model        Decision Adapter</span><br><span class="line">       │                         │</span><br><span class="line"> Laya / Verdict          LLM Logits / Prefill</span><br></pre></td></tr></table></figure>
+
+<p>于是长期需要回答：</p>
+<blockquote>
+<p><strong>Decision Model 是否真的需要独立训练一类模型？还是改变现有模型的 inference &#x2F; readout 方式就够了？</strong></p>
+</blockquote>
+<p>这个问题目前还没有答案。</p>
+<hr>
+<h2 id="十六、发布数天后，社区真正拿-Jev-做什么"><a href="#十六、发布数天后，社区真正拿-Jev-做什么" class="headerlink" title="十六、发布数天后，社区真正拿 Jev 做什么"></a>十六、发布数天后，社区真正拿 Jev 做什么</h2><p>相比官方 demo，社区使用已经开始形成非常明显的模式。</p>
+<p>最值得关注的地方，比“分类文本”更进一步：</p>
+<blockquote>
+<p><strong>Continuous Decision Loop</strong></p>
+</blockquote>
+<p>即：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">State</span><br><span class="line">  ↓</span><br><span class="line">Decision</span><br><span class="line">  ↓</span><br><span class="line">Action</span><br><span class="line">  ↓</span><br><span class="line">New State</span><br><span class="line">  ↓</span><br><span class="line">Decision</span><br></pre></td></tr></table></figure>
+
+<h3 id="16-1-Agent-Skill-Model-Router"><a href="#16-1-Agent-Skill-Model-Router" class="headerlink" title="16.1 Agent &#x2F; Skill &#x2F; Model Router"></a>16.1 Agent &#x2F; Skill &#x2F; Model Router</h3><p>Agent Router：<code>User Request → Jev → Research / Code / Browser / Data / Human</code></p>
+<p>Skill Router 则位于 retrieval 之后：<code>Request → Candidate Skills → Jev → Best Skill</code>。它与 embedding retrieval 问的问题不同：Embedding 回答“哪个 Skill 和请求最相似”，Decision Model 回答“哪个 Skill 最适合完成当前任务”。</p>
+<p>Model Router：<code>Task → Jev → Fast / Normal / Frontier</code></p>
+<p>比总体 Accuracy 更值得盯的指标是：</p>
+<blockquote>
+<p><strong>Under-routing Rate</strong></p>
+</blockquote>
+<p>即：有多少真正需要强模型的任务被错误送给了弱模型。</p>
+<h3 id="16-2-Verification-Gate"><a href="#16-2-Verification-Gate" class="headerlink" title="16.2 Verification &#x2F; Gate"></a>16.2 Verification &#x2F; Gate</h3><p><code>Agent Output → Jev → pass / review / escalate</code></p>
+<p>例如：</p>
+<ul>
+<li>是否真的完成任务；</li>
+<li>是否需要高级 Code Review；</li>
+<li>是否需要 E2E；</li>
+<li>是否需要人工复核；</li>
+<li>是否满足 rubric。</li>
+</ul>
+<p>逐渐形成一个很有价值的模式：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Rule</span><br><span class="line"> ↓</span><br><span class="line">Decision Model</span><br><span class="line"> ↓</span><br><span class="line">Frontier Model</span><br><span class="line"> ↓</span><br><span class="line">Human</span><br></pre></td></tr></table></figure>
+
+<h3 id="16-3-Loop-Control"><a href="#16-3-Loop-Control" class="headerlink" title="16.3 Loop Control"></a>16.3 Loop Control</h3><p><code>Iteration State → Decision → continue / retry / replan / stop</code></p>
+<p>同时检测：</p>
+<ul>
+<li>是否反复执行同一策略；</li>
+<li>是否出现 A ↔ B 震荡；</li>
+<li>progress 是否持续下降；</li>
+<li>marginal value 是否已经接近 0。</li>
+</ul>
+<p>这里的推荐闭环（见图 2）是目标架构，不是 TypeSafe 已上线的控制实现：Decision Model 只能提高复核等级、触发重试或升级，不能降低 L1 硬规则，也不能绕过合并、发布或人工审批。</p>
+<p><img src="/images/ai/jev/verification-loop-control.png" alt="图 2：验证、修复与升级构成闭环；Decision Model 可以提升风险等级、触发升级，但不能降低 L1 硬规则或绕过审批。"></p>
+<p><em>图 2：推荐控制闭环，非已上线实现。模型判断只决定复核、重试、切换模型、重规划或人工升级；合并与发布仍受既有规则和审批系统控制。</em></p>
+<h3 id="16-4-Context-Keep-Drop"><a href="#16-4-Context-Keep-Drop" class="headerlink" title="16.4 Context Keep &#x2F; Drop"></a>16.4 Context Keep &#x2F; Drop</h3><p>长程 Agent 会积累大量旧工具结果和过时上下文。Decision Model 做三选一判断即可（<code>KEEP</code> &#x2F; <code>DROP</code> &#x2F; <code>RELEVANT</code>），不重新总结内容。</p>
+<h3 id="16-5-不应把“能调用”误写成“适合自动化”"><a href="#16-5-不应把“能调用”误写成“适合自动化”" class="headerlink" title="16.5 不应把“能调用”误写成“适合自动化”"></a>16.5 不应把“能调用”误写成“适合自动化”</h3><p>发布早期的社区项目能提供可行性信号，却很少构成失败率或生产可靠性的证据。因此不能把缺少公开失败报告理解为已经安全。以下边界比“又一个可用场景”更重要：</p>
+<ul>
+<li><strong>开放式问题</strong>：候选无法合理预定义、需要提出新方案或解释根因时，应交给 System-2，而不是把复杂推理伪装成 Choice。</li>
+<li><strong>不可逆或安全关键动作</strong>：资金划转、生产删除、飞行姿态稳定、医疗&#x2F;法律结论不应由 Decision Model 单独授权；它最多提出升级建议。</li>
+<li><strong>没有可验证标签的判断</strong>：若无法定义 ground truth，就不能检验 accuracy、calibration 或 drift；先做人工辅助与数据采集，而非自动化。</li>
+<li><strong>分布快速变化的领域</strong>：新攻击手法、极端市场状态或界面大改后，历史 calibration 可能失效，必须降级到 <code>ABSTAIN</code> &#x2F; fallback。</li>
+</ul>
+<hr>
+<h2 id="十七、从分类器走向真实连续控制"><a href="#十七、从分类器走向真实连续控制" class="headerlink" title="十七、从分类器走向真实连续控制"></a>十七、从分类器走向真实连续控制</h2><h3 id="17-1-量化-Crypto-Trading"><a href="#17-1-量化-Crypto-Trading" class="headerlink" title="17.1 量化 &#x2F; Crypto Trading"></a>17.1 量化 &#x2F; Crypto Trading</h3><p>社区已经有人把 Jev 放进交易循环：<code>Order Book → Structured Market State → Jev → buy / sell / hold → New Market State</code>。<code>jev-trader</code> 甚至尝试让每个 Monad block 都进行一次 decision。</p>
+<p>这类项目目前能证明的是延迟足够低、成本足够低、能进入实时 decision loop。<strong>不能证明的是</strong> Jev 具有可持续交易 alpha。因此这些案例更适合作为 <strong>Realtime Closed-loop Control Benchmark</strong>。</p>
+<h3 id="17-2-Mario-Doom-StarCraft-Snake-Tetris"><a href="#17-2-Mario-Doom-StarCraft-Snake-Tetris" class="headerlink" title="17.2 Mario &#x2F; Doom &#x2F; StarCraft &#x2F; Snake &#x2F; Tetris"></a>17.2 Mario &#x2F; Doom &#x2F; StarCraft &#x2F; Snake &#x2F; Tetris</h3><p><code>Environment State → Decision → Bounded Action → Environment State&#39;</code></p>
+<p>它们真正测试的是：</p>
+<blockquote>
+<p><strong>模型能否在连续状态变化中稳定做高频 tactical decision。</strong></p>
+</blockquote>
+<h3 id="17-3-无人机"><a href="#17-3-无人机" class="headerlink" title="17.3 无人机"></a>17.3 无人机</h3><p>合理架构不是 <code>Jev → motor</code> 直接驱动，而更像分层控制：</p>
+<table>
+<thead>
+<tr>
+<th>频率</th>
+<th>层级</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>500Hz</td>
+<td>Flight Controller</td>
+</tr>
+<tr>
+<td>50Hz</td>
+<td>Safety &#x2F; Guidance</td>
+</tr>
+<tr>
+<td>15Hz</td>
+<td>Perception</td>
+</tr>
+<tr>
+<td>2.5Hz</td>
+<td>Semantic Tactical Decision</td>
+</tr>
+</tbody></table>
+<p>也就是说：</p>
+<blockquote>
+<p><strong>确定性 fast loop 负责安全，Decision Model 负责较慢的语义 tactical judgment。</strong></p>
+</blockquote>
+<p>这里的 2.5Hz 是分层职责的示意频率，不是 Jev 已验证的无人机 SLA。Jev 若被用于此层，应只在上层选择任务&#x2F;航点&#x2F;回航&#x2F;人工接管等候选动作；一旦视觉、定位、链路或模型置信度异常，就由安全&#x2F;导航层接管并使语义层 <code>ABSTAIN</code>，绝不可影响 500Hz 姿态稳定环。</p>
+<h3 id="17-4-Browser-Computer-Use"><a href="#17-4-Browser-Computer-Use" class="headerlink" title="17.4 Browser &#x2F; Computer Use"></a>17.4 Browser &#x2F; Computer Use</h3><p><code>DOM / Accessibility Tree → Candidate Actions → Jev → click / type / scroll / done → New DOM</code></p>
+<p>可以形成三层分工：System-2 制定整体任务计划，System-1（Jev）在页面内选择下一动作，Code 负责执行、预算、超时、权限与恢复。</p>
+<h3 id="17-5-Home-Assistant-Semantic-Rule-Engine"><a href="#17-5-Home-Assistant-Semantic-Rule-Engine" class="headerlink" title="17.5 Home Assistant &#x2F; Semantic Rule Engine"></a>17.5 Home Assistant &#x2F; Semantic Rule Engine</h3><p><code>Sensor State → Decision Model → probability → Automation</code></p>
+<p>它说明 Decision Model 的潜在市场不只在 Agent，还可能演化为：</p>
+<blockquote>
+<p><strong>Semantic Rule Engine</strong></p>
+</blockquote>
+<h3 id="17-6-Semantic-Database"><a href="#17-6-Semantic-Database" class="headerlink" title="17.6 Semantic Database"></a>17.6 Semantic Database</h3><p>社区甚至开始探索：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> tickets</span><br><span class="line"><span class="keyword">WHERE</span> jev(<span class="type">row</span>, <span class="string">&#x27;the customer appears frustrated&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>也就是把 <code>WHERE deterministic_condition</code> 扩展成 <code>WHERE semantic_condition</code>。</p>
+<hr>
+<h2 id="十八、六种通用-Decision-Pattern"><a href="#十八、六种通用-Decision-Pattern" class="headerlink" title="十八、六种通用 Decision Pattern"></a>十八、六种通用 Decision Pattern</h2><table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>结构</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A：Route</td>
+<td>State → Decision → Agent &#x2F; Model &#x2F; Tool &#x2F; Skill</td>
+<td>按语义把请求分发到不同处理单元</td>
+</tr>
+<tr>
+<td>B：Gate</td>
+<td>Output &#x2F; Action → Decision → pass &#x2F; review &#x2F; block</td>
+<td>对已产出结果做通过&#x2F;拦截判断</td>
+</tr>
+<tr>
+<td>C：Escalate</td>
+<td>Cheap System → Decision → confident? → 是则 accept，否则升级到 System-2 &#x2F; Human</td>
+<td>用置信度决定是否需要更强能力介入</td>
+</tr>
+<tr>
+<td>D：Control</td>
+<td>Execute → Observe → Decision → continue &#x2F; retry &#x2F; replan &#x2F; stop</td>
+<td>驱动循环的下一步动作</td>
+</tr>
+<tr>
+<td>E：Map</td>
+<td>大批量 Records → Decision Model → labels &#x2F; scores</td>
+<td>对海量数据做批量语义标注</td>
+</tr>
+<tr>
+<td>F：Observe</td>
+<td>Prompts &#x2F; Traces &#x2F; Tool Calls → Decision Model → risk &#x2F; failure &#x2F; quality &#x2F; anomaly</td>
+<td>对系统运行痕迹做持续质量与风险监测</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="十九、Decision-Model-最重要的失败模式"><a href="#十九、Decision-Model-最重要的失败模式" class="headerlink" title="十九、Decision Model 最重要的失败模式"></a>十九、Decision Model 最重要的失败模式</h2><h3 id="19-1-错得非常合法"><a href="#19-1-错得非常合法" class="headerlink" title="19.1 错得非常合法"></a>19.1 错得非常合法</h3><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;risk&quot;</span><span class="punctuation">:</span> <span class="string">&quot;low&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;confidence&quot;</span><span class="punctuation">:</span> <span class="number">0.98</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>格式完全正确，但可能语义错误。</p>
+<h3 id="19-2-Forced-Choice"><a href="#19-2-Forced-Choice" class="headerlink" title="19.2 Forced Choice"></a>19.2 Forced Choice</h3><p>如果候选只有：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">billing</span><br><span class="line">technical</span><br><span class="line">account</span><br></pre></td></tr></table></figure>
+
+<p>而真实输入是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">legal dispute</span><br></pre></td></tr></table></figure>
+
+<p>模型可能被迫选择一个最接近的错误类别。</p>
+<p>因此生产 Decision Contract 应优先考虑：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">OTHER</span><br><span class="line">UNKNOWN</span><br><span class="line">ABSTAIN</span><br></pre></td></tr></table></figure>
+
+<h3 id="19-3-Calibration-Drift"><a href="#19-3-Calibration-Drift" class="headerlink" title="19.3 Calibration Drift"></a>19.3 Calibration Drift</h3><p>Calibration 必须按：</p>
+<ul>
+<li>task</li>
+<li>domain</li>
+<li>language</li>
+<li>model version</li>
+<li>time window</li>
+</ul>
+<p>持续监测。</p>
+<h3 id="19-4-Cross-decision-Inconsistency"><a href="#19-4-Cross-decision-Inconsistency" class="headerlink" title="19.4 Cross-decision Inconsistency"></a>19.4 Cross-decision Inconsistency</h3><p>多个 parallel question 可能出现：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">complete = false</span><br><span class="line">publishable = true</span><br><span class="line">risk = high</span><br><span class="line">auto_release = true</span><br></pre></td></tr></table></figure>
+
+<p>因此 Decision Runtime 仍需要：</p>
+<blockquote>
+<p><strong>Deterministic Constraint Layer</strong></p>
+</blockquote>
+<h3 id="19-5-把-Reasoning-问题伪装成-Choice"><a href="#19-5-把-Reasoning-问题伪装成-Choice" class="headerlink" title="19.5 把 Reasoning 问题伪装成 Choice"></a>19.5 把 Reasoning 问题伪装成 Choice</h3><p>一个很实用的判断原则是：</p>
+<blockquote>
+<p><strong>Answer Space 能合理预先定义时，才优先使用 Decision Model。</strong></p>
+</blockquote>
+<h3 id="19-6-Automation-Bias"><a href="#19-6-Automation-Bias" class="headerlink" title="19.6 Automation Bias"></a>19.6 Automation Bias</h3><p>更稳妥的 UI 应同时提供：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Model Confidence: 97%</span><br><span class="line">Historical Accuracy in this bucket: 89%</span><br><span class="line">Calibration Status: Stable</span><br></pre></td></tr></table></figure>
+
+<hr>
+<blockquote>
+<h4 id="Part-4-·-架构建议与落地路径（二十-～-二十三）"><a href="#Part-4-·-架构建议与落地路径（二十-～-二十三）" class="headerlink" title="Part 4 · 架构建议与落地路径（二十 ～ 二十三）"></a>Part 4 · 架构建议与落地路径（二十 ～ 二十三）</h4></blockquote>
+<h2 id="二十、为什么需要-Decision-Runtime，而不是直接集成-Jev"><a href="#二十、为什么需要-Decision-Runtime，而不是直接集成-Jev" class="headerlink" title="二十、为什么需要 Decision Runtime，而不是直接集成 Jev"></a>二十、为什么需要 Decision Runtime，而不是直接集成 Jev</h2><p>如果每个业务直接：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jev.<span class="title function_">choice</span>(...)</span><br></pre></td></tr></table></figure>
+
+<p>很快会遇到：</p>
+<ul>
+<li>schema 散落；</li>
+<li>threshold 不一致；</li>
+<li>provider 锁定；</li>
+<li>无法 replay；</li>
+<li>无法 A&#x2F;B；</li>
+<li>无统一 fallback；</li>
+<li>无法做 calibration dashboard。</li>
+</ul>
+<p>更合理的架构是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">             Decision Runtime</span><br><span class="line">                    │</span><br><span class="line">    ┌───────────────┼────────────────┐</span><br><span class="line">    ↓               ↓                ↓</span><br><span class="line">Rule Provider   Jev Provider    OSS Provider</span><br><span class="line">                                     │</span><br><span class="line">                                Laya / ...</span><br><span class="line">                    │</span><br><span class="line">                    ↓</span><br><span class="line">                Policy Layer</span><br><span class="line">                    │</span><br><span class="line">                    ↓</span><br><span class="line">            System-2 / Human</span><br></pre></td></tr></table></figure>
+
+<p>Jev 只是一个 <strong>DecisionProvider</strong>。</p>
+<p><img src="/images/ai/jev/decision-runtime-architecture.png" alt="图 3：Decision Runtime 将 Contract、Provider、可靠性策略和回放评估收敛在内部，避免业务控制逻辑直接锁定单一模型。"></p>
+<p><em>图 3：推荐目标架构，非 TypeSafe 内部实现。规则优先；Decision Provider 处理有限候选的语义判断；复杂开放问题与高风险动作仍升级至推理模型或人工。</em></p>
+<hr>
+<h2 id="二十一、Decision-Runtime-应该包含什么"><a href="#二十一、Decision-Runtime-应该包含什么" class="headerlink" title="二十一、Decision Runtime 应该包含什么"></a>二十一、Decision Runtime 应该包含什么</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">Decision Runtime</span><br><span class="line">│</span><br><span class="line">├── Contract</span><br><span class="line">│   ├── State Schema</span><br><span class="line">│   ├── Choice / Score / Noul</span><br><span class="line">│   ├── Criteria</span><br><span class="line">│   ├── Abstain</span><br><span class="line">│   └── Version</span><br><span class="line">│</span><br><span class="line">├── Provider</span><br><span class="line">│   ├── Jev</span><br><span class="line">│   ├── Local Decision Model</span><br><span class="line">│   ├── Fast LLM Adapter</span><br><span class="line">│   └── Rule</span><br><span class="line">│</span><br><span class="line">├── Reliability</span><br><span class="line">│   ├── Threshold</span><br><span class="line">│   ├── Calibration</span><br><span class="line">│   ├── Constraint</span><br><span class="line">│   ├── Fallback</span><br><span class="line">│   └── Circuit Breaker</span><br><span class="line">│</span><br><span class="line">├── Observability</span><br><span class="line">│   ├── Decision Log</span><br><span class="line">│   ├── Replay</span><br><span class="line">│   ├── Outcome</span><br><span class="line">│   ├── Cost / Latency</span><br><span class="line">│   └── Drift</span><br><span class="line">│</span><br><span class="line">└── Evaluation</span><br><span class="line">    ├── Offline Benchmark</span><br><span class="line">    ├── Shadow</span><br><span class="line">    ├── A/B</span><br><span class="line">    └── Regression</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="二十二、在-Agent-系统中最值得优先验证的场景"><a href="#二十二、在-Agent-系统中最值得优先验证的场景" class="headerlink" title="二十二、在 Agent 系统中最值得优先验证的场景"></a>二十二、在 Agent 系统中最值得优先验证的场景</h2><table>
+<thead>
+<tr>
+<th>优先级</th>
+<th>场景</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>P0</td>
+<td>Skill Router</td>
+<td>候选清晰、风险低、容易 benchmark</td>
+</tr>
+<tr>
+<td>P0</td>
+<td>Model Router</td>
+<td>可以直接量化成本与质量收益</td>
+</tr>
+<tr>
+<td>P0</td>
+<td>Trace &#x2F; Session Classification</td>
+<td>数据量大、适合离线评测</td>
+</tr>
+<tr>
+<td>P0</td>
+<td>Verification Escalation</td>
+<td>cheap-confirm-escalate 模式成熟</td>
+</tr>
+<tr>
+<td>P1</td>
+<td>Loop stop &#x2F; retry &#x2F; replan</td>
+<td>非常符合 bounded decision</td>
+</tr>
+<tr>
+<td>P1</td>
+<td>Context keep &#x2F; drop</td>
+<td>长程 Agent 高价值</td>
+</tr>
+<tr>
+<td>P1</td>
+<td>AgentTeam delegation</td>
+<td>可减少过度 delegation</td>
+</tr>
+<tr>
+<td>P2</td>
+<td>Browser action selection</td>
+<td>很有潜力，但要验证长程稳定性</td>
+</tr>
+</tbody></table>
+<p>不建议第一阶段直接交给 Decision Model：</p>
+<ul>
+<li>自动生产发布；</li>
+<li>权限授予；</li>
+<li>安全豁免；</li>
+<li>核心资金操作；</li>
+<li>不可逆数据库写；</li>
+<li>高风险交易授权。</li>
+</ul>
+<hr>
+<h2 id="二十三、如何做一个真正有意义的-PoC"><a href="#二十三、如何做一个真正有意义的-PoC" class="headerlink" title="二十三、如何做一个真正有意义的 PoC"></a>二十三、如何做一个真正有意义的 PoC</h2><p>PoC 要回答的问题比“API 能不能跑通”深一层：</p>
+<blockquote>
+<p><strong>这类 Decision 是否值得从 Rule &#x2F; LLM 中独立出来？</strong></p>
+</blockquote>
+<h3 id="Phase-1：Contract"><a href="#Phase-1：Contract" class="headerlink" title="Phase 1：Contract"></a>Phase 1：Contract</h3><p>定义：</p>
+<ul>
+<li>State</li>
+<li>Candidates</li>
+<li>Criteria</li>
+<li>OTHER &#x2F; UNKNOWN</li>
+<li>Ground Truth</li>
+<li>Consumer</li>
+<li>Risk</li>
+<li>Fallback</li>
+</ul>
+<h3 id="Phase-2：Offline-Replay"><a href="#Phase-2：Offline-Replay" class="headerlink" title="Phase 2：Offline Replay"></a>Phase 2：Offline Replay</h3><p>同一数据集比较：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Rule</span><br><span class="line">Fast LLM</span><br><span class="line">Frontier LLM</span><br><span class="line">Jev</span><br><span class="line">Open-source Decision Model</span><br></pre></td></tr></table></figure>
+
+<p>至少评估：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>指标</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Quality</td>
+<td>Accuracy &#x2F; Precision &#x2F; Recall</td>
+</tr>
+<tr>
+<td>Calibration</td>
+<td>ECE &#x2F; Brier &#x2F; Reliability</td>
+</tr>
+<tr>
+<td>Automation</td>
+<td>Coverage @ Threshold</td>
+</tr>
+<tr>
+<td>Risk</td>
+<td>High-confidence Error</td>
+</tr>
+<tr>
+<td>Performance</td>
+<td>P50 &#x2F; P95 &#x2F; P99</td>
+</tr>
+<tr>
+<td>Cost</td>
+<td>$ &#x2F; 1M decisions</td>
+</tr>
+<tr>
+<td>Stability</td>
+<td>Repeat consistency</td>
+</tr>
+<tr>
+<td>OOD</td>
+<td>Unknown &#x2F; new domain</td>
+</tr>
+<tr>
+<td>Language</td>
+<td>中英等语言切片</td>
+</tr>
+</tbody></table>
+<h3 id="Phase-2-1：先确定数据，而不是先跑模型"><a href="#Phase-2-1：先确定数据，而不是先跑模型" class="headerlink" title="Phase 2.1：先确定数据，而不是先跑模型"></a>Phase 2.1：先确定数据，而不是先跑模型</h3><p>最有价值的数据通常不是“通用 Decision 数据集”，而是业务已有的、可追溯结果的历史事件：工单最终队列、人工复核结论、Agent trace 的真实完成状态、发布后的回滚&#x2F;事故记录。按时间切分训练&#x2F;调参与测试集，避免同一事件或后验结果泄漏到 replay；并单独保留新业务线、语言、渠道或版本作为 OOD 切片。</p>
+<table>
+<thead>
+<tr>
+<th>PoC 类型</th>
+<th>数据与验证边界</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Router</td>
+<td>首选历史请求、实际使用的 skill&#x2F;model 与完成质量；公开分类&#x2F;检索数据只用于验证接口与候选空间，不能替代真实的 under-routing 成本。</td>
+</tr>
+<tr>
+<td>Verification &#x2F; Gate</td>
+<td>首选 PR、任务或工单的人工验收与后续缺陷；合成数据可覆盖边界、缺字段和冲突证据，不能替代“通过是否真的安全”的业务标签。</td>
+</tr>
+<tr>
+<td>Loop Control</td>
+<td>首选 Agent trace、重试次数、人工介入与最终结果；合成死循环、震荡与预算耗尽轨迹只能补充，不能替代真实工作流中的恢复行为。</td>
+</tr>
+</tbody></table>
+<p>Synthetic data 适合覆盖罕见候选、<code>OTHER/UNKNOWN/ABSTAIN</code>、格式错误和 OOD 压力，但只能作为补充；若它由同一个 LLM 生成并标注，模型可能只是在拟合生成器偏好。最小可行数据集也不宜用单一条数承诺：每个会触发自动化的候选、阈值桶和关键 OOD 切片都应有足以估计错误率的独立样本；罕见而高损失的错误宁可先保持 shadow，直到积累到可审计的标签。</p>
+<h3 id="Phase-2-2：在现有-Agent-栈中接入-Decision-Runtime"><a href="#Phase-2-2：在现有-Agent-栈中接入-Decision-Runtime" class="headerlink" title="Phase 2.2：在现有 Agent 栈中接入 Decision Runtime"></a>Phase 2.2：在现有 Agent 栈中接入 Decision Runtime</h3><p>不要把 Decision Model 直接散落在 LangChain、LlamaIndex 或 Vercel AI SDK 的每条链路里。更稳妥的接入点是一个 provider-neutral 的 <code>DecisionRuntime</code>：上游传入 Contract 与 state，下游只接收已通过 policy 的 choice &#x2F; probability &#x2F; fallback；日志统一保存 key、version、provider、阈值与最终结果。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 示意代码：runtime 负责 provider、阈值、fallback 与审计，不绑定某个框架的专属 API。</span></span><br><span class="line"><span class="keyword">const</span> decision = <span class="keyword">await</span> decisionRuntime.<span class="title function_">decide</span>(&#123;</span><br><span class="line">  <span class="attr">contract</span>: modelRouteContract,</span><br><span class="line">  <span class="attr">state</span>: &#123; task, budgetRemaining, recentFailures &#125;,</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> model = decision.<span class="property">choice</span> === <span class="string">&quot;FRONTIER&quot;</span> ? frontierModel : fastModel;</span><br><span class="line"><span class="keyword">const</span> result = <span class="keyword">await</span> <span class="title function_">runAgent</span>(&#123; model, task &#125;);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>LangChain &#x2F; LlamaIndex</strong>：把 <code>decisionRuntime.decide()</code> 包装为 chain&#x2F;workflow 中的一个普通步骤；它应在 retrieval 之后、昂贵 Agent 或 tool loop 之前运行。后续节点读取已类型化的 choice，不再从自然语言中解析路由结果。</li>
+<li><strong>Vercel AI SDK</strong>：把 decision 放在 <code>generateText()</code> &#x2F; <code>streamText()</code> 之前，用其结果选择 model、<code>toolChoice</code>、预算或是否升级；生成调用仍由 AI SDK 管理。这样可以复用既有 provider 抽象和 telemetry，而 Contract、fallback 与 calibration 记录仍归 Runtime 所有。</li>
+</ul>
+<p>该模式不假设任何框架已经提供 Jev 的原生集成。若某 provider 后续提供专属 adapter，只应替换 Runtime 内的 provider 实现，不能让业务调用方感知其 SDK 差异。</p>
+<h3 id="Phase-3：Shadow"><a href="#Phase-3：Shadow" class="headerlink" title="Phase 3：Shadow"></a>Phase 3：Shadow</h3><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Production Event</span><br><span class="line">        │</span><br><span class="line">        ├── Existing Logic → Real Action</span><br><span class="line">        │</span><br><span class="line">        └── Decision Model → Shadow Prediction</span><br></pre></td></tr></table></figure>
+
+<h3 id="Phase-4：Guarded-Automation"><a href="#Phase-4：Guarded-Automation" class="headerlink" title="Phase 4：Guarded Automation"></a>Phase 4：Guarded Automation</h3><p>只开放：</p>
+<ul>
+<li>低风险；</li>
+<li>可逆；</li>
+<li>有 fallback；</li>
+<li>有 budget；</li>
+<li>有 circuit breaker；</li>
+</ul>
+<p>的动作。</p>
+<hr>
+<blockquote>
+<h4 id="Part-5-·-展望与风险（二十四-～-二十八）"><a href="#Part-5-·-展望与风险（二十四-～-二十八）" class="headerlink" title="Part 5 · 展望与风险（二十四 ～ 二十八）"></a>Part 5 · 展望与风险（二十四 ～ 二十八）</h4></blockquote>
+<h2 id="二十四、采用速度：Jev-真的很火，但应该怎样读数据"><a href="#二十四、采用速度：Jev-真的很火，但应该怎样读数据" class="headerlink" title="二十四、采用速度：Jev 真的很火，但应该怎样读数据"></a>二十四、采用速度：Jev 真的很火，但应该怎样读数据</h2><p>Vercel 披露：</p>
+<blockquote>
+<p>Jev 上线 AI Gateway 24 小时内，接近 13% 的付费团队尝试使用。</p>
+</blockquote>
+<p>截至 2026-09-20 的 Vercel leaderboard：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Jev:</span><br><span class="line">20.8% request share</span><br><span class="line">27.8% team reach</span><br><span class="line">24.9% preference</span><br><span class="line">2.0% token volume</span><br></pre></td></tr></table></figure>
+
+<p>这个组合非常有意思。</p>
+<p>它没有占据大量 token：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Token Volume ≈ 2%</span><br></pre></td></tr></table></figure>
+
+<p>但占据非常多请求：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Requests ≈ 20.8%</span><br></pre></td></tr></table></figure>
+
+<p>这与 Jev 的产品形态高度一致：</p>
+<blockquote>
+<p><strong>高频、小输入、短输出甚至无生成输出的 decision calls。</strong></p>
+</blockquote>
+<p>但这些数据只能证明：</p>
+<blockquote>
+<p>launch adoption 很强。</p>
+</blockquote>
+<p>不能证明：</p>
+<ul>
+<li>长期 retention；</li>
+<li>生产 SLA；</li>
+<li>模型正确率；</li>
+<li>calibration；</li>
+<li>企业级稳定性。</li>
+</ul>
+<p>接下来真正值得看的，是 30～90 天后的 retention。</p>
+<hr>
+<h2 id="二十五、TypeSafe-的真正护城河可能是什么"><a href="#二十五、TypeSafe-的真正护城河可能是什么" class="headerlink" title="二十五、TypeSafe 的真正护城河可能是什么"></a>二十五、TypeSafe 的真正护城河可能是什么</h2><p>Jev 最容易被复制的是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Choice</span><br><span class="line">Score</span><br><span class="line">Boolean</span><br><span class="line">Typed API</span><br></pre></td></tr></table></figure>
+
+<p>更难复制的可能是：</p>
+<ol>
+<li><strong>Generalization</strong>：不同 Decision Schema 不需要重新 fine-tune；</li>
+<li><strong>Calibration</strong>：Probability 真正可用于 automation threshold；</li>
+<li><strong>Training Data</strong>：大量异构 Decision Tasks；</li>
+<li><strong>Serving</strong>：极低 latency、高吞吐；</li>
+<li><strong>SDK &#x2F; Contract</strong>：形成 developer standard；</li>
+<li><strong>Ecosystem</strong>：Vercel、OpenRouter、Agent Framework 等原生支持。</li>
+</ol>
+<p>TypeSafe 真正需要做的可能不是：</p>
+<blockquote>
+<p>“永远保持 Jev 1.x 最强。”</p>
+</blockquote>
+<p>而是：</p>
+<blockquote>
+<p><strong>让 <code>decide()</code> 成为和 <code>generate()</code>、<code>embed()</code>、<code>rerank()</code> 同一级的 AI primitive。</strong></p>
+</blockquote>
+<hr>
+<h2 id="二十六、最大的战略风险"><a href="#二十六、最大的战略风险" class="headerlink" title="二十六、最大的战略风险"></a>二十六、最大的战略风险</h2><h3 id="Frontier-Labs-吸收"><a href="#Frontier-Labs-吸收" class="headerlink" title="Frontier Labs 吸收"></a>Frontier Labs 吸收</h3><p>OpenAI、Anthropic、Google 完全可能提供：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">responses.decision()</span><br></pre></td></tr></table></figure>
+
+<p>或 typed probability head。</p>
+<p>这个风险已经不只是未来假设：主流 Frontier API 已能用 function calling &#x2F; structured output 把“有限候选”做成程序可消费的接口，并能通过缓存、低推理强度或更小模型降低重复判断的成本。它们首先侵蚀的是 Jev 的 <strong>API 便利性</strong> 与一部分 <strong>端到端延迟&#x2F;成本</strong>，但并不自动等同于一个独立的 Decision Model。</p>
+<table>
+<thead>
+<tr>
+<th>能力维度</th>
+<th>Frontier LLM + function calling &#x2F; structured output</th>
+<th>Jev 主张的 Decision Model</th>
+<th>对 Jev 的含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>强制输出形态</td>
+<td>可强制工具调用或 JSON schema；OpenAI 的 <code>tool_choice: &quot;required&quot;</code> 要求调用至少一个工具</td>
+<td>原生 Choice &#x2F; Score &#x2F; Noul 等类型化输出</td>
+<td>接口差异可被较快复制</td>
+</tr>
+<tr>
+<td>候选选择</td>
+<td>可把候选编码为 enum 或工具；模型仍按生成式推理路径工作</td>
+<td>面向有限候选的专门决策路径</td>
+<td>必须用端到端 P50&#x2F;P95 和成本实测证明优势</td>
+</tr>
+<tr>
+<td>置信度</td>
+<td>可要求分数，但分数本身不等于校准概率</td>
+<td>以可用于阈值自动化的 calibrated probability 为核心主张</td>
+<td>这是最关键、也最需要独立 benchmark 的差异</td>
+</tr>
+<tr>
+<td>重复上下文</td>
+<td>Prompt caching 可降低重复前缀的输入成本；function calling 可避免自由文本协议</td>
+<td>Parallel sampler &#x2F; 专用 serving 试图降低多问题决策成本</td>
+<td>缓存会缩小优势，尤其是共享长状态的 Agent</td>
+</tr>
+<tr>
+<td>开放式推理</td>
+<td>可在判断前检索、规划、解释与调用工具</td>
+<td>有意不覆盖这类任务</td>
+<td>Jev 不应试图在该维度胜出</td>
+</tr>
+</tbody></table>
+<p>因此真正要比较的不是“能不能返回一个选项”，而是在同一 Contract、同一状态、同一阈值和同一回放集上：quality、calibration、high-confidence error、P50&#x2F;P95、缓存命中后的成本，以及实现与治理复杂度。OpenAI 文档明确将 <code>required</code> 定义为必须调用一个或多个工具，而非校准的语义选择；Anthropic 也提供强制或任选 tool choice。这说明它们是重要的替代基线，却不能单凭 API 形态否定或证实 Jev 的 calibration 主张。</p>
+<blockquote>
+<p><strong>因此 Jev 的核心辩护空间不是“能不能做选择”，而是“同样做选择时，calibration 是否足够可信、延迟是否足够低、治理是否足够简单”。</strong></p>
+</blockquote>
+<h3 id="Open-source-Commoditization"><a href="#Open-source-Commoditization" class="headerlink" title="Open-source Commoditization"></a>Open-source Commoditization</h3><p>如果 150M～1B 的小模型已经足以覆盖大量 Router &#x2F; Verifier &#x2F; Loop 判断，商业闭源 API 的空间会迅速被压缩。</p>
+<h3 id="Calibration-不成立"><a href="#Calibration-不成立" class="headerlink" title="Calibration 不成立"></a>Calibration 不成立</h3><p>如果现实中发现 confidence 只是一种“看起来合理的 score”，而不是统计上可靠的 probability，Jev 的价值会从：</p>
+<blockquote>
+<p>Production Automation Primitive</p>
+</blockquote>
+<p>退化成：</p>
+<blockquote>
+<p>Very Fast Semantic Classifier</p>
+</blockquote>
+<p>仍然有价值，但战略意义不同。</p>
+<hr>
+<h2 id="二十七、未来最值得观察的五个信号"><a href="#二十七、未来最值得观察的五个信号" class="headerlink" title="二十七、未来最值得观察的五个信号"></a>二十七、未来最值得观察的五个信号</h2><h3 id="1-OpenRouter-Vercel-是否出现多个-Decisions-Model"><a href="#1-OpenRouter-Vercel-是否出现多个-Decisions-Model" class="headerlink" title="1. OpenRouter &#x2F; Vercel 是否出现多个 Decisions Model"></a>1. OpenRouter &#x2F; Vercel 是否出现多个 Decisions Model</h3><p>如果未来出现：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Decisions:</span><br><span class="line">Jev</span><br><span class="line">Laya</span><br><span class="line">OpenAI xxx</span><br><span class="line">Anthropic xxx</span><br><span class="line">Google xxx</span><br></pre></td></tr></table></figure>
+
+<p>说明 category 已经从 TypeSafe 的产品定义变成行业类别。</p>
+<h3 id="2-Calibration-Benchmark-是否独立出现"><a href="#2-Calibration-Benchmark-是否独立出现" class="headerlink" title="2. Calibration Benchmark 是否独立出现"></a>2. Calibration Benchmark 是否独立出现</h3><p>重点观察：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ECE</span><br><span class="line">Brier</span><br><span class="line">High-confidence Error</span><br><span class="line">OOD Calibration</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-本地模型是否追上"><a href="#3-本地模型是否追上" class="headerlink" title="3. 本地模型是否追上"></a>3. 本地模型是否追上</h3><p>如果 400M 左右模型能稳定达到很低 latency、较高准确率和可接受 calibration，那么 Decision Runtime 很可能会大量本地化。</p>
+<h3 id="4-Agent-Framework-是否原生出现-decide"><a href="#4-Agent-Framework-是否原生出现-decide" class="headerlink" title="4. Agent Framework 是否原生出现 decide()"></a>4. Agent Framework 是否原生出现 decide()</h3><p>如果未来：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">generateText</span>()</span><br><span class="line"><span class="title function_">embed</span>()</span><br><span class="line"><span class="title function_">rerank</span>()</span><br><span class="line"><span class="title function_">decide</span>()</span><br></pre></td></tr></table></figure>
+
+<p>同时存在，意义会非常大。</p>
+<h3 id="5-Production-Retention"><a href="#5-Production-Retention" class="headerlink" title="5. Production Retention"></a>5. Production Retention</h3><p>Jev 当前 adoption 极快。</p>
+<p>真正重要的是：</p>
+<blockquote>
+<p>发布 30～90 天后，Router &#x2F; Verifier &#x2F; Loop 场景是否仍然稳定使用。</p>
+</blockquote>
+<hr>
+<h2 id="二十八、最终判断"><a href="#二十八、最终判断" class="headerlink" title="二十八、最终判断"></a>二十八、最终判断</h2><p>Jev 最容易被错误理解成：</p>
+<blockquote>
+<p><strong>一个比 GPT 快 200 倍的新模型。</strong></p>
+</blockquote>
+<p>这不是它最重要的意义。</p>
+<p>更准确的理解是：</p>
+<blockquote>
+<p><strong>TypeSafe 正在尝试把 AI 从“生成内容的服务”扩展成“软件内部可以高频调用的概率决策组件”。</strong></p>
+</blockquote>
+<p>Jev 是否会最终成功，目前还远没有答案。</p>
+<p>它的：</p>
+<ul>
+<li>学术原创性；</li>
+<li>RLCD；</li>
+<li>calibration；</li>
+<li>OOD；</li>
+<li>长期生产稳定性；</li>
+</ul>
+<p>都还需要独立验证。</p>
+<p>但它提出的问题很可能是真问题：</p>
+<blockquote>
+<p><strong>为什么 Agent Runtime 里的每一个语义 if&#x2F;else，都要启动一个生成式大模型？</strong></p>
+</blockquote>
+<p>随着 Agent 系统不断增加：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Router</span><br><span class="line">SkillHub</span><br><span class="line">AgentTeam</span><br><span class="line">Loop</span><br><span class="line">Scheduler</span><br><span class="line">Verifier</span><br><span class="line">Browser</span><br><span class="line">Long-running Task</span><br><span class="line">Control Plane</span><br><span class="line">Observability</span><br></pre></td></tr></table></figure>
+
+<p>系统中会出现海量：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">route</span><br><span class="line">score</span><br><span class="line">stop</span><br><span class="line">retry</span><br><span class="line">replan</span><br><span class="line">verify</span><br><span class="line">escalate</span><br></pre></td></tr></table></figure>
+
+<p>纯 Rule 无法理解这些灰度。</p>
+<p>Frontier Model 又过重。</p>
+<p>于是中间自然会出现：</p>
+<blockquote>
+<p><strong>Semantic Decision Layer</strong></p>
+</blockquote>
+<p>无论最终主导这一层的是 Jev、Laya、OpenAI、Anthropic、自研小模型，还是某种 LLM readout adapter，</p>
+<p>从工程架构角度看：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Rule Runtime</span><br><span class="line">     ↓</span><br><span class="line">Decision Runtime</span><br><span class="line">     ↓</span><br><span class="line">Reasoning Runtime</span><br><span class="line">     ↓</span><br><span class="line">Human</span><br></pre></td></tr></table></figure>
+
+<p>很可能比：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Everything → LLM</span><br></pre></td></tr></table></figure>
+
+<p>更接近成熟 Agent Harness 的最终形态。</p>
+<hr>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><h3 id="官方-一手来源"><a href="#官方-一手来源" class="headerlink" title="官方 &#x2F; 一手来源"></a>官方 &#x2F; 一手来源</h3><ol>
+<li><p>TypeSafe — Introducing System One Models &amp; Jev<br><a target="_blank" rel="noopener" href="https://typesafe.ai/blog/introducing-system-one-models-and-jev">https://typesafe.ai/blog/introducing-system-one-models-and-jev</a></p>
+</li>
+<li><p>TypeSafe 官网<br><a target="_blank" rel="noopener" href="https://typesafe.ai/">https://typesafe.ai/</a></p>
+</li>
+<li><p>TypeSafe Team<br><a target="_blank" rel="noopener" href="https://typesafe.ai/team">https://typesafe.ai/team</a></p>
+</li>
+<li><p>TypeSafe Workflow Evals<br><a target="_blank" rel="noopener" href="https://evals.typesafe.ai/">https://evals.typesafe.ai/</a></p>
+</li>
+<li><p>TypeSafe System One Docs<br><a target="_blank" rel="noopener" href="https://docs.typesafe.ai/concepts/system-one">https://docs.typesafe.ai/concepts/system-one</a></p>
+</li>
+<li><p>Vercel — Jev on AI Gateway<br><a target="_blank" rel="noopener" href="https://vercel.com/changelog/typesafe-ai-jev-now-available-on-ai-gateway">https://vercel.com/changelog/typesafe-ai-jev-now-available-on-ai-gateway</a></p>
+</li>
+<li><p>Vercel — Jev is the fastest-adopted model in AI Gateway history<br><a target="_blank" rel="noopener" href="https://vercel.com/blog/ai-gateway-jev-model-launch">https://vercel.com/blog/ai-gateway-jev-model-launch</a></p>
+</li>
+<li><p>Vercel AI Gateway Leaderboards<br><a target="_blank" rel="noopener" href="https://vercel.com/ai-gateway/leaderboards/models">https://vercel.com/ai-gateway/leaderboards/models</a></p>
+</li>
+<li><p>InstructGPT<br><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2203.02155">https://arxiv.org/abs/2203.02155</a></p>
+</li>
+<li><p>Guo et al. — On Calibration of Modern Neural Networks<br><a target="_blank" rel="noopener" href="https://arxiv.org/abs/1706.04599">https://arxiv.org/abs/1706.04599</a></p>
+</li>
+<li><p>OpenAI — Function Calling guide (<code>tool_choice</code>)<br><a target="_blank" rel="noopener" href="https://developers.openai.com/api/docs/guides/function-calling">https://developers.openai.com/api/docs/guides/function-calling</a></p>
+</li>
+<li><p>Anthropic — Implement tool use (<code>tool_choice</code>)<br><a target="_blank" rel="noopener" href="https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/implement-tool-use">https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/implement-tool-use</a></p>
+</li>
+<li><p>Anthropic — Pricing and prompt caching<br><a target="_blank" rel="noopener" href="https://docs.anthropic.com/en/docs/about-claude/pricing">https://docs.anthropic.com/en/docs/about-claude/pricing</a></p>
+</li>
+<li><p>Vercel AI SDK — <code>generateText()</code><br><a target="_blank" rel="noopener" href="https://ai-sdk.dev/docs/reference/ai-sdk-core/generate-text">https://ai-sdk.dev/docs/reference/ai-sdk-core/generate-text</a></p>
+</li>
+</ol>
+<h3 id="社区与开源生态"><a href="#社区与开源生态" class="headerlink" title="社区与开源生态"></a>社区与开源生态</h3><ol start="15">
+<li><p>Laya<br><a target="_blank" rel="noopener" href="https://github.com/NandhaKishorM/laya">https://github.com/NandhaKishorM/laya</a></p>
+</li>
+<li><p>Jev Browser<br><a target="_blank" rel="noopener" href="https://github.com/jkudish/jev-browser">https://github.com/jkudish/jev-browser</a></p>
+</li>
+<li><p>Jev Trader<br><a target="_blank" rel="noopener" href="https://github.com/jarrodwatts/jev-trader">https://github.com/jarrodwatts/jev-trader</a></p>
+</li>
+<li><p>Hacker News — Introducing System One Models and Jev<br><a target="_blank" rel="noopener" href="https://news.ycombinator.com/item?id=49717558">https://news.ycombinator.com/item?id=49717558</a></p>
+</li>
+</ol>
+<hr>
+<blockquote>
+<p><strong>一句话结论</strong></p>
+<p>Jev 尚不足以证明自己是一场“基础模型架构革命”，但它非常可能准确指出了 Agent 时代的一块真实空缺：<strong>Rule 太死，Frontier LLM 太重，中间需要一层低成本、低延迟、带概率、可组合、可治理的 Semantic Decision Runtime。</strong></p>
+</blockquote>
+</div></article></div><div class="post-paginator"><div class="post-links"><div class="post-next"><a class="next" href="/2026/09/12/ai/%E3%80%90%E8%B0%83%E7%A0%94%E3%80%91%E9%95%BF%E5%91%A8%E6%9C%9F%20Agent%20%E6%8E%A7%E5%88%B6%E5%B9%B3%E9%9D%A2%E2%80%94%E2%80%94LoopX/">下一篇<span>【调研】长周期 Agent 控制平面——LoopX</span></a></div></div></div></div><div class="sidebar"><div class="social-links"><ul><li class="social-link"><a class="link-github" href="https://github.com/MichealWayne" target="_blank" rel="noopener noreferrer" aria-label="github（在新窗口打开）"><i class="icon icon-github" aria-hidden="true"></i></a></li><li class="social-link"><a class="link-mail" href="mailto:michealwayne@163.com" target="_self" aria-label="mail"><i class="icon icon-mail" aria-hidden="true"></i></a></li></ul></div><div class="recent-posts widget"><h3 class="widget-title"> 近期文章</h3><div class="widget-content"><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2026/09/19/ai/Jev_System_One_Models_Agent_Decision_Runtime_%E8%B0%83%E7%A0%94%E6%96%87%E7%AB%A0_%E4%BC%98%E5%8C%96%E7%89%88/">【调研】从 Generate 到 Decide：Jev、System One Models 与 Agent 决策层</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/09/12/ai/%E3%80%90%E8%B0%83%E7%A0%94%E3%80%91%E9%95%BF%E5%91%A8%E6%9C%9F%20Agent%20%E6%8E%A7%E5%88%B6%E5%B9%B3%E9%9D%A2%E2%80%94%E2%80%94LoopX/">【调研】长周期 Agent 控制平面——LoopX</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/08/31/ai/%E3%80%90%E8%B0%83%E7%A0%94%E3%80%91WebMCP%EF%BC%9A%E8%AE%A9%E7%BD%91%E9%A1%B5%E6%8A%8A%E8%83%BD%E5%8A%9B%E4%BA%A4%E7%BB%99%20Agent/">【调研】WebMCP：让网页把能力交给 Agent</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/07/26/notes/OpenWorker%E6%8A%80%E6%9C%AF%E4%BB%8B%E7%BB%8D/">OpenWorker：当 AI 不再只是回答问题，而是交付成品</a></li><li class="post-list-item"><a class="post-list-link" href="/2026/07/05/ai/2026H1-AIGC%E7%A0%94%E5%8F%91%E5%B7%A5%E5%85%B7%E6%BC%94%E8%BF%9B%E8%B6%8B%E5%8A%BF/">从 AI Coding 到 Agent Loop：2026 H1 研发工具演进趋势</a></li></ul></div></div><div class="recent-comment widget"><h3 class="widget-title"> Author</h3><div class="widget-content"><div class="m-author"><div class="u-avatar"><img src="data:image/jpeg;base64,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"></div><div class="u-author_tit"><p>My name is Micheal Wayne and this is my blog.<br/>I am a front-end software engineer.<br/>Contact: <a href="mailto:michealwayne@163.com"> <span>michealwayne@163.com</span></a></p></div></div></div></div><div class="tag-lists widget"><h3 class="widget-title"> 标签</h3><div class="widget-content"><ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/APM/" rel="tag">APM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Agent/" rel="tag">Agent</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BOM/" rel="tag">BOM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Bun/" rel="tag">Bun</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/DOM/" rel="tag">DOM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/GEO/" rel="tag">GEO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTML/" rel="tag">HTML</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/IDE/" rel="tag">IDE</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OKR/" rel="tag">OKR</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SEO/" rel="tag">SEO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UML/" rel="tag">UML</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/UX/" rel="tag">UX</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Web/" rel="tag">Web</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WebApi/" rel="tag">WebApi</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WebSocket/" rel="tag">WebSocket</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zepto/" rel="tag">Zepto</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ai/" rel="tag">ai</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/canvas/" rel="tag">canvas</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/" rel="tag">css</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/es/" rel="tag">es</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/es6/" rel="tag">es6</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/eslint/" rel="tag">eslint</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/" rel="tag">git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gpt/" rel="tag">gpt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/html5/" rel="tag">html5</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/" rel="tag">http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jQuery/" rel="tag">jQuery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/" rel="tag">js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lerna/" rel="tag">lerna</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lottie/" rel="tag">lottie</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/" rel="tag">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/" rel="tag">nodejs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prettier/" rel="tag">prettier</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/prompt/" rel="tag">prompt</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pwa/" rel="tag">pwa</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/" rel="tag">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/" rel="tag">react</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sketch/" rel="tag">sketch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/skywalking/" rel="tag">skywalking</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/taro/" rel="tag">taro</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/tslint/" rel="tag">tslint</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/typescript/" rel="tag">typescript</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue/" rel="tag">vue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webApi/" rel="tag">webApi</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpack/" rel="tag">webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%BB%A3%E7%A0%81%E8%A7%84%E8%8C%83/" rel="tag">代码规范</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%89%8D%E7%AB%AF/" rel="tag">前端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8A%A8%E6%95%88/" rel="tag">动效</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9B%BE%E5%BD%A2/" rel="tag">图形</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%89%E5%85%A8/" rel="tag">安全</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B0%8F%E7%A8%8B%E5%BA%8F/" rel="tag">小程序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B7%A5%E5%85%B7/" rel="tag">工具</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B7%A5%E7%A8%8B/" rel="tag">工程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BC%80%E6%BA%90/" rel="tag">开源</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BE%AE%E5%89%8D%E7%AB%AF/" rel="tag">微前端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%80%9D%E7%BB%B4%E9%80%BB%E8%BE%91/" rel="tag">思维逻辑</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%80%A7%E8%83%BD/" rel="tag">性能</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8F%92%E4%BB%B6/" rel="tag">插件</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%97%A5%E5%B8%B8%E5%B7%A5%E4%BD%9C/" rel="tag">日常工作</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9E%B6%E6%9E%84/" rel="tag">架构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%A6%82%E5%BF%B5/" rel="tag">概念</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AD%A3%E5%88%99/" rel="tag">正则</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%8F%E8%A7%88%E5%99%A8/" rel="tag">浏览器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%94%A8%E6%88%B7%E4%BD%93%E9%AA%8C/" rel="tag">用户体验</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AC%94%E8%AE%B0/" rel="tag">笔记</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BC%96%E7%A0%81/" rel="tag">编码</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AE/" rel="tag">网络协议</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A7%84%E8%8C%83/" rel="tag">规范</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">设计模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%B0%83%E8%AF%95/" rel="tag">调试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%B4%A8%E9%87%8F/" rel="tag">质量</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%B7%A8%E7%AB%AF/" rel="tag">跨端</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AF%E4%BB%B6/" rel="tag">软件</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/" rel="tag">软件工程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%A1%B9%E7%9B%AE%E7%AE%A1%E7%90%86/" rel="tag">项目管理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%AB%98%E5%B9%B6%E5%8F%91/" rel="tag">高并发</a></li></ul></div></div><div class="archive-lists widget"><h3 class="widget-title"> 归档</h3><div class="widget-content"><ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/09/">九月 2026</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/08/">八月 2026</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/07/">七月 2026</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/06/">六月 2026</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/05/">五月 2026</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/04/">四月 2026</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/03/">三月 2026</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/02/">二月 2026</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/01/">一月 2026</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/12/">十二月 2025</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/11/">十一月 2025</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/10/">十月 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/09/">九月 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/08/">八月 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/06/">六月 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/05/">五月 2025</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/04/">四月 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/03/">三月 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">二月 2025</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/01/">一月 2025</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/12/">十二月 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/11/">十一月 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/09/">九月 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/08/">八月 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/07/">七月 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/06/">六月 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/05/">五月 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/04/">四月 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/03/">三月 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">二月 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/01/">一月 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/12/">十二月 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/11/">十一月 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/10/">十月 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/09/">九月 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/08/">八月 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/07/">七月 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">六月 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/03/">三月 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">一月 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/12/">十二月 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">十一月 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/10/">十月 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/09/">九月 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/08/">八月 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/07/">七月 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/05/">五月 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/04/">四月 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">三月 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/02/">二月 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/05/">五月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">三月 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">二月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">一月 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">十一月 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">十月 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">九月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">八月 2020</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">七月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">六月 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">一月 2020</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">八月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">五月 2019</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/12/">十二月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">十一月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">十月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">七月 2018</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">六月 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">一月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">十一月 2017</a><span class="archive-list-count">5</span></li></ul></div></div></div></div></main><footer role="contentinfo"><div class="copyright"><div class="container"><div class="col-6"><div class="site-info">© 2016 - 2026 <a href="https://blog.michealwayne.cn">Wayne</a></div></div><div class="col-6"><div class="site-contact"><div class="social-links"><ul><li class="social-link"><a class="link-github" href="https://github.com/MichealWayne" target="_blank" rel="noopener noreferrer" aria-label="github（在新窗口打开）"><i class="icon icon-github" aria-hidden="true"></i></a></li><li class="social-link"><a class="link-mail" href="mailto:michealwayne@163.com" target="_self" aria-label="mail"><i class="icon icon-mail" aria-hidden="true"></i></a></li></ul></div></div></div></div></div></footer><button class="scroll-up" type="button" aria-label="返回页面顶部"><span class="icon icon-up"></span></button><script src="/js/utils.js"></script><script src="/js/theme.js"></script><script src="/js/search.js"></script><script src="/js/content-enhancements.js"></script></body></html>
