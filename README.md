@@ -1,6 +1,6 @@
 # Wayne 的博客
 
-一个长期维护的前端技术博客，记录前端工程、JavaScript、React、Web API、AI Coding、工具链、软件设计与读书笔记。
+一个长期维护的技术博客，记录AI、前端工程、JavaScript、React、Web API、AI Coding、工具链、软件设计与读书笔记。
 
 ## 在线访问
 
